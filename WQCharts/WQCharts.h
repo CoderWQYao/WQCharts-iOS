@@ -1,9 +1,10 @@
+// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-//  aabb.h
-//  aabb
+// WQCharts.h
+// WQCharts
 //
-//  Created by 姚伟祺 on 2020/3/6.
-//  Copyright © 2020 wq.charts. All rights reserved.
+// Created by WQ.Yao on 2020/01/02.
+// Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
 #import <Foundation/Foundation.h>

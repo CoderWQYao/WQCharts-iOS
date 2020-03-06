@@ -1,9 +1,10 @@
+// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-//  Demo-Ojbc-prefix.pch
-//  WQCharts
+// WQCharts-prefix.pch
+// WQCharts
 //
-//  Created by 姚伟祺 on 2020/1/13.
-//  Copyright © 2020 CocoaPods. All rights reserved.
+// Created by WQ.Yao on 2020/01/02.
+// Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
 #ifndef Demo_Ojbc_prefix_h

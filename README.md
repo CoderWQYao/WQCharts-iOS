@@ -7,25 +7,41 @@
 
 * WQCharts is a powerful & easy to use chart library for iOS
 
-## Example
+## Usage
 
-To run the example project, clone the repo, and run `pod install` from the Example directory first.
+### Using ChartView
 
-## Requirements
-
-## Installation
-
-WQCharts is available through [CocoaPods](https://cocoapods.org). To install
-it, simply add the following line to your Podfile:
-
-```ruby
-pod 'WQCharts'
+```objective-c
+    // Set chart parameters
+    chartView.chart.padding = padding;
+    chartView.chart.items = items;
+    // ...
+    [chartView redraw];
 ```
 
-## Author
+```swift
+    // Set Chart parameters
+    chartView.chart.padding = padding;
+    chartView.chart.items = items;
+    // ...
+    chartView.redraw()
+```
 
-WQ.Yao
+### Using Chart
 
-## License
+```objective-c
+    // Set Chart parameters
+    chart.padding = padding;
+    chart.items = items;
+    // Draw Chart in CGContext
+    [chart drawRect:rect inContext:context];
+```
 
-WQCharts is available under the MIT license. See the LICENSE file for more info.
+```swift
+    // Set Chart parameters
+    chart.padding = padding;
+    chart.items = items;
+    // Draw Chart in CGContext
+    chart.draw(rect, context)
+```
+

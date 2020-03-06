@@ -1,0 +1,33 @@
+//
+//  Demo-Ojbc-prefix.pch
+//  WQCharts
+//
+//  Created by 姚伟祺 on 2020/1/13.
+//  Copyright © 2020 CocoaPods. All rights reserved.
+//
+
+#ifndef Demo_Ojbc_prefix_h
+#define Demo_Ojbc_prefix_h
+
+#import <WQCharts/WQCharts-Swift.h>
+#import "UIColor+WQCharts.h"
+
+#define Color_Block_BG ColorHex(@"#1f2023")
+#define Color_Block_Card ColorHex(@"#2c2d2f")
+#define Color_White ColorHex(@"#FFFFFF")
+#define Color_White ColorHex(@"#FFFFFF")
+
+#define Color_Blue ColorHex(@"#007aff")
+#define Color_Purple ColorHex(@"#a550a7")
+#define Color_Pink ColorHex(@"#f74f9e")
+#define Color_Red ColorHex(@"#ff5257")
+#define Color_Orange ColorHex(@"#f7821b")
+#define Color_Yellow ColorHex(@"#fcb827")
+#define Color_Green ColorHex(@"#62ba46")
+#define Color_Gray ColorHex(@"#8c8c8c")
+
+#define Color_Tint Color_Blue
+#define Colors @[Color_Purple,Color_Pink,Color_Red,Color_Orange,Color_Yellow,Color_Green,Color_Gray]
+
+
+#endif /* Demo_Ojbc_prefix_h */

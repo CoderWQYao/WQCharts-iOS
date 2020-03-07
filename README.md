@@ -69,7 +69,8 @@ import WQCharts
 ## Architecture
 
 ### Chart Class Diagram
-![Chart Class Diagram](http://https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ChartClassDiagram.jpg)
+![Chart Class Diagram](https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ChartClassDiagram.jpg)
 
 ### View Class Diagram
-![View Class Diagram](http://https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ViewClassDiagram.jpg)
+![View Class Diagram](https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ViewClassDiagram.jpg)
+

@@ -30,7 +30,7 @@ import WQCharts
 ### Using ChartView
 
 * Objective-C
-```objective-c
+```objc
     // Set chart parameters
     chartView.chart.padding = padding;
     chartView.chart.items = items;
@@ -50,7 +50,7 @@ import WQCharts
 ### Using Chart
 
 * Objective-C
-```objective-c
+```objc
     // Set Chart parameters
     chart.padding = padding;
     chart.items = items;

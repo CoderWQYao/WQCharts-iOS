@@ -1,6 +1,5 @@
 # WQCharts
 
-[![CI Status](https://img.shields.io/travis/wqcoder@gmail.com/WQCharts.svg?style=flat)](https://travis-ci.org/wqcoder@gmail.com/WQCharts)
 [![Version](https://img.shields.io/cocoapods/v/WQCharts.svg?style=flat)](https://cocoapods.org/pods/WQCharts)
 [![License](https://img.shields.io/cocoapods/l/WQCharts.svg?style=flat)](https://cocoapods.org/pods/WQCharts)
 [![Platform](https://img.shields.io/cocoapods/p/WQCharts.svg?style=flat)](https://cocoapods.org/pods/WQCharts)
@@ -9,11 +8,19 @@
 
 ## Installation
 There are four ways to use WQCharts in your project:
+
 ### Installation with CocoaPods
 ```
 pod 'WQCharts'
 ```
-### Import 
+
+### Installation with Swift Package Manager (Xcode 11+)
+
+[Swift Package Manager](https://swift.org/package-manager/) (SwiftPM) is a tool for managing the distribution of Swift code as well as C-family dependency. From Xcode 11, SwiftPM got natively integrated with Xcode.
+
+WQCharts support SwiftPM from version 5.1.0. To use SwiftPM, you should use Xcode 11 to open your project. Click `File` -> `Swift Packages` -> `Add Package Dependency`, enter [WQCharts repo's URL](https://github.com/CoderWQYao/WQCharts-iOS.git). Or you can login Xcode with your GitHub account and just type `WQCharts` to search.
+
+### Import
 
 * Objective-C
 ```objective-c
@@ -73,4 +80,3 @@ import WQCharts
 
 ### View Class Diagram
 ![View Class Diagram](https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ViewClassDiagram.jpg)
-

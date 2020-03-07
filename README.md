@@ -66,4 +66,10 @@ import WQCharts
     // Draw Chart in CGContext
     chart.draw(rect, context)
 ```
+## Architecture
 
+### Chart Class Diagram
+![Chart Class Diagram](http://https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ChartClassDiagram.jpg)
+
+### View Class Diagram
+![View Class Diagram](http://https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ViewClassDiagram.jpg)

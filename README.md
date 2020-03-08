@@ -85,6 +85,6 @@ import WQCharts
 
 ![WQCharts_Polygon](http://appdata.cc/WQCharts_Polygon.gif)
 ![WQCharts_Pie](http://appdata.cc/WQCharts_Pie.gif)
-![WQCharts_Axis](http://appdata.cc/WQCharts_Axis.giff)
+![WQCharts_Axis](http://appdata.cc/WQCharts_Axis.gif)
 ![WQCharts_Bar](http://appdata.cc/WQCharts_Bar.gif)
 ![WQCharts_Biz](http://appdata.cc/WQCharts_Biz.gif)

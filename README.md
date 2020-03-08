@@ -76,7 +76,15 @@ import WQCharts
 ## Architecture
 
 ### Chart Class Diagram
-![Chart Class Diagram](https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ChartClassDiagram.jpg)
+![Chart Class Diagram](http://appdata.cc/WQCharts_ChartDiagram.png)
 
 ### View Class Diagram
-![View Class Diagram](https://raw.githubusercontent.com/CoderWQYao/WQCharts-iOS/master/Docs/WQCharts_ViewClassDiagram.jpg)
+![View Class Diagram](http://appdata.cc/WQCharts_ViewDiagram.png)
+
+## Examples
+
+![WQCharts_Polygon](http://appdata.cc/WQCharts_Polygon.gif)
+![WQCharts_Pie](http://appdata.cc/WQCharts_Pie.gif)
+![WQCharts_Axis](http://appdata.cc/WQCharts_Axis.giff)
+![WQCharts_Bar](http://appdata.cc/WQCharts_Bar.gif)
+![WQCharts_Biz](http://appdata.cc/WQCharts_Biz.gif)

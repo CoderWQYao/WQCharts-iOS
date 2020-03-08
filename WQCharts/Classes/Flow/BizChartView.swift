@@ -1,6 +1,6 @@
 // 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-// FlowChartView.swift
+// BizChartView.swift
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
@@ -10,46 +10,46 @@
 import UIKit
 
 /// 流式图表适配器
-@objc(WQFlowChartViewAdapter)
-public protocol FlowChartViewAdapter {
+@objc(WQBizChartViewAdapter)
+public protocol BizChartViewAdapter {
     
     /// 返回行数
-    @objc(numberOfRowsInHorizontalFlowChartView:)
-    func getRowCount(_ flowChartView: FlowChartView) -> Int
+    @objc(numberOfRowsInHorizontalBizChartView:)
+    func getRowCount(_ BizChartView: BizChartView) -> Int
     
     /// 返回行
-    @objc(flowChartView:rowAtIndex:)
-    func getRow(_ flowChartView: FlowChartView, _ index: Int) -> FlowChartView.Row
+    @objc(BizChartView:rowAtIndex:)
+    func getRow(_ BizChartView: BizChartView, _ index: Int) -> BizChartView.Row
 
     /// 分布行
-    @objc(flowChartView:distributionForRow:atIndex:)
-    optional func distributeRow(_ flowChartView: FlowChartView, _ distribution: FlowDistribution, _ index: Int)
+    @objc(BizChartView:distributionForRow:atIndex:)
+    optional func distributeRow(_ BizChartView: BizChartView, _ distribution: BizDistribution, _ index: Int)
     
     /// 绘制行
-    @objc(flowChartView:drawRowAtIndex:inContext:)
-    optional func drawRow(_ flowChartView: FlowChartView, _ index: Int, _ context: CGContext)
+    @objc(BizChartView:drawRowAtIndex:inContext:)
+    optional func drawRow(_ BizChartView: BizChartView, _ index: Int, _ context: CGContext)
 
-    @objc(flowChartViewWillDraw:inContext:)
-    optional func willDraw(_ flowChartView: FlowChartView, _ context: CGContext)
+    @objc(BizChartViewWillDraw:inContext:)
+    optional func willDraw(_ BizChartView: BizChartView, _ context: CGContext)
     
-    @objc(flowChartViewDidDraw:inContext:)
-    optional func didDraw(_ flowChartView: FlowChartView, _ context: CGContext)
+    @objc(BizChartViewDidDraw:inContext:)
+    optional func didDraw(_ BizChartView: BizChartView, _ context: CGContext)
       
 }
 
-@objc(WQFlowChartViewDistributionRow)
-public protocol FlowChartViewDistributionRow {
+@objc(WQBizChartViewDistributionRow)
+public protocol BizChartViewDistributionRow {
    
-    @objc func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> FlowDistribution
+    @objc func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> BizDistribution
     
 }
 
 /// 流式图表
-@objc(WQFlowChartView)
-open class FlowChartView: ScrollChartView {
+@objc(WQBizChartView)
+open class BizChartView: ScrollChartView {
     
     /// 表示流式图表中的行
-    @objc(WQFlowChartViewRow)
+    @objc(WQBizChartViewRow)
     open class Row: NSObject {
         
         /// 行宽。如果是水平方向分布，则表示在视图空间的高度，否则表示在视图空间的宽度
@@ -88,7 +88,7 @@ open class FlowChartView: ScrollChartView {
     }
     
     /// 适配器
-    @objc open weak var adapter: FlowChartViewAdapter? {
+    @objc open weak var adapter: BizChartViewAdapter? {
         didSet {
             reloadData()
         }
@@ -199,7 +199,7 @@ open class FlowChartView: ScrollChartView {
                 row.rect = rowRect
                 
                 if contentBounds.intersects(rowRect) {
-                    if let distributionRow = row as? FlowChartViewDistributionRow {
+                    if let distributionRow = row as? BizChartViewDistributionRow {
                         if let distributeRow = adapter.distributeRow {
                             let distribution = distributionRow.distribute(distributionLowerBound, distributionUpperBound)
                             distributeRow(self, distribution, i)

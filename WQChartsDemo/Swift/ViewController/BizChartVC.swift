@@ -1,6 +1,6 @@
 // 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-// FlowChartVC.swift
+// BizChartVC.swift
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
@@ -9,24 +9,24 @@
 
 import UIKit
 
-class FlowChartData {
+class BizChartData {
     var barValue = CGFloat(0)
     var lineValue = CGFloat(0)
     var lineValue2 = CGFloat(0)
 }
 
-class FlowChartItem {
+class BizChartItem {
     
     var charts: [Chart]
-    var datas: [FlowChartData]
+    var datas: [BizChartData]
     
-    init(_ charts: [Chart], _ datas: [FlowChartData]) {
+    init(_ charts: [Chart], _ datas: [BizChartData]) {
         self.charts = charts
         self.datas = datas
     }
 }
 
-class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
+class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
     
     let barWidth: CGFloat
     let barWidthHalf: CGFloat
@@ -166,7 +166,7 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
         self.chartView.frame = chartContainer.bounds
     }
     
-    func createItem() -> FlowChartItem  {
+    func createItem() -> BizChartItem  {
         let charts = NSMutableArray()
         
         charts.add(AxisChart())
@@ -182,13 +182,13 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
         lineChart2.linePaint?.color = Color_Orange
         charts.add(lineChart2)
         
-        return FlowChartItem(charts as! [Chart], createDatas())
+        return BizChartItem(charts as! [Chart], createDatas())
     }
     
-    func createDatas() -> [FlowChartData] {
+    func createDatas() -> [BizChartData] {
         let datas = NSMutableArray()
         for _ in 0..<dataCount {
-            let data = FlowChartData()
+            let data = BizChartData()
             data.barValue = CGFloat(arc4random() % UInt32((maxDataValue + 1)))
             // 让线段不顶边
             let lineMaxValue = maxDataValue * 0.8
@@ -196,10 +196,10 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
             data.lineValue2 = CGFloat(arc4random() % UInt32(lineMaxValue + 1)) + (maxDataValue - lineMaxValue) / 2
             datas.add(data)
         }
-        return (datas as! [FlowChartData])
+        return (datas as! [BizChartData])
     }
     
-    func createRowCell(_ item: FlowChartItem, _ index: Int) -> SectionCell {
+    func createRowCell(_ item: BizChartItem, _ index: Int) -> SectionCell {
         return SectionCell()
             .setObject(item)
             .setTitle(String(format: "Row%ld", index))
@@ -207,7 +207,7 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
                 guard let self = self else {
                     return
                 }
-                let item = cell.object as! FlowChartItem
+                let item = cell.object as! BizChartItem
                 item.datas = self.createDatas()
                 self.chartView.redraw()
             })
@@ -268,24 +268,24 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
         chartView.redraw()
     }
     
-    // MARK: - FlowChartViewAdapter
+    // MARK: - BizChartViewAdapter
     
-    func getRowCount(_ flowChartView: FlowChartView) -> Int {
+    func getRowCount(_ BizChartView: BizChartView) -> Int {
         return items.count
     }
     
-    func getRow(_ flowChartView: FlowChartView, _ index: Int) -> FlowChartView.Row {
-        let rowWidth = min(flowChartView.bounds.width, flowChartView.bounds.height) / 3
+    func getRow(_ BizChartView: BizChartView, _ index: Int) -> BizChartView.Row {
+        let rowWidth = min(BizChartView.bounds.width, BizChartView.bounds.height) / 3
         if radioCellSelectionForKey("DistributionMode") != 0 {
-            let visiableCount = Int((flowChartView.bounds.size.width - flowChartView.padding.left - flowChartView.padding.right) / (barWidth + 2))
+            let visiableCount = Int((BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (barWidth + 2))
             return FixedVisiableCountDistributionRow(rowWidth, visiableCount, dataCount)
         } else {
             return FixedItemSpacingDistributionRow(rowWidth, barWidth + 2, dataCount)
         }
     }
     
-    func distributeRow(_ flowChartView: FlowChartView, _ distribution: FlowDistribution, _ index: Int) {
-        let item = items[index] as! FlowChartItem
+    func distributeRow(_ BizChartView: BizChartView, _ distribution: BizDistribution, _ index: Int) {
+        let item = items[index] as! BizChartItem
         let axisChart = item.charts[0] as! AxisChart
         let barChart = item.charts[1] as! BarChart
         let lineChart = item.charts[2] as! LineChart
@@ -359,13 +359,13 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
     }
     
     
-    // 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、flowChartView.contentOffset算出。
-    // 需要显示上的调整修改FlowChartView.padding、Axis.rect、Context.clip等即可
-    func drawRow(_ flowChartView: FlowChartView, _ index: Int, _ context: CGContext) {
-        let row = flowChartView.rows![index]
+    // 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
+    // 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
+    func drawRow(_ BizChartView: BizChartView, _ index: Int, _ context: CGContext) {
+        let row = BizChartView.rows![index]
         let rect = row.rect
         
-        let item = items[index] as! FlowChartItem
+        let item = items[index] as! BizChartItem
         let axisChart = item.charts[0] as! AxisChart
         let barChart = item.charts[1] as! BarChart
         let lineChart = item.charts[2] as! LineChart
@@ -391,11 +391,11 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
         axisChart.drawText(axisGraphic, context)
     }
     
-    func willDraw(_ flowChartView: FlowChartView, _ context: CGContext) {
-        self.barGraphics = NSMutableArray(capacity: flowChartView.rows?.count ?? 0)
+    func willDraw(_ BizChartView: BizChartView, _ context: CGContext) {
+        self.barGraphics = NSMutableArray(capacity: BizChartView.rows?.count ?? 0)
     }
     
-    func didDraw(_ flowChartView: FlowChartView, _ context: CGContext) {
+    func didDraw(_ BizChartView: BizChartView, _ context: CGContext) {
         guard let touchLocation = touchLocation,
             let barGraphics = barGraphics as? [BarGraphic],
             let firstBarGraphic = barGraphics.first,
@@ -414,7 +414,7 @@ class FlowChartVC: BaseChartVC<FlowChartView>, FlowChartViewAdapter {
         
         context.saveGState()
         
-        let bounds = flowChartView.bounds
+        let bounds = BizChartView.bounds
         let stringX = nearestBarGraphicItem.stringStart.x
         
         context.move(to: CGPoint(x: stringX, y: bounds.minY))

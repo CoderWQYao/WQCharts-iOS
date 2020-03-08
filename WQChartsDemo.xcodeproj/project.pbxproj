@@ -22,7 +22,7 @@
 		8183B9D524121A9300B38E40 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9BD24121A9300B38E40 /* AppDelegate.swift */; };
 		8183B9D624121A9300B38E40 /* PieChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9BF24121A9300B38E40 /* PieChartVC.swift */; };
 		8183B9D724121A9300B38E40 /* LineChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C024121A9300B38E40 /* LineChartVC.swift */; };
-		8183B9D824121A9300B38E40 /* FlowChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C124121A9300B38E40 /* FlowChartVC.swift */; };
+		8183B9D824121A9300B38E40 /* BizChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C124121A9300B38E40 /* BizChartVC.swift */; };
 		8183B9D924121A9300B38E40 /* RadarChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C224121A9300B38E40 /* RadarChartVC.swift */; };
 		8183B9DA24121A9300B38E40 /* BarLineChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C324121A9300B38E40 /* BarLineChartVC.swift */; };
 		8183B9DB24121A9300B38E40 /* BaseChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C424121A9300B38E40 /* BaseChartVC.swift */; };
@@ -44,7 +44,7 @@
 		8183BA6D24121C5600B38E40 /* BarLineChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5024121C5600B38E40 /* BarLineChartVC.m */; };
 		8183BA6E24121C5600B38E40 /* MainVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5124121C5600B38E40 /* MainVC.m */; };
 		8183BA6F24121C5600B38E40 /* PolygonChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5424121C5600B38E40 /* PolygonChartVC.m */; };
-		8183BA7024121C5600B38E40 /* FlowChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5A24121C5600B38E40 /* FlowChartVC.m */; };
+		8183BA7024121C5600B38E40 /* BizChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5A24121C5600B38E40 /* BizChartVC.m */; };
 		8183BA7124121C5600B38E40 /* LineChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5D24121C5600B38E40 /* LineChartVC.m */; };
 		8183BA7224121C5600B38E40 /* BarChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5E24121C5600B38E40 /* BarChartVC.m */; };
 		8183BA7324121C5600B38E40 /* BaseChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5F24121C5600B38E40 /* BaseChartVC.m */; };
@@ -98,7 +98,7 @@
 		8183B9BD24121A9300B38E40 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8183B9BF24121A9300B38E40 /* PieChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PieChartVC.swift; sourceTree = "<group>"; };
 		8183B9C024121A9300B38E40 /* LineChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartVC.swift; sourceTree = "<group>"; };
-		8183B9C124121A9300B38E40 /* FlowChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlowChartVC.swift; sourceTree = "<group>"; };
+		8183B9C124121A9300B38E40 /* BizChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BizChartVC.swift; sourceTree = "<group>"; };
 		8183B9C224121A9300B38E40 /* RadarChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadarChartVC.swift; sourceTree = "<group>"; };
 		8183B9C324121A9300B38E40 /* BarLineChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarLineChartVC.swift; sourceTree = "<group>"; };
 		8183B9C424121A9300B38E40 /* BaseChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseChartVC.swift; sourceTree = "<group>"; };
@@ -123,7 +123,7 @@
 		8183BA4924121C5600B38E40 /* RadioCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RadioCell.h; sourceTree = "<group>"; };
 		8183BA4A24121C5600B38E40 /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AppDelegate.m; sourceTree = "<group>"; };
 		8183BA4B24121C5600B38E40 /* UIColor+WQCharts.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIColor+WQCharts.h"; sourceTree = "<group>"; };
-		8183BA4D24121C5600B38E40 /* FlowChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = FlowChartVC.h; sourceTree = "<group>"; };
+		8183BA4D24121C5600B38E40 /* BizChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BizChartVC.h; sourceTree = "<group>"; };
 		8183BA4E24121C5600B38E40 /* PieChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieChartVC.m; sourceTree = "<group>"; };
 		8183BA4F24121C5600B38E40 /* RadialChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RadialChartVC.m; sourceTree = "<group>"; };
 		8183BA5024121C5600B38E40 /* BarLineChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarLineChartVC.m; sourceTree = "<group>"; };
@@ -136,7 +136,7 @@
 		8183BA5724121C5600B38E40 /* AxisChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AxisChartVC.h; sourceTree = "<group>"; };
 		8183BA5824121C5600B38E40 /* PieChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PieChartVC.h; sourceTree = "<group>"; };
 		8183BA5924121C5600B38E40 /* RadialChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RadialChartVC.h; sourceTree = "<group>"; };
-		8183BA5A24121C5600B38E40 /* FlowChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = FlowChartVC.m; sourceTree = "<group>"; };
+		8183BA5A24121C5600B38E40 /* BizChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BizChartVC.m; sourceTree = "<group>"; };
 		8183BA5B24121C5600B38E40 /* MainVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainVC.h; sourceTree = "<group>"; };
 		8183BA5C24121C5600B38E40 /* BarLineChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarLineChartVC.h; sourceTree = "<group>"; };
 		8183BA5D24121C5600B38E40 /* LineChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineChartVC.m; sourceTree = "<group>"; };
@@ -240,7 +240,7 @@
 				8183B9C724121A9300B38E40 /* BarChartVC.swift */,
 				8183B9C324121A9300B38E40 /* BarLineChartVC.swift */,
 				8183B9C424121A9300B38E40 /* BaseChartVC.swift */,
-				8183B9C124121A9300B38E40 /* FlowChartVC.swift */,
+				8183B9C124121A9300B38E40 /* BizChartVC.swift */,
 				8183B9C024121A9300B38E40 /* LineChartVC.swift */,
 				8183B9C924121A9300B38E40 /* MainVC.swift */,
 				8183B9BF24121A9300B38E40 /* PieChartVC.swift */,
@@ -294,8 +294,8 @@
 				8183BA5024121C5600B38E40 /* BarLineChartVC.m */,
 				8183BA5624121C5600B38E40 /* BaseChartVC.h */,
 				8183BA5F24121C5600B38E40 /* BaseChartVC.m */,
-				8183BA4D24121C5600B38E40 /* FlowChartVC.h */,
-				8183BA5A24121C5600B38E40 /* FlowChartVC.m */,
+				8183BA4D24121C5600B38E40 /* BizChartVC.h */,
+				8183BA5A24121C5600B38E40 /* BizChartVC.m */,
 				8183BA5324121C5600B38E40 /* LineChartVC.h */,
 				8183BA5D24121C5600B38E40 /* LineChartVC.m */,
 				8183BA5B24121C5600B38E40 /* MainVC.h */,
@@ -426,7 +426,7 @@
 				8183B9DA24121A9300B38E40 /* BarLineChartVC.swift in Sources */,
 				8183B9D024121A9300B38E40 /* StyleView.swift in Sources */,
 				8183B9DD24121A9300B38E40 /* AxisChartVC.swift in Sources */,
-				8183B9D824121A9300B38E40 /* FlowChartVC.swift in Sources */,
+				8183B9D824121A9300B38E40 /* BizChartVC.swift in Sources */,
 				8183B9CD24121A9300B38E40 /* UIColor.swift in Sources */,
 				8183B9D424121A9300B38E40 /* SliderCell.swift in Sources */,
 				8183B9DB24121A9300B38E40 /* BaseChartVC.swift in Sources */,
@@ -455,7 +455,7 @@
 				8183BA6A24121C5600B38E40 /* AppDelegate.m in Sources */,
 				8183BA6424121C5600B38E40 /* main.m in Sources */,
 				8183BA6924121C5600B38E40 /* RadioCell.m in Sources */,
-				8183BA7024121C5600B38E40 /* FlowChartVC.m in Sources */,
+				8183BA7024121C5600B38E40 /* BizChartVC.m in Sources */,
 				8183BA6C24121C5600B38E40 /* RadialChartVC.m in Sources */,
 				8183BA6324121C5600B38E40 /* UIColor+WQCharts.m in Sources */,
 				8183BA7224121C5600B38E40 /* BarChartVC.m in Sources */,

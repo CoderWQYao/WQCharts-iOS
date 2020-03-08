@@ -61,11 +61,11 @@
 		8183B9492411F94200B38E40 /* BarChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B90C2411F94200B38E40 /* BarChart.swift */; };
 		8183B94A2411F94200B38E40 /* BarGraphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B90D2411F94200B38E40 /* BarGraphic.swift */; };
 		8183B94B2411F94200B38E40 /* BarChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B90E2411F94200B38E40 /* BarChartView.swift */; };
-		8183B94C2411F94200B38E40 /* FlowChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9102411F94200B38E40 /* FlowChartView.swift */; };
+		8183B94C2411F94200B38E40 /* BizChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9102411F94200B38E40 /* BizChartView.swift */; };
 		8183B94D2411F94200B38E40 /* FixedItemSpacingDistributionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9112411F94200B38E40 /* FixedItemSpacingDistributionRow.swift */; };
-		8183B94E2411F94200B38E40 /* FlowDistributionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9122411F94200B38E40 /* FlowDistributionItem.swift */; };
+		8183B94E2411F94200B38E40 /* BizDistributionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9122411F94200B38E40 /* BizDistributionItem.swift */; };
 		8183B94F2411F94200B38E40 /* FixedVisiableCountDistributionRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9132411F94200B38E40 /* FixedVisiableCountDistributionRow.swift */; };
-		8183B9502411F94200B38E40 /* FlowDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9142411F94200B38E40 /* FlowDistribution.swift */; };
+		8183B9502411F94200B38E40 /* BizDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9142411F94200B38E40 /* BizDistribution.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -125,11 +125,11 @@
 		8183B90C2411F94200B38E40 /* BarChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarChart.swift; sourceTree = "<group>"; };
 		8183B90D2411F94200B38E40 /* BarGraphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarGraphic.swift; sourceTree = "<group>"; };
 		8183B90E2411F94200B38E40 /* BarChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarChartView.swift; sourceTree = "<group>"; };
-		8183B9102411F94200B38E40 /* FlowChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlowChartView.swift; sourceTree = "<group>"; };
+		8183B9102411F94200B38E40 /* BizChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BizChartView.swift; sourceTree = "<group>"; };
 		8183B9112411F94200B38E40 /* FixedItemSpacingDistributionRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FixedItemSpacingDistributionRow.swift; sourceTree = "<group>"; };
-		8183B9122411F94200B38E40 /* FlowDistributionItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlowDistributionItem.swift; sourceTree = "<group>"; };
+		8183B9122411F94200B38E40 /* BizDistributionItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BizDistributionItem.swift; sourceTree = "<group>"; };
 		8183B9132411F94200B38E40 /* FixedVisiableCountDistributionRow.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FixedVisiableCountDistributionRow.swift; sourceTree = "<group>"; };
-		8183B9142411F94200B38E40 /* FlowDistribution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlowDistribution.swift; sourceTree = "<group>"; };
+		8183B9142411F94200B38E40 /* BizDistribution.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BizDistribution.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -321,11 +321,11 @@
 		8183B90F2411F94200B38E40 /* Flow */ = {
 			isa = PBXGroup;
 			children = (
-				8183B9102411F94200B38E40 /* FlowChartView.swift */,
+				8183B9102411F94200B38E40 /* BizChartView.swift */,
 				8183B9112411F94200B38E40 /* FixedItemSpacingDistributionRow.swift */,
-				8183B9122411F94200B38E40 /* FlowDistributionItem.swift */,
+				8183B9122411F94200B38E40 /* BizDistributionItem.swift */,
 				8183B9132411F94200B38E40 /* FixedVisiableCountDistributionRow.swift */,
-				8183B9142411F94200B38E40 /* FlowDistribution.swift */,
+				8183B9142411F94200B38E40 /* BizDistribution.swift */,
 			);
 			path = Flow;
 			sourceTree = "<group>";
@@ -439,7 +439,7 @@
 				8183B92C2411F94200B38E40 /* PieGraphic.swift in Sources */,
 				8183B9402411F94200B38E40 /* CoordinateChartView.swift in Sources */,
 				8183B9272411F94200B38E40 /* PolygonChartItem.swift in Sources */,
-				8183B9502411F94200B38E40 /* FlowDistribution.swift in Sources */,
+				8183B9502411F94200B38E40 /* BizDistribution.swift in Sources */,
 				8183B93C2411F94200B38E40 /* AxisChart.swift in Sources */,
 				8183B9252411F94200B38E40 /* RadialChartView.swift in Sources */,
 				8183B91A2411F94200B38E40 /* FillPaint.swift in Sources */,
@@ -456,7 +456,7 @@
 				8183B9342411F94200B38E40 /* RadarChartSegment.swift in Sources */,
 				8183B9312411F94200B38E40 /* RadialGraphic.swift in Sources */,
 				8183B9372411F94200B38E40 /* RadarChartPolygon.swift in Sources */,
-				8183B94C2411F94200B38E40 /* FlowChartView.swift in Sources */,
+				8183B94C2411F94200B38E40 /* BizChartView.swift in Sources */,
 				8183B93B2411F94200B38E40 /* AxisChartItem.swift in Sources */,
 				8183B9412411F94200B38E40 /* CoordinateChart.swift in Sources */,
 				8183B9262411F94200B38E40 /* RadialChart.swift in Sources */,
@@ -464,7 +464,7 @@
 				8183B94A2411F94200B38E40 /* BarGraphic.swift in Sources */,
 				8183B93D2411F94200B38E40 /* AxisGraphicItem.swift in Sources */,
 				8183B9232411F94200B38E40 /* Helper.swift in Sources */,
-				8183B94E2411F94200B38E40 /* FlowDistributionItem.swift in Sources */,
+				8183B94E2411F94200B38E40 /* BizDistributionItem.swift in Sources */,
 				8183B9382411F94200B38E40 /* RadarSegmentGraphic.swift in Sources */,
 				8183B9172411F94200B38E40 /* RadialGradientShader.swift in Sources */,
 				8183B91F2411F94200B38E40 /* ScrollChartView.swift in Sources */,

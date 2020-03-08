@@ -14,7 +14,7 @@
 #import "LineChartVC.h"
 #import "BarChartVC.h"
 #import "RadarChartVC.h"
-#import "FlowChartVC.h"
+#import "BizChartVC.h"
 
 @interface MainVC () <UITableViewDataSource,UITableViewDelegate>
 
@@ -94,7 +94,7 @@
             @{@"title":@"AxisChart",@"class":AxisChartVC.class},
             @{@"title":@"BarChart",@"class":BarChartVC.class},
             @{@"title":@"LineChart",@"class":LineChartVC.class},
-            @{@"title":@"FlowChart",@"class":FlowChartVC.class},
+            @{@"title":@"BizChart",@"class":BizChartVC.class},
         ];
         _datas = datas;
     }

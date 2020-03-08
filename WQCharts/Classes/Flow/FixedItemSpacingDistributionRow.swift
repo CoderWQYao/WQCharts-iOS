@@ -11,7 +11,7 @@ import UIKit
 
 /// 固定子项间距分布行
 @objc(WQFixedItemSpacingDistributionRow)
-open class FixedItemSpacingDistributionRow: FlowChartView.Row, FlowChartViewDistributionRow {
+open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistributionRow {
 
     @objc public let itemSpacing: CGFloat
     @objc public let itemCount: Int
@@ -28,8 +28,8 @@ open class FixedItemSpacingDistributionRow: FlowChartView.Row, FlowChartViewDist
     }
     
     
-    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> FlowDistribution {
-        let distribution = FlowDistribution()
+    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> BizDistribution {
+        let distribution = BizDistribution()
 
         let spacing = self.itemSpacing
         let start = lowerBound >= 0 && spacing > 0 ? lowerBound / spacing : 0
@@ -41,25 +41,25 @@ open class FixedItemSpacingDistributionRow: FlowChartView.Row, FlowChartViewDist
 
         let items = NSMutableArray(capacity: capacityInt)
         if startDecimal > 0 { // 超出范围的点
-            let item = FlowDistributionItem()
+            let item = BizDistributionItem()
             item.index = startInt - 1
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
         for i in 0..<capacityInt {
-            let item = FlowDistributionItem()
+            let item = BizDistributionItem()
             item.index = i + startInt
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
         if capacityDecimal > 0 && capacityInt + startInt < itemCount { // 超出范围的点
-            let item = FlowDistributionItem()
+            let item = BizDistributionItem()
             item.index = capacityInt + startInt
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
 
-        distribution.items = items as? [FlowDistributionItem]
+        distribution.items = items as? [BizDistributionItem]
         distribution.lowerBound = lowerBound
         distribution.upperBound = upperBound
         return distribution

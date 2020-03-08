@@ -12,7 +12,6 @@ import UIKit
 @objc(WQChartView)
 open class ChartView: UIView {
     
-    
     @objc
     open var padding = UIEdgeInsets.zero {
         didSet {

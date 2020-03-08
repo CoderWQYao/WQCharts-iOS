@@ -1,15 +1,15 @@
 // 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-// FlowChartVC.m
+// BizChartVC.m
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
 // Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
-#import "FlowChartVC.h"
+#import "BizChartVC.h"
 
-@interface FlowChartData: NSObject
+@interface BizChartData: NSObject
 
 @property (nonatomic) CGFloat lineValue;
 @property (nonatomic) CGFloat lineValue2;
@@ -17,21 +17,21 @@
 
 @end
 
-@implementation FlowChartData
+@implementation BizChartData
 
 @end
 
 
-@interface FlowChartItem: NSObject
+@interface BizChartItem: NSObject
 
 @property (nonatomic, strong) NSArray<id<WQChart>>* charts;
-@property (nonatomic, strong) NSArray<FlowChartData*>* datas;
+@property (nonatomic, strong) NSArray<BizChartData*>* datas;
 
 @end
 
-@implementation FlowChartItem
+@implementation BizChartItem
 
-- (instancetype)initWithCharts:(NSArray<id<WQChart>>*)charts datas:(NSArray<FlowChartData*>*)datas
+- (instancetype)initWithCharts:(NSArray<id<WQChart>>*)charts datas:(NSArray<BizChartData*>*)datas
 {
     self = [super init];
     if (self) {
@@ -43,7 +43,7 @@
 
 @end
 
-@interface FlowChartVC () <WQFlowChartViewAdapter>
+@interface BizChartVC () <WQBizChartViewAdapter>
 
 @property (nonatomic) CGFloat barWidth;
 @property (nonatomic) CGFloat barWidthHalf;
@@ -51,14 +51,14 @@
 @property (nonatomic) CGFloat maxDataValue;
 @property (nonatomic) UIEdgeInsets clipInset;
 
-@property (nonatomic, strong) WQFlowChartView* chartView;
-@property (nonatomic, strong) NSMutableArray<FlowChartItem*>* items;
+@property (nonatomic, strong) WQBizChartView* chartView;
+@property (nonatomic, strong) NSMutableArray<BizChartItem*>* items;
 @property (nonatomic, strong) NSMutableArray<WQBarGraphic*>* barGraphics;
 @property (nonatomic, strong) NSValue* touchLocation;
 
 @end
 
-@implementation FlowChartVC
+@implementation BizChartVC
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
@@ -128,15 +128,15 @@
     .setTitle(@"Rows")
     .setIsMutable(YES)
     .setOnAppend(^void(ListCell* cell) {
-        FlowChartItem* item = [weakSelf createItem];
+        BizChartItem* item = [weakSelf createItem];
         [weakSelf.items addObject:item];
-        [(WQFlowChartView*)weakSelf.chartView reloadData];
+        [(WQBizChartView*)weakSelf.chartView reloadData];
         
         cell.addItem([weakSelf createRowCellWithItem:item index:weakSelf.items.count - 1]);
         [weakSelf scrollToListCellForKey:@"Rows" atScrollPosition:ListViewScrollPositionBottom animated:YES];
     })
     .setOnRemove(^(ListCell* cell) {
-        NSMutableArray<FlowChartItem*>* items = weakSelf.items;
+        NSMutableArray<BizChartItem*>* items = weakSelf.items;
         NSInteger index = items.count - 1;
         if(index < 0) {
             return;
@@ -147,9 +147,9 @@
         [items removeObjectAtIndex:index];
         [weakSelf.chartView reloadData];
     });
-    NSMutableArray<FlowChartItem*>* items = self.items;
+    NSMutableArray<BizChartItem*>* items = self.items;
     for (NSInteger i=0; i<1; i++) {
-        FlowChartItem* item = [self createItem];
+        BizChartItem* item = [self createItem];
         [items addObject:item];
         rowsCell.addItem([self createRowCellWithItem:item index:i]);
     }
@@ -164,23 +164,23 @@
     self.chartView.frame = self.chartContainer.bounds;
 }
 
-- (WQFlowChartView *)chartView {
+- (WQBizChartView *)chartView {
     if(!_chartView) {
-        _chartView = [[WQFlowChartView alloc] init];
+        _chartView = [[WQBizChartView alloc] init];
         _chartView.adapter = self;
         _chartView.separatorWidth = 10;
     }
     return _chartView;
 }
 
-- (NSMutableArray<FlowChartItem *> *)items {
+- (NSMutableArray<BizChartItem *> *)items {
     if(!_items) {
         _items = [NSMutableArray array];
     }
     return _items;
 }
 
-- (FlowChartItem*)createItem {
+- (BizChartItem*)createItem {
     NSMutableArray<id<WQChart>>* charts = [NSMutableArray array];
     
     [charts addObject:[[WQAxisChart alloc] init]];
@@ -196,13 +196,13 @@
     lineChart2.linePaint.color = Color_Orange;
     [charts addObject:lineChart2];
     
-    return [[FlowChartItem alloc] initWithCharts:charts datas:[self createDatas]];
+    return [[BizChartItem alloc] initWithCharts:charts datas:[self createDatas]];
 }
 
-- (NSMutableArray<FlowChartData*>*)createDatas {
-    NSMutableArray<FlowChartData*>* datas = [NSMutableArray array];
+- (NSMutableArray<BizChartData*>*)createDatas {
+    NSMutableArray<BizChartData*>* datas = [NSMutableArray array];
     for (NSInteger i=0; i<self.dataCount; i++) {
-        FlowChartData* data = [[FlowChartData alloc] init];
+        BizChartData* data = [[BizChartData alloc] init];
         data.barValue = arc4random() % ((NSInteger)self.maxDataValue + 1);
         // 让线段不顶边
         NSInteger lineMaxValue = self.maxDataValue * 0.8;
@@ -213,13 +213,13 @@
     return datas;
 }
 
-- (SectionCell*)createRowCellWithItem:(FlowChartItem*)item index:(NSInteger)index {
+- (SectionCell*)createRowCellWithItem:(BizChartItem*)item index:(NSInteger)index {
     __weak typeof(self) weakSelf = self;
     return SectionCell.new
     .setObject(item)
     .setTitle([NSString stringWithFormat:@"Row%ld",index])
     .setOnReload(^(SectionCell* cell) {
-        FlowChartItem* item = (FlowChartItem*)cell.objcect;
+        BizChartItem* item = (BizChartItem*)cell.objcect;
         item.datas = [weakSelf createDatas];
         [weakSelf.chartView redraw];
     });
@@ -281,30 +281,30 @@
 }
 
 
-#pragma mark - FlowChartViewAdapter
+#pragma mark - BizChartViewAdapter
 
-- (NSInteger)numberOfRowsInHorizontalFlowChartView:(WQFlowChartView *)flowChartView {
+- (NSInteger)numberOfRowsInHorizontalBizChartView:(WQBizChartView *)BizChartView {
     return _items.count;
 }
 
-- (WQFlowChartViewRow *)flowChartView:(WQFlowChartView *)flowChartView rowAtIndex:(NSInteger)index {
-    CGFloat rowWidth = MIN(flowChartView.bounds.size.height, flowChartView.bounds.size.width) / 3;
+- (WQBizChartViewRow *)BizChartView:(WQBizChartView *)BizChartView rowAtIndex:(NSInteger)index {
+    CGFloat rowWidth = MIN(BizChartView.bounds.size.height, BizChartView.bounds.size.width) / 3;
     if([self radioCellSelectionForKey:@"DistributionMode"] != 0) {
-        NSInteger visiableCount = (flowChartView.bounds.size.width - flowChartView.padding.left - flowChartView.padding.right) / (self.barWidth + 2);
+        NSInteger visiableCount = (BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (self.barWidth + 2);
         return [[WQFixedVisiableCountDistributionRow alloc] initWithWidth:rowWidth visiableCount:visiableCount itemCount:self.dataCount];
     } else {
         return [[WQFixedItemSpacingDistributionRow alloc] initWithWidth:rowWidth itemSpacing:self.barWidth + 2 itemCount:self.dataCount];
     }
 }
 
-- (void)flowChartView:(WQFlowChartView *)flowChartView distributionForRow:(WQFlowDistribution*)distribution atIndex:(NSInteger)index {
-    FlowChartItem* item = self.items[index];
+- (void)BizChartView:(WQBizChartView *)BizChartView distributionForRow:(WQBizDistribution*)distribution atIndex:(NSInteger)index {
+    BizChartItem* item = self.items[index];
     WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
     WQBarChart* barChart = (WQBarChart*)item.charts[1];
     WQLineChart* lineChart = (WQLineChart*)item.charts[2];
     WQLineChart* lineChart2 = (WQLineChart*)item.charts[3];
     
-    NSArray<WQFlowDistributionItem*>* distributionItems = distribution.items;
+    NSArray<WQBizDistributionItem*>* distributionItems = distribution.items;
     NSInteger capacity = distributionItems.count;
     
     // Build Items
@@ -314,8 +314,8 @@
     NSMutableArray<WQLineChartItem*>* lineChartItems = [NSMutableArray arrayWithCapacity:capacity];
     NSMutableArray<WQLineChartItem*>* lineChartItems2 = [NSMutableArray arrayWithCapacity:capacity];
     for (NSInteger i=0; i<capacity; i++) {
-        WQFlowDistributionItem* distributionItem = distributionItems[i];
-        FlowChartData* data = item.datas[distributionItem.index];
+        WQBizDistributionItem* distributionItem = distributionItems[i];
+        BizChartData* data = item.datas[distributionItem.index];
         NSInteger location = distributionItem.location;
         CGFloat barValue = data.barValue;
         CGFloat lineValue = data.lineValue;
@@ -371,13 +371,13 @@
 }
 
 
-// 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、flowChartView.contentOffset算出。
-// 需要显示上的调整修改FlowChartView.padding、Axis.rect、Context.clip等即可
-- (void)flowChartView:(WQFlowChartView *)flowChartView drawRowAtIndex:(NSInteger)index inContext:(CGContextRef)context {
-    WQFlowChartViewRow* row = flowChartView.rows[index];
+// 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
+// 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
+- (void)BizChartView:(WQBizChartView *)BizChartView drawRowAtIndex:(NSInteger)index inContext:(CGContextRef)context {
+    WQBizChartViewRow* row = BizChartView.rows[index];
     CGRect rect = row.rect;
     
-    FlowChartItem* item = self.items[index];
+    BizChartItem* item = self.items[index];
     WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
     WQBarChart* barChart = (WQBarChart*)item.charts[1];
     WQLineChart* lineChart = (WQLineChart*)item.charts[2];
@@ -403,11 +403,11 @@
     [axisChart drawTextForGraphic:axisGraphic inContext:context];
 }
 
-- (void)flowChartViewWillDraw:(WQFlowChartView *)flowChartView inContext:(CGContextRef)context {
-    self.barGraphics = [NSMutableArray arrayWithCapacity:flowChartView.rows.count];
+- (void)BizChartViewWillDraw:(WQBizChartView *)BizChartView inContext:(CGContextRef)context {
+    self.barGraphics = [NSMutableArray arrayWithCapacity:BizChartView.rows.count];
 }
 
-- (void)flowChartViewDidDraw:(WQFlowChartView *)flowChartView inContext:(CGContextRef)context {
+- (void)BizChartViewDidDraw:(WQBizChartView *)BizChartView inContext:(CGContextRef)context {
     if(self.touchLocation==nil || self.barGraphics.count==0) {
         return;
     }
@@ -433,7 +433,7 @@
     
     CGContextSaveGState(context);
     
-    CGRect bounds = flowChartView.bounds;
+    CGRect bounds = BizChartView.bounds;
     CGFloat stringX = nearestBarGraphicItem.stringStart.x;
     
     CGContextMoveToPoint(context, stringX, CGRectGetMinY(bounds));

@@ -1,6 +1,6 @@
 // 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-// FlowChartVC.h
+// BizChartVC.h
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface FlowChartVC : BaseChartVC
+@interface BizChartVC : BaseChartVC
 
 @end
 

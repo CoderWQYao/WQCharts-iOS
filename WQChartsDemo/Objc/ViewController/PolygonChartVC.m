@@ -103,7 +103,7 @@
         [chartView redraw];
     });
     NSMutableArray<WQPolygonChartItem*>* items = [NSMutableArray array];
-    for (NSInteger i=0; i<4; i++) {
+    for (NSInteger i=0; i<5; i++) {
         WQPolygonChartItem* item = [self createItem];
         [items addObject:item];
         itemsCell.addItem([self createCellWithItem:item]);

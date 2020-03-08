@@ -1,6 +1,6 @@
 // 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
 //
-// FlowDistributionItem.swift
+// BizDistributionItem.swift
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
@@ -9,8 +9,8 @@
 
 import UIKit
 
-@objc(WQFlowDistributionItem)
-open class FlowDistributionItem: NSObject {
+@objc(WQBizDistributionItem)
+open class BizDistributionItem: NSObject {
     
     @objc open var index = Int(0)
     @objc open var location = CGFloat(0)

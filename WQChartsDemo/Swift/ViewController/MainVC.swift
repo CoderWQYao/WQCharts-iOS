@@ -27,7 +27,7 @@ class MainVC: UIViewController, UITableViewDataSource, UITableViewDelegate {
             ["title":"AxisChart","class":AxisChartVC.self],
             ["title":"BarChart","class":BarChartVC.self],
             ["title":"LineChart","class":LineChartVC.self],
-            ["title":"FlowChart","class":FlowChartVC.self],
+            ["title":"BizChart","class":BizChartVC.self],
         ]
         return datas
     }()

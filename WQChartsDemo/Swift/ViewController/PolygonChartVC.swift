@@ -107,7 +107,7 @@ class PolygonChartVC: RadialChartVC<PolygonChartView> {
                 chartView.redraw()
             })
         let items = NSMutableArray()
-        for _ in 0..<4 {
+        for _ in 0..<5 {
             let item = createItem()
             items.add(item)
             itemsCell.addItem(createCell(item))

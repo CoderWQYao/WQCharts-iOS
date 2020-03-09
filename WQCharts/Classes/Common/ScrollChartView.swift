@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // ScrollChartView.swift
 // WQCharts
@@ -9,11 +9,9 @@
 
 import UIKit
 
-/// 滚动图表
 @objc(WQScrollChartView)
 open class ScrollChartView: UIScrollView, UIGestureRecognizerDelegate {
    
-    /// 用于标记layout记录
     private var layoutSize = CGSize.zero
     
     public override init(frame: CGRect) {
@@ -68,7 +66,6 @@ open class ScrollChartView: UIScrollView, UIGestureRecognizerDelegate {
         }
     }
     
-    /// 重新绘制
     @objc
     public func redraw() {
         setNeedsDisplay()

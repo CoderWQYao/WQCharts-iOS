@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // BarChartView.swift
 // WQCharts
@@ -13,6 +13,7 @@ import UIKit
 open class BarChartView: CoordinateChartView {
 
     @objc private(set) public var chart = BarChart()
+    /// The last drew Graphic for Bar in View
     @objc private(set) public var graphic: BarGraphic?
     
     public override func draw(_ rect: CGRect, _ context: CGContext) {

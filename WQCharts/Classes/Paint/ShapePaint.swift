@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // ShapePaint.swift
 // WQCharts
@@ -10,12 +10,9 @@
 import UIKit
 
 @objc(WQShapePaint)
-/// 绘制图形的油漆
 open class ShapePaint: BaseChartItem {
     
-    /// 填充油漆
     @objc open var fill: FillPaint?
-    ///
     @objc open var stroke: LinePaint?
     
     @objc

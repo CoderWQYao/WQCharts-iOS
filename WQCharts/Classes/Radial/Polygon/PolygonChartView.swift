@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // PolygonChartView.swift
 // WQCharts
@@ -9,11 +9,11 @@
 
 import UIKit
 
-/// 多边形图标视图
 @objc(WQPolygonChartView)
 open class PolygonChartView: RadialChartView {
 
     @objc private(set) public var chart = PolygonChart()
+    /// The last drew Graphic for Polygon in View
     @objc private(set) public var graphic: PolygonGraphic?
 
     public override func draw(_ rect: CGRect, _ context: CGContext) {

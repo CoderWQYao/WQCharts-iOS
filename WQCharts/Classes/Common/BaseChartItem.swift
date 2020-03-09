@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // BaseChartItem.swift
 // WQCharts
@@ -9,11 +9,9 @@
 
 import UIKit
 
-/// 图表子项基类
 @objc(WQChartItem)
 open class BaseChartItem: NSObject {
     
-    /// 用于标记任何对象
     @objc open var tag: Any?
     
 }

@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // BarGraphic.swift
 // WQCharts
@@ -14,13 +14,11 @@ open class BarGraphic: CoordinateGraphic {
     
     @objc open var items: [BarGraphicItem]?
     
-    /// 找到最近的Item
     @objc(findNearestItemAtPoint:)
     open func findNearestItem(_ point: CGPoint) -> BarGraphicItem? {
         return findNearestItem(point, rect)
     }
     
-    /// 找到最近的Item
     @objc(findNearestItemAtPoint:inRect:)
     open func findNearestItem(_ point: CGPoint, _ rect: CGRect) -> BarGraphicItem? {
         guard let items = items else {

@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // ChartText.swift
 // WQCharts
@@ -10,7 +10,6 @@
 import UIKit
 
 @objc(WQChartText)
-/// 图表文本
 open class ChartText: BaseChartItem {
     
     @objc open var attributedString: NSAttributedString?
@@ -35,7 +34,6 @@ open class ChartText: BaseChartItem {
         }
     }
     
-    /// NSValue  is used for objc compatibility
     @objc open var fixedSize: NSValue?
     @objc open var alignment: NSTextAlignment {
         get {
@@ -79,12 +77,6 @@ open class ChartText: BaseChartItem {
         self.color = .black
     }
     
-    
-    /// Draw the text In context
-    /// - Parameters:
-    ///   - point: point of chart in location
-    ///   - angle: point angle, NSNumber is used for objc compatibility
-    ///   - context: CoreGraphics context
     @objc(drawAtPoint:angle:inContext:)
     open func draw(_ point: CGPoint, _ angle: NSNumber?, _ context: CGContext) {
         

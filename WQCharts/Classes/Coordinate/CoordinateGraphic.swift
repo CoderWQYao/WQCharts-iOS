@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // CoordinateGraphic.swift
 // WQCharts
@@ -77,7 +77,6 @@ open class CoordinateGraphic: Graphic {
         return ratio
     }
 
-    /// 转换Rect坐标系的Point到Bounds坐标系
     @objc open func convertBoundsPointToRect(_ point: CGPoint) -> CGPoint {
         let ratioX = self.boundsRatioForX(point.x)
         let ratioY = self.boundsRatioForY(point.y)
@@ -115,7 +114,6 @@ open class CoordinateGraphic: Graphic {
         return CGPoint(x: resultX, y: resultY)
     }
     
-    /// 转换Bounds坐标系的Point到Rect坐标系
     @objc open func convertRectPointToBounds(_ point: CGPoint) -> CGPoint {
         let bounds = self.bounds
         let boundsX = bounds.minX

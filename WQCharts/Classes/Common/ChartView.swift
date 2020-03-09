@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // ChartView.swift
 // WQCharts
@@ -12,6 +12,13 @@ import UIKit
 @objc(WQChartView)
 open class ChartView: UIView {
     
+    //         Top
+    //      ┌────────┐
+    //      │        │
+    // Left │  Rect  │ Right
+    //      │        │
+    //      └────────┘
+    //        Bottom
     @objc
     open var padding = UIEdgeInsets.zero {
         didSet {
@@ -20,7 +27,6 @@ open class ChartView: UIView {
     }
     
     private var layoutSize = CGSize.zero
-    
     
     public override init(frame: CGRect) {
         super.init(frame: frame)

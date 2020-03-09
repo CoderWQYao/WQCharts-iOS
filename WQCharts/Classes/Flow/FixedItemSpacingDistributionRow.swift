@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // FixedItemSpacingDistributionRow.swift
 // WQCharts
@@ -9,7 +9,6 @@
 
 import UIKit
 
-/// 固定子项间距分布行
 @objc(WQFixedItemSpacingDistributionRow)
 open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistributionRow {
 

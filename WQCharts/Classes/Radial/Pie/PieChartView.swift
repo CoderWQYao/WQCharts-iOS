@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // PieChartView.swift
 // WQCharts
@@ -9,12 +9,13 @@
 
 import UIKit
 
-/// 表示饼图的视图
 @objc(WQPieChartView)
 open class PieChartView: RadialChartView {
     
     @objc private(set) public var chart = PieChart()
+    /// The last drew Graphic for Pie in View
     @objc private(set) public var graphic: PieGraphic?
+    
     @objc open var onGraphicItemClick: ((_ chartView: PieChartView, _ graphicItem: PieGraphicItem) -> Void)?
     
     override func prepare() {

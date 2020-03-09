@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // RadialChartView.swift
 // WQCharts
@@ -13,6 +13,7 @@ import UIKit
 open class RadialChartView: ChartView {
     
     private var lastTouchAngle: CGFloat?
+    
     @objc open var onRotationChange: ((_ chartView: RadialChartView,  _ rotation: CGFloat, _ translation: CGFloat) -> Void)?
     
     override func prepare() {

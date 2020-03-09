@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // Chart.swift
 // WQCharts
@@ -10,11 +10,9 @@
 import UIKit
 
 @objc(WQChart)
-/// 表示图标的抽象
 public protocol Chart {
    
     @objc(drawRect:inContext:)
-    /// 绘制图表
     func draw( _ rect: CGRect, _ context: CGContext)
     
 }

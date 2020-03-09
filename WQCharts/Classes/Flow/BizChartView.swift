@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // BizChartView.swift
 // WQCharts
@@ -9,23 +9,18 @@
 
 import UIKit
 
-/// 流式图表适配器
 @objc(WQBizChartViewAdapter)
 public protocol BizChartViewAdapter {
     
-    /// 返回行数
     @objc(numberOfRowsInHorizontalBizChartView:)
     func getRowCount(_ BizChartView: BizChartView) -> Int
     
-    /// 返回行
     @objc(BizChartView:rowAtIndex:)
     func getRow(_ BizChartView: BizChartView, _ index: Int) -> BizChartView.Row
 
-    /// 分布行
     @objc(BizChartView:distributionForRow:atIndex:)
     optional func distributeRow(_ BizChartView: BizChartView, _ distribution: BizDistribution, _ index: Int)
     
-    /// 绘制行
     @objc(BizChartView:drawRowAtIndex:inContext:)
     optional func drawRow(_ BizChartView: BizChartView, _ index: Int, _ context: CGContext)
 
@@ -44,19 +39,15 @@ public protocol BizChartViewDistributionRow {
     
 }
 
-/// 流式图表
 @objc(WQBizChartView)
 open class BizChartView: ScrollChartView {
     
-    /// 表示流式图表中的行
+
     @objc(WQBizChartViewRow)
     open class Row: NSObject {
         
-        /// 行宽。如果是水平方向分布，则表示在视图空间的高度，否则表示在视图空间的宽度
         @objc public let width: CGFloat
-        /// 长度。如果是水平方向分布，则表示在视图空间的宽度，否则表示在视图空间的高度。值由measureLength返回。
         @objc internal(set) public var length = CGFloat(0)
-        /// 视图空间的矩形
         @objc internal(set) public var rect = CGRect.zero
         
         @objc(initWithWidth:)
@@ -65,8 +56,6 @@ open class BizChartView: ScrollChartView {
             super.init()
         }
         
-        /// 测量长度
-        /// - Return 返回测量长度
         @objc(measureLengthWithVisualRange:)
         open func measureLength(_ visualRange: CGFloat) -> CGFloat {
             return visualRange
@@ -80,21 +69,18 @@ open class BizChartView: ScrollChartView {
         isDirectionalLockEnabled = true
     }
     
-    /// 内间距
     @objc open var padding = UIEdgeInsets.zero {
          didSet {
              reloadData()
          }
     }
     
-    /// 适配器
     @objc open weak var adapter: BizChartViewAdapter? {
         didSet {
             reloadData()
         }
     }
     
-    /// 分割器宽度，与行宽的作用一致
     @objc open var separatorWidth = CGFloat(0) {
         didSet {
             redraw()
@@ -103,9 +89,7 @@ open class BizChartView: ScrollChartView {
     
     @objc open private(set) var rows: [Row]?
     
-    /// 用于标记是否需要重新加载数据
     private var needsReloadData = false
-    /// 用于标记layout记录
     private var layoutSize = CGSize.zero
     
     open override func layoutSubviews() {
@@ -221,7 +205,6 @@ open class BizChartView: ScrollChartView {
         
     }
     
-    /// 重新加载数据
     @objc
     public func reloadData() {
         needsReloadData = true

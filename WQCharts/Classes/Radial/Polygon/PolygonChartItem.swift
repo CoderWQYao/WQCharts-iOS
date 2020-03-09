@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // PolygonChartItem.swift
 // WQCharts
@@ -9,13 +9,10 @@
 
 import UIKit
 
-/// 表示多边形中的点
 @objc(WQPolygonChartItem)
 open class PolygonChartItem: BaseChartItem {
     
-    /// 用于计算点的位置，值越大，离中心越远
     @objc open var value = CGFloat(0)
-    /// 绘制在点上的文本
     @objc open var text: ChartText?
     
     @objc

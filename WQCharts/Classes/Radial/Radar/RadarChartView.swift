@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // RadarChartView.swift
 // WQCharts
@@ -13,6 +13,7 @@ import UIKit
 open class RadarChartView: RadialChartView {
     
     @objc private(set) public var chart = RadarChart()
+    /// The last drew Graphic for Radar in View
     @objc private(set) public var graphic: RadarGraphic?
     
     public override func draw(_ rect: CGRect, _ context: CGContext) {

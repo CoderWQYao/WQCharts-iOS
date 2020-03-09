@@ -273,7 +273,7 @@
 			isa = PBXGroup;
 			children = (
 				8183B8FA2411F94200B38E40 /* CoordinateGraphic.swift */,
-				8183B8FB2411F94200B38E40 /* AxisLine */,
+				8183B8FB2411F94200B38E40 /* Axis */,
 				8183B9012411F94200B38E40 /* CoordinateChartView.swift */,
 				8183B9022411F94200B38E40 /* CoordinateChart.swift */,
 				8183B9032411F94200B38E40 /* Line */,
@@ -282,7 +282,7 @@
 			path = Coordinate;
 			sourceTree = "<group>";
 		};
-		8183B8FB2411F94200B38E40 /* AxisLine */ = {
+		8183B8FB2411F94200B38E40 /* Axis */ = {
 			isa = PBXGroup;
 			children = (
 				8183B8FC2411F94200B38E40 /* AxisChartItem.swift */,
@@ -291,7 +291,7 @@
 				8183B8FF2411F94200B38E40 /* AxisChartView.swift */,
 				8183B9002411F94200B38E40 /* AxisGraphic.swift */,
 			);
-			path = AxisLine;
+			path = Axis;
 			sourceTree = "<group>";
 		};
 		8183B9032411F94200B38E40 /* Line */ = {

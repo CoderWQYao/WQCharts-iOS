@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // FixedVisiableCountDistributionRow.swift
 // WQCharts
@@ -9,8 +9,6 @@
 
 import UIKit
 
-
-/// 固定显示数分布行，每个子项的间距是根据边界和显示数计算的
 @objc(WQFixedVisiableCountDistributionRow)
 open class FixedVisiableCountDistributionRow: BizChartView.Row, BizChartViewDistributionRow {
 

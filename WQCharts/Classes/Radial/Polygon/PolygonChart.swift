@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // PolygonChart.swift
 // WQCharts
@@ -9,17 +9,11 @@
 
 import UIKit
 
-/// 多边形图表
 @objc(WQPolygonChart)
 open class PolygonChart: RadialChart {
     
-    /// 多边形子项
     @objc open var items: [PolygonChartItem]?
-    
-    /// 多边形油漆
     @objc open var shapePaint: ShapePaint?
-    
-    /// 图形轴线油漆
     @objc open var axisPaint: LinePaint?
     
     

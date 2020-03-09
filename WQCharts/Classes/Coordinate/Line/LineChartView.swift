@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // LineChartView.swift
 // WQCharts
@@ -13,6 +13,7 @@ import UIKit
 open class LineChartView: CoordinateChartView {
    
     @objc private(set) public var chart = LineChart()
+    /// The last drew Graphic for Line in View
     @objc private(set) public var graphic: LineGraphic?
     
     public override func draw(_ rect: CGRect, _ context: CGContext) {

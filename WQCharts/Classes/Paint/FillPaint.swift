@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // FillPaint.swift
 // WQCharts
@@ -18,13 +18,10 @@ public protocol Shader {
 }
 
 @objc(WQFillPaint)
-/// 填充油漆
 open class FillPaint: BaseChartItem {
  
-    /// 颜色
     @objc open var color: UIColor?
     
-    /// 着色器
     @objc open var shader: ((_ paint: FillPaint, _ path: CGPath, _ object: Any?) -> Shader?)?
     
     @objc
@@ -38,7 +35,6 @@ open class FillPaint: BaseChartItem {
     }
     
     @objc(drawPath:inContext:object:)
-    /// 填充绘制
     open func draw(_ path: CGPath, _ context: CGContext, _ object: Any?) {
         if path.isEmpty {
             return

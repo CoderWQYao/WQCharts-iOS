@@ -1,4 +1,4 @@
-// 代码地址: https://github.com/CoderWQYao/WQCharts-iOS
+// https://github.com/CoderWQYao/WQCharts-iOS
 //
 // PieChart.swift
 // WQCharts
@@ -10,10 +10,8 @@
 import UIKit
 
 @objc(WQPieChart)
-/// 表示饼图表
 open class PieChart: RadialChart {
     
-    /// 饼图子项
     @objc open var items: [PieChartItem]?
     
     open override func draw(_ rect: CGRect, _ context: CGContext) {

@@ -10,18 +10,46 @@
 import UIKit
 
 @objc(WQChartTextDelegate)
-protocol ChartTextDelegate {
-    // textOffsetByAngle: ((_ text: ChartText, _ size: CGSize, _ angle: CGFloat) -> CGFloat)?
-    @objc optional func chartText(_ chartText: ChartText, fixedSizeWithAngle angle: NSNumber?) -> CGSize
+public protocol ChartTextDelegate {
+    
+    @objc optional func chartText(_ chartText: ChartText, fixedSizeWithAngle angle: NSNumber?) -> NSValue?
     @objc optional func chartText(_ chartText: ChartText, offsetByAngleWithSize size: CGSize, angle: CGFloat) -> CGFloat
     @objc optional func chartText(_ chartText: ChartText, offsetWithSize size: CGSize, angle: NSNumber?) -> CGPoint
+    
+}
+
+@objc(WQChartTextBlocks)
+open class ChartTextBlocks: NSObject, ChartTextDelegate {
+    
+    public typealias fixedSizeBlock = (_ chartText: ChartText, _ angle: NSNumber?) -> NSValue?
+    public typealias offsetByAngleBlock = (_ chartText: ChartText, _ size: CGSize, _ angle: CGFloat) -> CGFloat
+    public typealias offsetBlock = (_ chartText: ChartText, _ size: CGSize, _ angle: NSNumber?) -> CGPoint
+             
+    @objc open var fixedSize: fixedSizeBlock?
+    @objc open var offsetByAngle: offsetByAngleBlock?
+    @objc open var offset: offsetBlock?
+    
+    public func chartText(_ chartText: ChartText, fixedSizeWithAngle angle: NSNumber?) -> NSValue? {
+        return fixedSize?(chartText, angle)
+    }
+    
+    public func chartText(_ chartText: ChartText, offsetByAngleWithSize size: CGSize, angle: CGFloat) -> CGFloat {
+        return offsetByAngle?(chartText, size, angle) ?? 0
+    }
+    
+    public func chartText(_ chartText: ChartText, offsetWithSize size: CGSize, angle: NSNumber?) -> CGPoint {
+        return offset?(chartText, size, angle) ?? .zero
+    }
+    
 }
 
 @objc(WQChartText)
 open class ChartText: ChartItem {
     
     @objc open var attributedString: NSAttributedString?
+    
     @objc open var string: String?
+    
     @objc open var attributes = [NSAttributedString.Key : Any]()
     
     @objc open var font: UIFont? {
@@ -42,7 +70,6 @@ open class ChartText: ChartItem {
         }
     }
     
-    @objc open var fixedSize: NSValue?
     @objc open var alignment: NSTextAlignment {
         get {
             if let paragraphStyle: NSMutableParagraphStyle = attributes[NSAttributedString.Key.paragraphStyle] as? NSMutableParagraphStyle {
@@ -62,10 +89,24 @@ open class ChartText: ChartItem {
         }
     }
     
-    @objc open var textOffsetByAngle: ((_ text: ChartText, _ size: CGSize, _ angle: CGFloat) -> CGFloat)?
-    @objc open var textOffset: ((_ text: ChartText, _ size: CGSize, _ angle: NSNumber?) -> CGPoint)?
     @objc open var backgroundColor: UIColor?
     @objc open var options: NSStringDrawingOptions = .usesLineFragmentOrigin
+    
+    @objc open weak var delegate: ChartTextDelegate? {
+        didSet {
+            if let delegateUsingBlock = delegateUsingBlocks, !delegateUsingBlock.isEqual(delegate) {
+                self.delegateUsingBlocks = nil
+            }
+        }
+    }
+    
+    @objc open var delegateUsingBlocks: ChartTextBlocks? {
+        didSet {
+            if let delegateUsingBlocks = delegateUsingBlocks {
+                delegate = delegateUsingBlocks
+            }
+        }
+    }
     
     @objc open var fitSize: CGSize {
         get {
@@ -95,7 +136,7 @@ open class ChartText: ChartItem {
         context.saveGState()
         
         var rectSize: CGSize
-        if let fixedSize = fixedSize {
+        if let fixedSize = delegate?.chartText?(self, fixedSizeWithAngle: angle) {
             rectSize = fixedSize.cgSizeValue
         } else {
             rectSize = fitSize
@@ -103,15 +144,13 @@ open class ChartText: ChartItem {
         
         var rectPoint = CGPoint(x: point.x - rectSize.width / 2, y: point.y - rectSize.height / 2)
         
-        if let angle = angle != nil ? CGFloat(truncating: angle!) : nil , let textOffsetByAngle = textOffsetByAngle {
-            let offsetByRadian = textOffsetByAngle(self,rectSize,angle)
+        if let angle = angle != nil ? CGFloat(truncating: angle!) : nil, let offsetByAngle = delegate?.chartText?(self, offsetByAngleWithSize: rectSize, angle: angle) {
             let radian: CGFloat = CGFloat.pi / 180 * angle
-            rectPoint.x += offsetByRadian * sin(radian)
-            rectPoint.y -= offsetByRadian * cos(radian)
+            rectPoint.x += offsetByAngle * sin(radian)
+            rectPoint.y -= offsetByAngle * cos(radian)
         }
         
-        if let textOffset = textOffset {
-            let offset = textOffset(self,rectSize,angle)
+        if let offset = delegate?.chartText?(self, offsetWithSize: rectSize, angle: angle) {
             rectPoint.x += offset.x
             rectPoint.y += offset.y
         }

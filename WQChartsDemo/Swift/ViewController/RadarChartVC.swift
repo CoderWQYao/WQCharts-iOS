@@ -171,9 +171,13 @@ class RadarChartVC: RadialChartVC<RadarChartView>, ItemsOptionsDelegate, RadarCh
             let text = ChartText()
             text.font = UIFont.systemFont(ofSize: 11)
             text.color = Color_White
-            text.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+            
+            let textBlocks = ChartTextBlocks()
+            textBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
                 return 15
             }
+            text.delegateUsingBlocks = textBlocks
+            
             text.string = String(format: "I-%ld", index)
             indicator.text = text
         }

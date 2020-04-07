@@ -124,13 +124,17 @@
 
 - (WQPolygonChartItem*)createItemAtIndex:(NSInteger)index {
     WQPolygonChartItem* item = [[WQPolygonChartItem alloc] initWithValue:0.5];
+    
     WQChartText* text = [[WQChartText alloc] init];
     text.font = [UIFont systemFontOfSize:11];
     text.color = Color_White;
-    text.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+    WQChartTextBlocks* textBlocks = WQChartTextBlocks.new;
+    textBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
         return 15;
     };
+    text.delegateUsingBlocks = textBlocks;
     item.text = text;
+    
     [self updateItem:item];
     return item;
 }

@@ -338,25 +338,30 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
         for i in 0..<horizontalCount {
             let item = AxisChartItem(CGPoint(x: 0, y: i), CGPoint(x: 1, y: i))
             item.paint?.color = Color_White
+            
             let text = ChartText()
             text.color = Color_White
             text.font = UIFont.systemFont(ofSize: 9)
-            text.textOffsetByAngle = {(text,size,angle) -> CGFloat in
+            
+            let textBlocks = ChartTextBlocks()
+            textBlocks.offsetByAngle = {(text,size,angle) -> CGFloat in
                 return -(size.width / 2) - 3
             }
-            text.string = String(format: "%ld", Int(round(CGFloat(i) * horizontalStep) + lowerBound))
             if i==0 {
-                text.textOffset = {(text,size,angle) -> CGPoint in
+                textBlocks.offset = {(text,size,angle) -> CGPoint in
                     return CGPoint(x: 0, y: -size.height / 2)
                 }
             } else if i==horizontalCount - 1 {
-                text.textOffset = {(text,size,angle) -> CGPoint in
+                textBlocks.offset = {(text,size,angle) -> CGPoint in
                     return CGPoint(x: 0, y: size.height / 2)
                 }
             } else {
                 item.paint?.dashLengths = [4,2]
             }
+            text.delegateUsingBlocks = textBlocks
             item.headerText = text
+            
+            text.string = String(format: "%ld", Int(round(CGFloat(i) * horizontalStep) + lowerBound))
             items.add(item)
         }
         

@@ -358,22 +358,26 @@
         WQChartText* text = [[WQChartText alloc] init];
         text.color = Color_White;
         text.font = [UIFont systemFontOfSize:9];
-        text.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+        
+        WQChartTextBlocks* textBlocks = WQChartTextBlocks.new;
+        textBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
             return -(size.width / 2) - 3;
         };
         text.string = [NSString stringWithFormat:@"%ld",(NSInteger)(round(i * horizontalStep) + lowerBound)];
         if(i==0) {
-            text.textOffset = ^CGPoint(WQChartText * _Nonnull text, CGSize size, NSNumber * _Nullable angle) {
+            textBlocks.offset = ^CGPoint(WQChartText * _Nonnull chartText, CGSize size, NSNumber * _Nullable angle) {
                 return CGPointMake(0, -size.height / 2);
             };
         } else if(i==horizontalCount - 1) {
-            text.textOffset = ^CGPoint(WQChartText * _Nonnull text, CGSize size, NSNumber * _Nullable angle) {
+            textBlocks.offset = ^CGPoint(WQChartText * _Nonnull chartText, CGSize size, NSNumber * _Nullable angle) {
                 return CGPointMake(0, size.height / 2);
             };
         } else {
             item.paint.dashLengths = @[@4,@2];
         }
+        text.delegateUsingBlocks = textBlocks;
         item.headerText = text;
+        
         [items addObject:item];
     }
     
@@ -494,14 +498,14 @@
         BOOL isReversed = [NSNumber randomBOOL];
         if (isReversed) {
             self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
-                                           CGRectMake(CGRectGetMaxX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
-                                                                               to:
-                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
+                                      CGRectMake(CGRectGetMaxX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
+                                                                          to:
+                                      CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
         } else {
             self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
-                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
-                                                                               to:
-                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
+                                      CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
+                                                                          to:
+                                      CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
         }
         [array addObject:[[WQAnimation alloc] initWithTransformable:self duration:self.animationDuration interpolator:self.animationInterpolator]];
     }

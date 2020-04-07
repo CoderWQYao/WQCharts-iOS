@@ -111,17 +111,21 @@
     WQChartText* headerText = [[WQChartText alloc] init];
     headerText.font = [UIFont systemFontOfSize:9];
     headerText.color = Color_White;
-    headerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+    WQChartTextBlocks* headerTextBlocks = WQChartTextBlocks.new;
+    headerTextBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
         return 15;
     };
+    headerText.delegateUsingBlocks = headerTextBlocks;
     item.headerText = headerText;
     
     WQChartText* footerText = [[WQChartText alloc] init];
     footerText.font = [UIFont systemFontOfSize:9];
     footerText.color = Color_White;
-    footerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
-        return 15;
+    WQChartTextBlocks* footerTextBlocks = WQChartTextBlocks.new;
+    footerTextBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
+       return 15;
     };
+    footerText.delegateUsingBlocks = footerTextBlocks;
     item.footerText = footerText;
     
     [self updateItem:item];

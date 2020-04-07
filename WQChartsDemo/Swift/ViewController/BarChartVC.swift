@@ -225,25 +225,29 @@ class BarChartVC: CoordinateChartVC<BarChartView>, ItemsOptionsDelegate {
         if let headerText = item.headerText {
             headerText.string = string
             headerText.hidden = radioCellSelectionForKey("ItemsHeaderText") == 0
-            headerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+            let headerTextBlocks = ChartTextBlocks()
+            headerTextBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
                 if exchangeXY {
                     return 15
                 } else {
                     return 10
                 }
             }
+            headerText.delegateUsingBlocks = headerTextBlocks
         }
         
         if let footerText = item.footerText {
             footerText.string = string
             footerText.hidden = radioCellSelectionForKey("ItemsFooterText") == 0
-            footerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+            let footerTextBlocks = ChartTextBlocks()
+            footerTextBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
                 if exchangeXY {
                     return 15
                 } else {
                     return 10
                 }
             }
+            footerText.delegateUsingBlocks = footerTextBlocks
         }
         
     }

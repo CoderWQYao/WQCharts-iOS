@@ -239,23 +239,27 @@
     
     WQChartText* headerText = item.headerText;
     headerText.hidden = [self radioCellSelectionForKey:@"ItemsHeaderText"] == 0;
-    headerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+    WQChartTextBlocks* headerTextBlocks = WQChartTextBlocks.new;
+    headerTextBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
         if(exchangeXY) {
             return 15;
         } else {
             return 10;
         }
     };
+    headerText.delegateUsingBlocks = headerTextBlocks;
     
     WQChartText* footerText = item.footerText;
     footerText.hidden = [self radioCellSelectionForKey:@"ItemsFooterText"] == 0;
-    footerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+    WQChartTextBlocks* footerTextBlocks = WQChartTextBlocks.new;
+    footerTextBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
         if(exchangeXY) {
             return 15;
         } else {
             return 10;
         }
     };
+    footerText.delegateUsingBlocks = footerTextBlocks;
 }
 
 - (void)updateItems {

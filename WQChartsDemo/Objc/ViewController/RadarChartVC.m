@@ -166,9 +166,13 @@
         text.font = [UIFont systemFontOfSize:11];
         text.color = Color_White;
         text.string = [NSString stringWithFormat:@"I-%ld",index];
-        text.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
+        
+        WQChartTextBlocks* textBlocks = WQChartTextBlocks.new;
+        textBlocks.offsetByAngle = ^CGFloat(WQChartText * _Nonnull chartText, CGSize size, CGFloat angle) {
             return 15;
         };
+        text.delegateUsingBlocks = textBlocks;
+        
         indicator.text = text;
     }
     

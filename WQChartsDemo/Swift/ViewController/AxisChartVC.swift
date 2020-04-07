@@ -107,17 +107,21 @@ class AxisChartVC: CoordinateChartVC<AxisChartView> {
         let headerText = ChartText()
         headerText.font = UIFont.systemFont(ofSize: 9)
         headerText.color = Color_White
-        headerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+        let headerTextBlocks = ChartTextBlocks()
+        headerTextBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
             return 15
         }
+        headerText.delegateUsingBlocks = headerTextBlocks
         item.headerText = headerText
         
         let footerText = ChartText()
         footerText.font = UIFont.systemFont(ofSize: 9)
         footerText.color = Color_White
-        footerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+        let footerTextBlocks = ChartTextBlocks()
+        footerTextBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
             return 15
         }
+        footerText.delegateUsingBlocks = footerTextBlocks
         item.footerText = footerText
         
         updateItem(item)

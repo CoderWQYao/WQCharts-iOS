@@ -115,13 +115,17 @@ class PolygonChartVC: RadialChartVC<PolygonChartView>, ItemsOptionsDelegate {
     
     func createItem(atIndex index: Int) -> Any? {
         let item = PolygonChartItem(0.5)
+        
         let text = ChartText()
         text.font = UIFont.systemFont(ofSize: 11)
         text.color = Color_White
-        text.textOffsetByAngle = {(text, size, angle) -> CGFloat in
+        let textBlocks = ChartTextBlocks()
+        textBlocks.offsetByAngle = {(text, size, angle) -> CGFloat in
             return 15
         }
+        text.delegateUsingBlocks = textBlocks
         item.text = text
+        
         updateItem(item)
         return item
     }

@@ -10,7 +10,7 @@
 import UIKit
 
 @objc(WQRadarChartSegment)
-open class RadarChartSegment: BaseChartItem {
+open class RadarChartSegment: ChartItem {
     
     @objc(WQRadarChartSegmentShape)
     public enum Shape: Int {
@@ -20,6 +20,8 @@ open class RadarChartSegment: BaseChartItem {
     @objc open var value = CGFloat(0)
     @objc open var shape: Shape = .Polygon
     @objc open var paint: LinePaint?
+    
+    @objc open var transformValue: TransformCGFloat?
     
     @objc
     public convenience override init() {
@@ -36,6 +38,22 @@ open class RadarChartSegment: BaseChartItem {
         self.value = value
         self.shape = shape
         self.paint = LinePaint()
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformValue = transformValue {
+            value = transformValue.valueForProgress(progress)
+        }
+        paint?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformValue = nil
+        paint?.clearTransforms()
     }
     
 }

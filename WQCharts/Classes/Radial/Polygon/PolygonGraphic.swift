@@ -12,9 +12,8 @@ import UIKit
 @objc(WQPolygonGraphic)
 open class PolygonGraphic: RadialGraphic {
     
-    @objc public var shapeRadius = CGFloat(0)
-    @objc public var shapePath: CGPath?
-    @objc public var axisPath: CGPath?
+    @objc public var pathRadius = CGFloat(0)
+    @objc public var path: CGPath?
     @objc public var items: [PolygonGraphicItem]?
     
 }

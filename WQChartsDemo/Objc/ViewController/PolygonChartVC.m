@@ -12,15 +12,26 @@
 @interface PolygonChartVC ()
 
 @property (nonatomic, strong) WQPolygonChartView* chartView;
+@property (nonatomic, strong) UIColor* currentColor;
 
 @end
 
 @implementation PolygonChartVC
 
+- (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
+    if(self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        self.currentColor = Color_Blue;
+    }
+    return self;
+}
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self.chartContainer addSubview:self.chartView];
+- (UIView *)createChartView {
+    _chartView = [[WQPolygonChartView alloc] init];
+    return _chartView;
+}
+
+- (void)configChartOptions {
+    [super configChartOptions];
     
     __weak typeof(self) weakSelf = self;
     
@@ -30,17 +41,21 @@
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
         WQPolygonChartView* chartView = weakSelf.chartView;
-        WQFillPaint* paint = chartView.chart.shapePaint.fill;
+        WQFillPaint* paint = chartView.chart.paint.fill;
         switch (selection) {
             case 1:
-                paint.color = Color_Blue;
+                paint.color = weakSelf.currentColor;
                 paint.shader = nil;
                 break;
             case 2:
-                paint.color = nil;
+                paint.color = weakSelf.currentColor;
                 paint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
+                    UIColor* color = paint.color;
+                    if (!color) {
+                        return nil;
+                    }
                     WQPolygonGraphic* graphic = (WQPolygonGraphic*)object;
-                    return [[WQRadialGradientShader alloc] initWithCenterPoint:graphic.center radius:graphic.shapeRadius colors:@[[Color_Blue colorWithAlphaComponent:0.1],Color_Blue] positions:@[@0,@1]];
+                    return [[WQRadialGradientShader alloc] initWithCenterPoint:graphic.center radius:graphic.pathRadius colors:@[[color colorWithAlphaComponent:0.1], color] positions:@[@0,@1]];
                 };
                 break;
             default:
@@ -58,87 +73,56 @@
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
         WQPolygonChartView* chartView = weakSelf.chartView;
         
-        [weakSelf setupStrokePaint:chartView.chart.shapePaint.stroke color:Color_White type:selection];
+        [weakSelf setupStrokePaint:chartView.chart.paint.stroke color:Color_White type:selection];
         [chartView redraw];
     })];
     
+}
+
+#pragma mark - Items
+
+- (void)configChartItemsOptions {
+    [super configChartItemsOptions];
+    
+    __weak typeof(self) weakSelf = self;
+    
     [self.optionsView addItem:RadioCell.new
-     .setTitle(@"Axis")
+     .setTitle(@"ItemsAxis")
      .setOptions(@[@"OFF",@"ON",@"Dash"])
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
-        WQPolygonChartView* chartView = weakSelf.chartView;
-        
-        [weakSelf setupStrokePaint:chartView.chart.axisPaint color:Color_White type:selection];
-        [chartView redraw];
+        [weakSelf updateItems];
     })];
-    
-    
-    ListCell* itemsCell = ListCell.new
-    .setTitle(@"Items")
-    .setIsMutable(YES)
-    .setOnAppend(^void(ListCell* cell) {
-        WQPolygonChartView* chartView = weakSelf.chartView;
-        
-        WQPolygonChartItem* item = [weakSelf createItem];
-        chartView.chart.items = [chartView.chart.items arrayByAddingObject:item];
-        [chartView redraw];
-        
-        cell.addItem([weakSelf createCellWithItem:item]);
-        [weakSelf scrollToListCellForKey:@"Items" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-    })
-    .setOnRemove(^(ListCell* cell) {
-        WQPolygonChartView* chartView = weakSelf.chartView;
-        
-        NSMutableArray<WQPolygonChartItem*>* items = [NSMutableArray arrayWithArray:chartView.chart.items];
-        NSInteger index = items.count - 1;
-        if(index < 0) {
-            return;
-        }
-        cell.removeItemAtIndex(index);
-        [weakSelf scrollToListCellForKey:@"Items" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-        
-        [items removeObjectAtIndex:index];
-        chartView.chart.items = items;
-        [chartView redraw];
-    });
-    NSMutableArray<WQPolygonChartItem*>* items = [NSMutableArray array];
-    for (NSInteger i=0; i<5; i++) {
-        WQPolygonChartItem* item = [self createItem];
-        [items addObject:item];
-        itemsCell.addItem([self createCellWithItem:item]);
-    }
-    self.chartView.chart.items = items;
-    [self.optionsView addItem:itemsCell];
     
     [self.optionsView addItem:RadioCell.new
      .setTitle(@"ItemsText")
      .setOptions(@[@"OFF",@"ON"])
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
-        WQPolygonChartView* chartView = weakSelf.chartView;
-        
-        for (WQPolygonChartItem* item in chartView.chart.items) {
-            item.text.hidden = selection == 0;
-        }
-        [chartView redraw];
+        [weakSelf updateItems];
     })];
-    
-    [self callRadioCellsSectionChange];
 }
 
-- (WQPolygonChartView *)chartView {
-    if(!_chartView) {
-        _chartView = [[WQPolygonChartView alloc] init];
+- (NSMutableArray<WQPolygonChartItem*>*)items {
+    NSArray<WQPolygonChartItem*>* items = self.chartView.chart.items;
+    if (items) {
+        return [NSMutableArray arrayWithArray:items];
+    } else {
+        NSMutableArray<WQPolygonChartItem*>* items = [NSMutableArray array];
+        for (NSInteger i=0; i<5; i++) {
+            WQPolygonChartItem* item = [self createItemAtIndex:i];
+            [items addObject:item];
+        }
+        self.chartView.chart.items = items;
+        return items;
     }
-    return _chartView;
 }
 
-- (WQRadialChartView *)radialChartView {
-    return self.chartView;
+- (NSString*)itemsOptionTitle {
+    return @"Items";
 }
 
-- (WQPolygonChartItem*)createItem {
+- (WQPolygonChartItem*)createItemAtIndex:(NSInteger)index {
     WQPolygonChartItem* item = [[WQPolygonChartItem alloc] initWithValue:0.5];
     WQChartText* text = [[WQChartText alloc] init];
     text.font = [UIFont systemFontOfSize:11];
@@ -151,13 +135,7 @@
     return item;
 }
 
-- (void)updateItem:(WQPolygonChartItem*)item {
-    WQChartText* text = item.text;
-    text.string = [NSString stringWithFormat:@"%.2f",item.value];
-    text.hidden = [self radioCellSelectionForKey:@"ItemsText"] == 0;
-}
-
-- (SliderCell*)createCellWithItem:(WQPolygonChartItem*)item {
+- (SliderCell*)createItemCellWithItem:(WQPolygonChartItem*)item atIndex:(NSInteger)index {
     __weak typeof(self) weakSelf = self;
     return SliderCell.new
     .setSliderValue(0,1,item.value)
@@ -171,6 +149,79 @@
         [weakSelf updateItem:item];
         [chartView redraw];
     });
+}
+
+- (void)itemsDidChange:(NSMutableArray<WQPolygonChartItem*>*)items {
+    self.chartView.chart.items = items;
+    [self.chartView redraw];
+}
+
+- (void)updateItem:(WQPolygonChartItem*)item {
+    [self setupStrokePaint:item.axisPaint color:Color_White type:[self radioCellSelectionForKey:@"ItemsAxis"]];
+    item.text.hidden = [self radioCellSelectionForKey:@"ItemsText"] == 0;
+}
+
+- (void)updateItems {
+    for (WQPolygonChartItem* item in self.chartView.chart.items) {
+        [self updateItem:item];
+    }
+    [self.chartView redraw];
+}
+
+#pragma mark - ChartViewDrawDelegate
+
+- (void)chartViewWillDraw:(WQChartView *)chartView inRect:(CGRect)rect context:(CGContextRef)context {
+    [super chartViewWillDraw:chartView inRect:rect context:context];
+    
+    for (WQPolygonChartItem* item in self.chartView.chart.items) {
+        item.text.string = [NSString stringWithFormat:@"%.2f",item.value];
+    }
+}
+
+#pragma mark - Animation
+
+- (void)appendAnimationKeys:(NSMutableArray<NSString *> *)animationKeys {
+    [super appendAnimationKeys:animationKeys];
+    [animationKeys addObject:@"Color"];
+    [animationKeys addObject:@"Values"];
+}
+
+- (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys {
+    [super prepareAnimationOfChartViewForKeys:keys];
+    
+    WQPolygonChart* chart = self.chartView.chart;
+    
+    if ([keys containsObject:@"Color"] && chart.paint.fill) {
+        WQFillPaint* paint = chart.paint.fill;
+        UIColor* color = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
+        paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ? paint.color : UIColor.clearColor to:color];
+        self.currentColor = color;
+        
+        RadioCell* cell = [self findRadioCellForKey:@"Fill"];
+        if (cell.selection == 0) {
+            cell.selection = 1;
+        }
+    }
+    
+    if ([keys containsObject:@"Values"]) {
+        for (WQPolygonChartItem* item in chart.items) {
+            item.transformValue = [[WQTransformCGFloat alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]];
+        }
+    }
+    
+}
+
+#pragma mark - AnimationDelegate
+
+- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+    [super animation:animation progressDidChange:progress];
+
+    if (animation.transformable == self.chartView) {
+        [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQPolygonChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self updateSliderValue:item.value forKey:@"Items" atIndex:idx];
+        }];
+    }
+
 }
 
 @end

@@ -10,7 +10,7 @@
 import UIKit
 
 @objc(WQShapePaint)
-open class ShapePaint: BaseChartItem {
+open class ShapePaint: ChartItem  {
     
     @objc open var fill: FillPaint?
     @objc open var stroke: LinePaint?
@@ -48,4 +48,19 @@ open class ShapePaint: BaseChartItem {
         }
         
     }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        fill?.nextTransform(progress)
+        stroke?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        fill?.clearTransforms()
+        stroke?.clearTransforms()
+    }
+    
 }

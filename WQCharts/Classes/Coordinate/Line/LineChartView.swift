@@ -16,10 +16,28 @@ open class LineChartView: CoordinateChartView {
     /// The last drew Graphic for Line in View
     @objc private(set) public var graphic: LineGraphic?
     
+    override open var chartAsCoordinate: CoordinateChart {
+        return chart
+    }
+
+    override open var graphicAsCoordinate: CoordinateGraphic? {
+        return graphic
+    }
+    
     public override func draw(_ rect: CGRect, _ context: CGContext) {
         let graphic = chart.drawGraphic(rect, context)
-        chart.drawText(graphic, context)
+        LineChart.drawText(graphic, context)
         self.graphic = graphic
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        chart.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        chart.clearTransforms()
     }
     
 }

@@ -9,8 +9,16 @@
 
 import UIKit
 
+@objc(WQChartViewDrawDelegate)
+public protocol ChartViewDrawDelegate {
+    
+    @objc func chartViewWillDraw(_ chartView: ChartView, inRect rect: CGRect, context: CGContext)
+    @objc func chartViewDidDraw(_ chartView: ChartView, inRect rect: CGRect, context: CGContext)
+    
+}
+
 @objc(WQChartView)
-open class ChartView: UIView {
+open class ChartView: UIView, Transformable  {
     
     //         Top
     //      ┌────────┐
@@ -19,12 +27,22 @@ open class ChartView: UIView {
     //      │        │
     //      └────────┘
     //        Bottom
-    @objc
-    open var padding = UIEdgeInsets.zero {
+    @objc open var padding: UIEdgeInsets = .zero {
         didSet {
             redraw()
         }
     }
+    
+    @objc open var clipRect: NSValue? {
+        didSet {
+            redraw()
+        }
+    }
+    
+    @objc open var transformPadding: TransformUIEdgeInsets?
+    @objc open var transformClipRect: TransformCGRect?
+    
+    @objc open weak var drawDelegate: ChartViewDrawDelegate?
     
     private var layoutSize = CGSize.zero
     
@@ -43,13 +61,7 @@ open class ChartView: UIView {
         
     }
     
-    @objc
-    open var onDrawBefore: ((_ chartsView: ChartView, _ context: CGContext, _ rect: CGRect) -> Void)?
-    
-    @objc
-    open var onDrawAfter: ((_ chartsView: ChartView, _ context: CGContext, _ rect: CGRect) -> Void)?
-    
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         if !layoutSize.equalTo(bounds.size) {
             layoutSize = bounds.size
@@ -65,33 +77,47 @@ open class ChartView: UIView {
         }
         
         let rect = bounds.inset(by: self.padding)
-        
-        if let onDrawBefore = onDrawBefore {
-            onDrawBefore(self, context, rect)
+        drawDelegate?.chartViewWillDraw(self, inRect: rect, context: context)
+        if let clipRect = clipRect {
+            context.clip(to: clipRect.cgRectValue)
         }
-        
         draw(rect, context)
-        
-        if let onDrawAfter = onDrawAfter {
-            onDrawAfter(self, context, rect)
+        if clipRect != nil {
+            context.resetClip()
         }
+        drawDelegate?.chartViewDidDraw(self, inRect: rect, context: context)
     }
     
     
     @objc(drawRect:inContext:)
-    public func draw(_ rect: CGRect, _ context: CGContext) {
+    open func draw(_ rect: CGRect, _ context: CGContext) {
         
     }
     
-    public override var description: String {
+    override open var description: String {
         get {
             return String(format: "<%@: %p frame = %@ padding = %@>",arguments:[NSStringFromClass(type(of:self)),self,NSCoder.string(for: self.frame),NSCoder.string(for: self.padding)])
         }
     }
     
     @objc
-    public func redraw() {
+    open func redraw() {
         setNeedsDisplay()
+    }
+    
+    open func nextTransform(_ progress: CGFloat) {
+        if let transformPadding = transformPadding {
+            padding = transformPadding.valueForProgress(progress)
+        }
+        
+        if let transformClipRect = transformClipRect {
+            clipRect = transformClipRect.valueForProgress(progress) as NSValue
+        }
+    }
+    
+    open func clearTransforms() {
+        transformPadding = nil
+        transformClipRect = nil
     }
     
 }

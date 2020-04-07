@@ -10,14 +10,19 @@
 import UIKit
 
 @objc(WQPieChartItem)
-open class PieChartItem: BaseChartItem {
+open class PieChartItem: ChartItem {
     
     @objc open var value = CGFloat(0)
-    @objc open var offsetFactor = CGFloat(0)
-    @objc open var innerFactor = CGFloat(0)
-    @objc open var outerFactor = CGFloat(0)
+    @objc open var arc1Scale = CGFloat(0)
+    @objc open var arc2Scale = CGFloat(0)
+    @objc open var driftRatio = CGFloat(0)
     @objc open var paint: ShapePaint?
     @objc open var text: ChartText?
+    
+    @objc open var transformValue: TransformCGFloat?
+    @objc open var transformArc1Scale: TransformCGFloat?
+    @objc open var transformArc2Scale: TransformCGFloat?
+    @objc open var transformDriftRatio: TransformCGFloat?
     
     @objc
     public override convenience init() {
@@ -29,8 +34,8 @@ open class PieChartItem: BaseChartItem {
         super.init()
         self.value = value
         self.paint = ShapePaint()
-        self.innerFactor = 0
-        self.outerFactor = 1
+        self.arc2Scale = 0
+        self.arc1Scale = 1
     }
     
     @objc(totalValueWithItems:)
@@ -44,6 +49,38 @@ open class PieChartItem: BaseChartItem {
             totalValue += item.value
         }
         return totalValue
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformValue = transformValue {
+            value = transformValue.valueForProgress(progress)
+        }
+        
+        if let transformArc1Scale = transformArc1Scale {
+            arc1Scale = transformArc1Scale.valueForProgress(progress)
+        }
+        
+        if let transformArc2Scale = transformArc2Scale {
+            arc2Scale = transformArc2Scale.valueForProgress(progress)
+        }
+        
+        if let transformDriftRatio = transformDriftRatio {
+            driftRatio = transformDriftRatio.valueForProgress(progress)
+        }
+        
+        paint?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformValue = nil
+        transformArc1Scale = nil
+        transformArc2Scale = nil
+        transformDriftRatio = nil
+        paint?.clearTransforms()
     }
     
 }

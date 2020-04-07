@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RadarChartVC : RadialChartVC
+@interface RadarChartVC : RadialChartVC<ItemsOptionsDelegate,WQRadarChartDataSource>
 
 @end
 

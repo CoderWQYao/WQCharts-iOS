@@ -9,9 +9,10 @@
 
 import UIKit
 
+/// 表示一个从中心点以放射状扩散的图表抽象
 @objc(WQRadialChart)
-open class RadialChart: NSObject, Chart {
-    
+open class RadialChart: NSObject, Chart, Transformable {
+
     @objc(WQPieChartDirection)
     public enum Direction: Int {
         case Clockwise
@@ -19,11 +20,29 @@ open class RadialChart: NSObject, Chart {
     }
     
     @objc open var angle = CGFloat(360)
-    @objc open var direction: Direction = .Clockwise
     @objc open var rotation = CGFloat(0)
+    @objc open var direction = Direction.Clockwise
   
-    open func draw(_ rect: CGRect, _ context: CGContext) {
-        fatalError("draw(CGRect,CGContext) has not been implemented")
+    @objc open var transformAngle: TransformCGFloat?
+    @objc open var transformRotation: TransformCGFloat?
+    
+    open func draw(inRect rect: CGRect, context: CGContext) {
+        fatalError("draw(inRect:,context:) has not been implemented")
+    }
+    
+    open func nextTransform(_ progress: CGFloat) {
+        if let transformAngle = transformAngle {
+            self.angle = transformAngle.valueForProgress(progress)
+        }
+        
+        if let transformRotation = transformRotation {
+            self.rotation = transformRotation.valueForProgress(progress)
+        }
     }
 
+    open func clearTransforms() {
+        transformAngle = nil;
+        transformRotation = nil;
+    }
+    
 }

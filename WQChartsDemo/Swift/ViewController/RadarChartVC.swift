@@ -9,19 +9,19 @@
 
 import UIKit
 
-class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
-
-    lazy var polygons: NSMutableArray = {
-        return NSMutableArray()
-    }()
+class RadarChartVC: RadialChartVC<RadarChartView>, ItemsOptionsDelegate, RadarChartDataSource  {
     
     lazy var colors: [UIColor] = {
         return Colors
     }()
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func chartViewDidCreate(_ chartView: RadarChartView) {
+        super.chartViewDidCreate(chartView)
         chartView.chart.dataSource = self
+    }
+    
+    override func configChartOptions() {
+        super.configChartOptions()
         
         optionsView.addItem(ListCell()
             .setTitle("IndicatorCount")
@@ -32,7 +32,6 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                         return
                     }
                     let chartView = self.chartView
-                    
                     chartView.chart.setNeedsReloadIndicators()
                     chartView.redraw()
                 })
@@ -48,7 +47,6 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                     return
                 }
                 let chartView = self.chartView
-                
                 chartView.chart.setNeedsReloadIndicators()
                 chartView.redraw()
             })
@@ -63,7 +61,6 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                     return
                 }
                 let chartView = self.chartView
-                
                 chartView.chart.setNeedsReloadIndicators()
                 chartView.redraw()
             })
@@ -79,7 +76,6 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                         return
                     }
                     let chartView = self.chartView
-                    
                     chartView.chart.setNeedsReloadSegments()
                     chartView.redraw()
                 })
@@ -95,7 +91,6 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                     return
                 }
                 let chartView = self.chartView
-                
                 chartView.chart.setNeedsReloadSegments()
                 chartView.redraw()
             })
@@ -110,73 +105,43 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
                     return
                 }
                 let chartView = self.chartView
-                
                 chartView.chart.setNeedsReloadSegments()
                 chartView.redraw()
             })
         )
         
-        let polygonsCell = ListCell()
-            .setTitle("Polygons")
-            .setIsMutable(true)
-            .setOnAppend({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-                let index = self.polygons.count
-                if index >= self.colors.count {
-                    return
-                }
-                
-                let chartView = self.chartView
-                
-                let item = self.createPolygon(index)
-                self.polygons.add(item)
-                chartView.chart.setNeedsReloadPolygons()
-                chartView.redraw()
-                
-                cell.addItem(self.createPolygonCell(item,index))
-                self.scrollToListCell("Polygons", .Bottom, true)
-            }).setOnRemove({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                let index = self.polygons.count - 1
-                if index < 0 {
-                    return
-                }
-                cell.removeItem(at: index)
-                self.scrollToListCell("Polygons", .Bottom, true)
-                
-                self.polygons.removeObject(at: index)
-                chartView.chart.setNeedsReloadPolygons()
-                chartView.redraw()
-            })
-        let polygons = self.polygons
-        for i in 0..<2 {
-            let polygon = createPolygon(i)
-            polygons.add(polygon)
-            polygonsCell.addItem(createPolygonCell(polygon,i))
-        }
-        optionsView.addItem(polygonsCell)
-        
-        callRadioCellsSectionChange()
     }
     
-    func createPolygon(_ index: Int) -> RadarChartPolygon {
-        let color = index < colors.count ? colors[index] : .clear
+    // MARK: - Items
+    
+    lazy var items: NSMutableArray = {
+        let items = NSMutableArray()
+        for i in 0..<2 {
+            if let item = createItem(atIndex: i) {
+                items.add(item)
+            }
+        }
+        return items
+    }()
+    
+    var itemsOptionTitle: String {
+        return "Polygons"
+    }
+    
+    func createItem(atIndex index: Int) -> Any? {
+        if index >= colors.count {
+            return nil
+        }
+        let color = colors[index]
         let chart = PolygonChart()
-        chart.shapePaint?.fill?.color = color.withAlphaComponent(0.5)
-        chart.shapePaint?.stroke = nil
-        chart.axisPaint = nil
+        chart.paint?.fill?.color = color.withAlphaComponent(0.5)
+        chart.paint?.stroke = nil
         return RadarChartPolygon(chart)
     }
     
-    func createPolygonCell(_ polygon: RadarChartPolygon, _ index: Int) -> SectionCell {
+    func createItemCell(withItem item: Any, atIndex index: Int)  -> UIView {
         return SectionCell()
-            .setObject(polygon)
+            .setObject(item)
             .setTitle(String(format: "Polygon%ld", index))
             .setOnReload({[weak self](cell) in
                 guard let self = self else {
@@ -188,13 +153,18 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
             })
     }
     
-    // MARK: - RadarChartAdapter
-    
-    func getIndicatorCount(_ radarChart: RadarChart) -> Int {
-        return getSliderIntegerValue("IndicatorCount", 0)
+    func itemsDidChange(_ items: NSMutableArray) {
+        chartView.chart.setNeedsReloadPolygons()
+        chartView.redraw()
     }
     
-    func getIndicator(_ radarChart: RadarChart, _ index: Int) -> RadarChartIndicator {
+    // MARK: - RadarChartDataSource
+    
+    func numberOfIndicatorsInRadarChart(_ radarChart: RadarChart) -> Int {
+        return sliderIntegerValue(forKey: "IndicatorCount", atIndex: 0)
+    }
+    
+    func radarChart(_ radarChart: RadarChart, indicatorAtIndex index: Int) -> RadarChartIndicator {
         let indicator = RadarChartIndicator()
         setupStrokePaint(indicator.paint, Color_White, radioCellSelectionForKey("IndicatorsLine"))
         if radioCellSelectionForKey("IndicatorsText") != 0 {
@@ -210,28 +180,55 @@ class RadarChartVC: RadialChartVC<RadarChartView>, RadarChartDataSource {
         return indicator
     }
     
-    func getSegmentCount(_ radarChart: RadarChart) -> Int {
-        return getSliderIntegerValue("SegmentCount", 0)
+    func numberOfSegmentsInRadarChart(_ radarChart: RadarChart) -> Int {
+        return sliderIntegerValue(forKey: "SegmentCount", atIndex: 0)
     }
     
-    func getSegment(_ radarChart: RadarChart, _ index: Int) -> RadarChartSegment {
+    func radarChart(_ radarChart: RadarChart, segmentAtIndex index: Int) -> RadarChartSegment {
         let segment = RadarChartSegment()
         setupStrokePaint(segment.paint, Color_White, radioCellSelectionForKey("SegmentsLine"))
         segment.shape = radioCellSelectionForKey("SegmentsShape") != 0 ? .Arc : .Polygon
-        segment.value = 1.0 - 1.0 / CGFloat(getSegmentCount(radarChart)) * CGFloat(index)
+        segment.value = 1.0 - 1.0 / CGFloat(numberOfSegmentsInRadarChart(radarChart)) * CGFloat(index)
         return segment
     }
     
-    func getPolygonCount(_ radarChart: RadarChart) -> Int {
-        return polygons.count
+    func numberOfPolygonsInRadarChart(_ radarChart: RadarChart) -> Int {
+        return items.count
     }
     
-    func getPolygon(_ radarChart: RadarChart, _ index: Int) -> RadarChartPolygon {
-        return polygons[index] as! RadarChartPolygon
+    func radarChart(_ radarChart: RadarChart, polygontAtIndex index: Int) -> RadarChartPolygon {
+        return items[index] as! RadarChartPolygon
     }
     
-    func getPolygonChartItem(_ radarChart: RadarChart, _ indexPath: IndexPath) -> PolygonChartItem {
-        return PolygonChartItem(CGFloat(arc4random() % 101) / 100)
+    func radarChart(_ radarChart: RadarChart, itemOfChartForPolygonAtIndexPath indexPath: IndexPath) -> PolygonChartItem {
+        let item = PolygonChartItem(CGFloat.random(in: 0...1))
+        item.axisPaint = nil
+        return item
     }
+    
+    // MARK: - Animation
+    
+    override func appendAnimationKeys(_ animationKeys: NSMutableArray) {
+        super.appendAnimationKeys(animationKeys)
+        animationKeys.add("Values")
+    }
+    
+    override func prepareAnimationOfChartView(forKeys keys: [String]) {
+        super.prepareAnimationOfChartView(forKeys: keys)
+        
+        if (keys.contains("Values")) {
+            for polygon in items as! [RadarChartPolygon] {
+                guard let items = polygon.chart.items else {
+                    continue
+                }
+                for item in items {
+                    item.transformValue = TransformCGFloat(item.value, CGFloat.random(in: 0...1))
+                }
+            }
+        }
+        
+    }
+    
+    
     
 }

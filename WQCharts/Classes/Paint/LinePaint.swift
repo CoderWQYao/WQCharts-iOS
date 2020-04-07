@@ -10,7 +10,7 @@
 import UIKit
 
 @objc(WQLinePaint)
-open class LinePaint: BaseChartItem {
+open class LinePaint: ChartItem {
 
     @objc open var color: UIColor?
     @objc open var width = CGFloat(0)
@@ -18,6 +18,9 @@ open class LinePaint: BaseChartItem {
     @objc open var cap = CGLineCap.butt
     @objc open var dashPhase = CGFloat(0)
     @objc open var dashLengths: [CGFloat]?
+    
+    @objc open var transformWidth: TransformCGFloat?
+    @objc open var transformColor: TransformUIColor?
     
     @objc
     public override convenience init() {
@@ -64,4 +67,22 @@ open class LinePaint: BaseChartItem {
         context.restoreGState()
     }
     
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformWidth = transformWidth {
+            width = transformWidth.valueForProgress(progress)
+        }
+        
+        if let transformColor = transformColor {
+            color = transformColor.valueForProgress(progress)
+        }
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformWidth = nil
+        transformColor = nil
+    }
 }

@@ -11,9 +11,7 @@ import UIKit
 
 @objc(WQLineGraphicItem)
 open class LineGraphicItem: GraphicItem {
-    
-    @objc open var shapeStartPoint = CGPoint.zero
-    @objc open var shapeEndPoint = CGPoint.zero
-    @objc open var linePoint = CGPoint.zero
+
+    @objc open var point = CGPoint.zero
     
 }

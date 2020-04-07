@@ -12,37 +12,26 @@ import UIKit
 @objc(WQBizChartViewAdapter)
 public protocol BizChartViewAdapter {
     
-    @objc(numberOfRowsInHorizontalBizChartView:)
-    func getRowCount(_ BizChartView: BizChartView) -> Int
+    @objc func numberOfRowsInBizChartView(_ bizChartView: BizChartView) -> Int
+    @objc func bizChartView(_ BizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row
+    @objc optional func bizChartView(_ bizChartView: BizChartView, distributeRowForDistributionPath distributionPath: DistributionPath, atIndex index: Int)
+    @objc optional func bizChartView(_ bizChartView: BizChartView, drawRowAtIndex index: Int, inContext context: CGContext)
+    @objc optional func bizChartViewWillDraw(_ bizChartView: BizChartView, inContext context: CGContext)
+    @objc optional func bizChartViewDidDraw(_ bizChartView: BizChartView, inContext context: CGContext)
     
-    @objc(BizChartView:rowAtIndex:)
-    func getRow(_ BizChartView: BizChartView, _ index: Int) -> BizChartView.Row
-
-    @objc(BizChartView:distributionForRow:atIndex:)
-    optional func distributeRow(_ BizChartView: BizChartView, _ distribution: BizDistribution, _ index: Int)
-    
-    @objc(BizChartView:drawRowAtIndex:inContext:)
-    optional func drawRow(_ BizChartView: BizChartView, _ index: Int, _ context: CGContext)
-
-    @objc(BizChartViewWillDraw:inContext:)
-    optional func willDraw(_ BizChartView: BizChartView, _ context: CGContext)
-    
-    @objc(BizChartViewDidDraw:inContext:)
-    optional func didDraw(_ BizChartView: BizChartView, _ context: CGContext)
-      
 }
 
 @objc(WQBizChartViewDistributionRow)
 public protocol BizChartViewDistributionRow {
-   
-    @objc func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> BizDistribution
+    
+    @objc func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> DistributionPath
     
 }
 
 @objc(WQBizChartView)
-open class BizChartView: ScrollChartView {
+open class BizChartView: ScrollChartView, Transformable {
     
-
+    
     @objc(WQBizChartViewRow)
     open class Row: NSObject {
         
@@ -60,7 +49,7 @@ open class BizChartView: ScrollChartView {
         open func measureLength(_ visualRange: CGFloat) -> CGFloat {
             return visualRange
         }
-    
+        
     }
     
     override func prepare() {
@@ -70,10 +59,17 @@ open class BizChartView: ScrollChartView {
     }
     
     @objc open var padding = UIEdgeInsets.zero {
-         didSet {
-             reloadData()
-         }
+        didSet {
+            reloadData()
+        }
     }
+    
+    @objc open var clipRect: NSValue? {
+        didSet {
+            redraw()
+        }
+    }
+    
     
     @objc open weak var adapter: BizChartViewAdapter? {
         didSet {
@@ -87,12 +83,15 @@ open class BizChartView: ScrollChartView {
         }
     }
     
-    @objc open private(set) var rows: [Row]?
+    @objc open var transformPadding: TransformUIEdgeInsets?
+    @objc open var transformClipRect: TransformCGRect?
+    
+    @objc private(set) public var rows: [Row]?
     
     private var needsReloadData = false
     private var layoutSize = CGSize.zero
     
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         
         let size = bounds.size
@@ -108,16 +107,16 @@ open class BizChartView: ScrollChartView {
             contentSize = .zero
             return
         }
-
+        
         let padding = self.padding
         var contentWidth = CGFloat(0)
         var contentHeight = CGFloat(0)
         
-        let rowCount = adapter.getRowCount(self)
+        let rowCount = adapter.numberOfRowsInBizChartView(self)
         let rows = NSMutableArray(capacity: rowCount)
         
         for i in 0..<rowCount {
-            let row = adapter.getRow(self, i)
+            let row = adapter.bizChartView(self, rowAtIndex: i)
             let length = row.measureLength(size.width - padding.left - padding.right)
             row.length = length
             rows.add(row)
@@ -131,7 +130,7 @@ open class BizChartView: ScrollChartView {
         
         contentWidth = reviseSize(contentWidth)
         contentHeight = reviseSize(contentHeight)
-         
+        
         self.rows = rows as? [Row]
         contentSize = CGSize(width: contentWidth, height: contentHeight)
     }
@@ -144,7 +143,11 @@ open class BizChartView: ScrollChartView {
             return
         }
         
-        adapter.willDraw?(self, context)
+        adapter.bizChartViewWillDraw?(self, inContext: context)
+        
+        if let clipRect = clipRect {
+            context.clip(to: clipRect.cgRectValue)
+        }
         
         let bounds = self.bounds
         
@@ -184,25 +187,25 @@ open class BizChartView: ScrollChartView {
                 
                 if contentBounds.intersects(rowRect) {
                     if let distributionRow = row as? BizChartViewDistributionRow {
-                        if let distributeRow = adapter.distributeRow {
-                            let distribution = distributionRow.distribute(distributionLowerBound, distributionUpperBound)
-                            distributeRow(self, distribution, i)
-                        }
+                        let distributionPath = distributionRow.distribute(distributionLowerBound, distributionUpperBound)
+                        adapter.bizChartView?(self, distributeRowForDistributionPath: distributionPath, atIndex: i)
                     }
-                    adapter.drawRow?(self, i, context)
                 }
                 
-                rowY = rowRect.maxY
+                adapter.bizChartView?(self, drawRowAtIndex: i, inContext: context)
                 
+                rowY = rowRect.maxY
                 if i < rowsCount - 1 {
                     rowY += separatorWidth
                 }
             }
         }
         
+        if clipRect != nil {
+            context.resetClip()
+        }
         
-        adapter.didDraw?(self, context)
-        
+        adapter.bizChartViewDidDraw?(self, inContext: context)
     }
     
     @objc
@@ -226,6 +229,21 @@ open class BizChartView: ScrollChartView {
             decimal = px // 1px
         }
         return CGFloat(integer) + decimal
+    }
+    
+    open func nextTransform(_ progress: CGFloat) {
+        if let transformPadding = transformPadding {
+            padding = transformPadding.valueForProgress(progress)
+        }
+        
+        if let transformClipRect = transformClipRect {
+            clipRect = transformClipRect.valueForProgress(progress) as NSValue
+        }
+    }
+    
+    open func clearTransforms() {
+        transformPadding = nil
+        transformClipRect = nil
     }
     
 }

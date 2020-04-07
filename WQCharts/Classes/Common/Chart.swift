@@ -12,7 +12,6 @@ import UIKit
 @objc(WQChart)
 public protocol Chart {
    
-    @objc(drawRect:inContext:)
-    func draw( _ rect: CGRect, _ context: CGContext)
+    @objc func draw(inRect rect: CGRect, context: CGContext)
     
 }

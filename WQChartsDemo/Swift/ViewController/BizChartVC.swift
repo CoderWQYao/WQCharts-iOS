@@ -26,17 +26,16 @@ class BizChartItem {
     }
 }
 
-class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
+class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewAdapter, Transformable {
     
     let barWidth: CGFloat
     let barWidthHalf: CGFloat
     let dataCount: Int
     let maxDataValue: CGFloat
-    let clipInset: UIEdgeInsets
+    let clipToRectInset: UIEdgeInsets
     
-    lazy var items: NSMutableArray = {
-        return NSMutableArray()
-    }()
+    var clipRect: CGRect?
+    var transformClipRect: TransformCGRect?
     
     lazy var barGraphics: NSMutableArray = {
         return NSMutableArray()
@@ -49,7 +48,7 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         barWidthHalf = barWidth / 2
         dataCount = 1000
         maxDataValue = 1000
-        clipInset = UIEdgeInsets(top: 0, left: -barWidthHalf, bottom: 0, right: -barWidthHalf)
+        clipToRectInset = UIEdgeInsets(top: 0, left: -barWidthHalf, bottom: 0, right: -barWidthHalf)
         super.init(nibName: nibNameOrNil, bundle: nibBundleOrNil)
     }
     
@@ -57,21 +56,29 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         fatalError("init(coder:) has not been implemented")
     }
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        self.chartView.frame = chartContainer.bounds
+    }
+    
+    override func chartViewDidCreate(_ chartView: BizChartView) {
+        super.chartViewDidCreate(chartView)
         chartView.adapter = self
         chartView.separatorWidth = 10
+        chartView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture(_:))))
+    }
+    
+    override func configChartOptions() {
+        super.configChartOptions()
         
         optionsView.addItem(RadioCell()
             .setTitle("Padding")
             .setOptions(["OFF","ON"])
             .setSelection(1)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
+            .setOnSelectionChange({[weak chartView](cell, selection) in
+                guard let chartView = chartView else {
                     return
                 }
-                let chartView = self.chartView
                 if selection != 0 {
                     chartView.padding = UIEdgeInsets(top: 20, left: 15, bottom: 20, right: 15)
                 } else {
@@ -110,7 +117,6 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
             })
         )
         
-        
         optionsView.addItem(RadioCell()
             .setTitle("ClipToRect")
             .setOptions(["OFF","ON"])
@@ -120,86 +126,41 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
             })
         )
         
-        let rowsCell = ListCell()
-            .setTitle("Rows")
-            .setIsMutable(true)
-            .setOnAppend({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-            
-                let item = self.createItem()
-                self.items.add(item)
-                self.chartView.reloadData()
-                
-                cell.addItem(self.createRowCell(item, self.items.count - 1))
-                self.scrollToListCell("Rows", .Bottom, true)
-            }).setOnRemove({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-
-                let index = self.items.count - 1
-                if index < 0 {
-                    return
-                }
-                cell.removeItem(at: index)
-                self.scrollToListCell("Rows", .Bottom, true)
-                
-                self.items.removeObject(at: index)
-                self.chartView.reloadData()
-            })
-        let items = self.items
+    }
+    
+    // MARK: - Items
+    
+    lazy var items: NSMutableArray = {
+        let items = NSMutableArray()
         for i in 0..<1 {
-            let item = createItem()
+            let item = createItem(atIndex: i)!
             items.add(item)
-            rowsCell.addItem(createRowCell(item, i))
         }
-        optionsView.addItem(rowsCell)
-        
-        callRadioCellsSectionChange()
-        chartView.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(handleLongPressGesture(_:))))
+        return items
+    }()
+    
+    var itemsOptionTitle: String {
+        return "Rows"
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        self.chartView.frame = chartContainer.bounds
-    }
-    
-    func createItem() -> BizChartItem  {
+    func createItem(atIndex index: Int) -> Any? {
         let charts = NSMutableArray()
         
         charts.add(AxisChart())
         charts.add(BarChart())
         
         let lineChart = LineChart()
-        lineChart.shapePaint = nil
-        lineChart.linePaint?.color = Color_Red
+        lineChart.paint?.color = Color_Red
         charts.add(lineChart)
         
         let lineChart2 = LineChart()
-        lineChart2.shapePaint = nil
-        lineChart2.linePaint?.color = Color_Orange
+        lineChart2.paint?.color = Color_Orange
         charts.add(lineChart2)
         
         return BizChartItem(charts as! [Chart], createDatas())
     }
     
-    func createDatas() -> [BizChartData] {
-        let datas = NSMutableArray()
-        for _ in 0..<dataCount {
-            let data = BizChartData()
-            data.barValue = CGFloat(arc4random() % UInt32((maxDataValue + 1)))
-            // 让线段不顶边
-            let lineMaxValue = maxDataValue * 0.8
-            data.lineValue = CGFloat(arc4random() % UInt32(lineMaxValue + 1)) + (maxDataValue - lineMaxValue) / 2
-            data.lineValue2 = CGFloat(arc4random() % UInt32(lineMaxValue + 1)) + (maxDataValue - lineMaxValue) / 2
-            datas.add(data)
-        }
-        return (datas as! [BizChartData])
-    }
-    
-    func createRowCell(_ item: BizChartItem, _ index: Int) -> SectionCell {
+    func createItemCell(withItem item: Any, atIndex index: Int)  -> UIView {
         return SectionCell()
             .setObject(item)
             .setTitle(String(format: "Row%ld", index))
@@ -211,6 +172,161 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
                 item.datas = self.createDatas()
                 self.chartView.redraw()
             })
+    }
+    
+    func itemsDidChange(_ items: NSMutableArray) {
+        chartView.reloadData()
+    }
+    
+    func createDatas() -> [BizChartData] {
+        let datas = NSMutableArray()
+        for _ in 0..<dataCount {
+            let data = BizChartData()
+            data.barValue = CGFloat.random(in: 0...maxDataValue)
+            // 让线段不顶边
+            let lineMinValue = maxDataValue * 0.2
+            let lineMaxValue = maxDataValue * 0.8
+            data.lineValue = CGFloat.random(in: lineMinValue...lineMaxValue)
+            data.lineValue2 = CGFloat.random(in: lineMinValue...lineMaxValue)
+            datas.add(data)
+        }
+        return (datas as! [BizChartData])
+    }
+    
+    // MARK: - BizChartViewAdapter
+    
+    func numberOfRowsInBizChartView(_ bizChartView: BizChartView) -> Int {
+        return items.count
+    }
+    
+    func bizChartView(_ BizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row {
+        let rowWidth = min(BizChartView.bounds.width, BizChartView.bounds.height) / 3
+        if radioCellSelectionForKey("DistributionMode") != 0 {
+            let visiableCount = Int((BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (barWidth + 2))
+            return FixedVisiableCountDistributionRow(rowWidth, visiableCount, dataCount)
+        } else {
+            return FixedItemSpacingDistributionRow(rowWidth, barWidth + 2, dataCount)
+        }
+    }
+    
+    func bizChartView(_ bizChartView: BizChartView, distributeRowForDistributionPath distributionPath: DistributionPath, atIndex index: Int) {
+        let item = items[index] as! BizChartItem
+        let axisChart = item.charts[0] as! AxisChart
+        let barChart = item.charts[1] as! BarChart
+        let lineChart = item.charts[2] as! LineChart
+        let lineChart2 = item.charts[3] as! LineChart
+        
+        let distributionPathItems = distributionPath.items
+        let capacity = distributionPathItems?.count ?? 0
+        
+        // Build Items
+        var minValue = CGFloat(0)
+        var maxValue = CGFloat(0)
+        let barChartItems = NSMutableArray(capacity: capacity)
+        let lineChartItems = NSMutableArray(capacity: capacity)
+        let lineChartItems2 = NSMutableArray(capacity: capacity)
+        for i in 0..<capacity {
+            let distributionPathItem = distributionPathItems![i]
+            let location = distributionPathItem.location
+            let data = item.datas[distributionPathItem.index]
+            let barValue = data.barValue
+            let lineValue = data.lineValue
+            let lineValue2 = data.lineValue2
+            
+            let barChartItem = BarChartItem(location, barValue)
+            barChartItem.barWidth = barWidth
+            barChartItem.paint?.fill?.color = Color_Gray
+            barChartItem.paint?.stroke = nil
+            barChartItems.add(barChartItem)
+            
+            lineChartItems.add(LineChartItem(CGPoint(x: location, y: lineValue)))
+            lineChartItems2.add(LineChartItem(CGPoint(x: location, y: lineValue2)))
+            
+            let itemMinValue = min(min(barValue, lineValue),lineValue2)
+            let itemMaxValue = max(max(barValue, lineValue),lineValue2)
+            if i==0 {
+                minValue = itemMinValue
+                maxValue = itemMaxValue
+            } else {
+                minValue = min(minValue, itemMinValue)
+                maxValue = max(maxValue, itemMaxValue)
+            }
+        }
+        
+        barChart.items = (barChartItems as! [BarChartItem])
+        lineChart.items = (lineChartItems as! [LineChartItem])
+        lineChart2.items = (lineChartItems2 as! [LineChartItem])
+        
+        // Fix Bounds
+        let fixedBoundsX = radioCellSelectionForKey("FixedBoundsX") != 0
+        let fixedBoundsY = radioCellSelectionForKey("FixedBoundsY") != 0
+        for i in 1..<item.charts.count {
+            let chart = item.charts[i] as! CoordinateChart
+            
+            if fixedBoundsX {
+                chart.fixedMinX = distributionPath.lowerBound as NSNumber
+                chart.fixedMaxX = distributionPath.upperBound as NSNumber
+            } else {
+                chart.fixedMinX = nil
+                chart.fixedMaxX = nil
+            }
+            
+            if fixedBoundsY {
+                chart.fixedMinY = 0
+                chart.fixedMaxY = maxDataValue as NSNumber
+            } else {
+                chart.fixedMinY = minValue as NSNumber
+                chart.fixedMaxY = maxValue as NSNumber
+            }
+        }
+        
+        axisChart.items = createAxisChartItems(CGFloat(barChart.fixedMinY?.doubleValue ?? 0), CGFloat(barChart.fixedMaxY?.doubleValue ?? 0))
+    }
+    
+    // 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
+    // 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
+    func bizChartView(_ bizChartView: BizChartView, drawRowAtIndex index: Int, inContext context: CGContext) {
+        let row = bizChartView.rows![index]
+        let rect = row.rect
+        
+        let item = items[index] as! BizChartItem
+        let axisChart = item.charts[0] as! AxisChart
+        let barChart = item.charts[1] as! BarChart
+        let lineChart = item.charts[2] as! LineChart
+        let lineChart2 = item.charts[3] as! LineChart
+        
+        let axisGraphic = axisChart.drawGraphic(rect.inset(by: UIEdgeInsets(top: -0.5, left: -barWidthHalf - 0.5, bottom: -0.5, right: -barWidthHalf - 0.5)), context)
+        
+        let clipToRect = radioCellSelectionForKey("ClipToRect") != 0
+        if clipToRect {
+            context.clip(to: rect.inset(by: clipToRectInset))
+            
+        }
+        
+        if let clipRect = clipRect {
+            context.clip(to: clipRect)
+        }
+        
+        
+        let barGraphic = barChart.drawGraphic(rect, context)
+        barGraphics.add(barGraphic)
+        
+        lineChart.drawGraphic(rect, context)
+        lineChart2.drawGraphic(rect, context)
+        
+        if clipToRect || clipRect != nil {
+            context.resetClip()
+        }
+        
+        axisChart.drawText(axisGraphic, context)
+    }
+    
+    func bizChartViewWillDraw(_ bizChartView: BizChartView, inContext context: CGContext) {
+        self.barGraphics = NSMutableArray(capacity: bizChartView.rows?.count ?? 0)
+    }
+    
+    func bizChartViewDidDraw(_ bizChartView: BizChartView, inContext context: CGContext) {
+        drawTouchFocus(context)
     }
     
     func createAxisChartItems(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> [AxisChartItem] {
@@ -258,150 +374,14 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         return items as! [AxisChartItem]
     }
     
-    @objc func handleLongPressGesture(_ gestureRecognizer: UILongPressGestureRecognizer)  {
-        let state = gestureRecognizer.state
-        if state == .began || state == .changed {
-            touchLocation = gestureRecognizer.location(in: gestureRecognizer.view)
-        } else {
-            touchLocation = nil
-        }
-        chartView.redraw()
-    }
-    
-    // MARK: - BizChartViewAdapter
-    
-    func getRowCount(_ BizChartView: BizChartView) -> Int {
-        return items.count
-    }
-    
-    func getRow(_ BizChartView: BizChartView, _ index: Int) -> BizChartView.Row {
-        let rowWidth = min(BizChartView.bounds.width, BizChartView.bounds.height) / 3
-        if radioCellSelectionForKey("DistributionMode") != 0 {
-            let visiableCount = Int((BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (barWidth + 2))
-            return FixedVisiableCountDistributionRow(rowWidth, visiableCount, dataCount)
-        } else {
-            return FixedItemSpacingDistributionRow(rowWidth, barWidth + 2, dataCount)
-        }
-    }
-    
-    func distributeRow(_ BizChartView: BizChartView, _ distribution: BizDistribution, _ index: Int) {
-        let item = items[index] as! BizChartItem
-        let axisChart = item.charts[0] as! AxisChart
-        let barChart = item.charts[1] as! BarChart
-        let lineChart = item.charts[2] as! LineChart
-        let lineChart2 = item.charts[3] as! LineChart
+    func drawTouchFocus(_ context: CGContext)  {
         
-        let distributionItems = distribution.items
-        let capacity = distributionItems?.count ?? 0
-        
-        // Build Items
-        var minValue = CGFloat(0)
-        var maxValue = CGFloat(0)
-        let barChartItems = NSMutableArray(capacity: capacity)
-        let lineChartItems = NSMutableArray(capacity: capacity)
-        let lineChartItems2 = NSMutableArray(capacity: capacity)
-        for i in 0..<capacity {
-            let distributionItem = distributionItems![i]
-            let location = distributionItem.location
-            let data = item.datas[distributionItem.index]
-            let barValue = data.barValue
-            let lineValue = data.lineValue
-            let lineValue2 = data.lineValue2
-            
-            let barChartItem = BarChartItem(location, barValue)
-            barChartItem.barWidth = barWidth
-            barChartItem.paint?.fill?.color = Color_Gray
-            barChartItem.paint?.stroke = nil
-            barChartItems.add(barChartItem)
-            
-            lineChartItems.add(LineChartItem(CGPoint(x: location, y: lineValue)))
-            lineChartItems2.add(LineChartItem(CGPoint(x: location, y: lineValue2)))
-            
-            let itemMinValue = min(min(barValue, lineValue),lineValue2)
-            let itemMaxValue = max(max(barValue, lineValue),lineValue2)
-            if i==0 {
-                minValue = itemMinValue
-                maxValue = itemMaxValue
-            } else {
-                minValue = min(minValue, itemMinValue)
-                maxValue = max(maxValue, itemMaxValue)
-            }
-        }
-        
-        barChart.items = (barChartItems as! [BarChartItem])
-        lineChart.items = (lineChartItems as! [LineChartItem])
-        lineChart2.items = (lineChartItems2 as! [LineChartItem])
-        
-        // Fix Bounds
-        let fixedBoundsX = radioCellSelectionForKey("FixedBoundsX") != 0
-        let fixedBoundsY = radioCellSelectionForKey("FixedBoundsY") != 0
-        for i in 1..<item.charts.count {
-            let chart = item.charts[i] as! CoordinateChart
-            
-            if fixedBoundsX {
-                chart.fixedMinX = distribution.lowerBound as NSNumber
-                chart.fixedMaxX = distribution.upperBound as NSNumber
-            } else {
-                chart.fixedMinX = nil
-                chart.fixedMaxX = nil
-            }
-            
-            if fixedBoundsY {
-                chart.fixedMinY = 0
-                chart.fixedMaxY = maxDataValue as NSNumber
-            } else {
-                chart.fixedMinY = minValue as NSNumber
-                chart.fixedMaxY = maxValue as NSNumber
-            }
-        }
-        
-        axisChart.items = createAxisChartItems(CGFloat(barChart.fixedMinY?.doubleValue ?? 0), CGFloat(barChart.fixedMaxY?.doubleValue ?? 0))
-    }
-    
-    
-    // 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
-    // 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
-    func drawRow(_ BizChartView: BizChartView, _ index: Int, _ context: CGContext) {
-        let row = BizChartView.rows![index]
-        let rect = row.rect
-        
-        let item = items[index] as! BizChartItem
-        let axisChart = item.charts[0] as! AxisChart
-        let barChart = item.charts[1] as! BarChart
-        let lineChart = item.charts[2] as! LineChart
-        let lineChart2 = item.charts[3] as! LineChart
-        
-        let axisGraphic = axisChart.drawGraphic(rect.inset(by: UIEdgeInsets(top: -0.5, left: -barWidthHalf - 0.5, bottom: -0.5, right: -barWidthHalf - 0.5)), context)
-        
-        let clipToRect = radioCellSelectionForKey("ClipToRect") != 0
-        if clipToRect {
-            context.clip(to: rect.inset(by: clipInset))
-        }
-        
-        let barGraphic = barChart.drawGraphic(rect, context)
-        barGraphics.add(barGraphic)
-        
-        lineChart.drawGraphic(rect, context)
-        lineChart2.drawGraphic(rect,context)
-        
-        if clipToRect {
-            context.resetClip()
-        }
-        
-        axisChart.drawText(axisGraphic, context)
-    }
-    
-    func willDraw(_ BizChartView: BizChartView, _ context: CGContext) {
-        self.barGraphics = NSMutableArray(capacity: BizChartView.rows?.count ?? 0)
-    }
-    
-    func didDraw(_ BizChartView: BizChartView, _ context: CGContext) {
         guard let touchLocation = touchLocation,
             let barGraphics = barGraphics as? [BarGraphic],
             let firstBarGraphic = barGraphics.first,
-            let nearestBarGraphicItem = firstBarGraphic.findNearestItem(touchLocation, firstBarGraphic.rect.inset(by: clipInset))
+            let nearestBarGraphicItem = firstBarGraphic.findNearestItem(touchLocation, firstBarGraphic.rect.inset(by: clipToRectInset))
             else {
-            return
+                return
         }
         
         let nearestBarItem = nearestBarGraphicItem.builder as! BarChartItem
@@ -414,7 +394,7 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         
         context.saveGState()
         
-        let bounds = BizChartView.bounds
+        let bounds = chartView.bounds
         let stringX = nearestBarGraphicItem.stringStart.x
         
         context.move(to: CGPoint(x: stringX, y: bounds.minY))
@@ -424,7 +404,7 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         context.setLineWidth(1)
         context.setStrokeColor(Color_White.cgColor)
         context.drawPath(using: .stroke)
-       
+        
         let paragraphStyle = NSMutableParagraphStyle()
         paragraphStyle.alignment = .center
         let stringAttributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: 9), NSAttributedString.Key.foregroundColor: Color_White, NSAttributedString.Key.paragraphStyle: paragraphStyle]
@@ -440,7 +420,7 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         context.setFillColor(Color_Tint.cgColor)
         context.fill(horizontalStringRect)
         horizontalString.draw(in: horizontalStringRect, withAttributes: stringAttributes)
-   
+        
         if let insideBarGraphic = insideBarGraphic_op {
             let verticalBoundsPoint = insideBarGraphic.convertRectPointToBounds(touchLocation)
             let verticalString = NSString(format: "Y:%.2f", verticalBoundsPoint.y)
@@ -458,5 +438,75 @@ class BizChartVC: BaseChartVC<BizChartView>, BizChartViewAdapter {
         
         context.restoreGState()
     }
-
+    
+    // MARK: - Animation
+    
+    override func appendAnimationKeys(_ animationKeys: NSMutableArray) {
+        super.appendAnimationKeys(animationKeys)
+        animationKeys.add("Padding")
+        animationKeys.add("Clip")
+    }
+    
+    override func prepareAnimationOfChartView(forKeys keys: [String]) {
+        super.prepareAnimationOfChartView(forKeys: keys)
+        
+        if keys.contains("Padding") {
+            let paddingCell = findRadioCellForKey("Padding")!
+            let padding: UIEdgeInsets
+            if paddingCell.selection == 0  {
+                padding = UIEdgeInsets(top: 20, left: 15, bottom: 20, right: 15)
+            } else {
+                padding = .zero
+            }
+            chartView.transformPadding = TransformUIEdgeInsets(chartView.padding, padding)
+            paddingCell.selection = paddingCell.selection == 0 ? 1 : 0
+        }
+        
+    }
+    
+    override func appendAnimations(inArray array: NSMutableArray, forKeys keys: [String]) {
+        super.appendAnimations(inArray: array, forKeys: keys)
+        
+        if keys.contains("Clip") {
+            let rect = chartView.bounds
+            let isReversed = Bool.random()
+            if isReversed {
+                transformClipRect = TransformCGRect(
+                    CGRect(x: rect.maxX, y: rect.minY, width: 0, height: rect.height),
+                    CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
+                )
+            } else {
+                transformClipRect = TransformCGRect(
+                    CGRect(x: rect.minX, y: rect.minY, width: 0, height: rect.height),
+                    CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
+                )
+            }
+            array.add(Animation(self, animationDuration, animationInterpolator))
+        }
+        
+    }
+    
+    // MARK: - Transformable
+    
+    func nextTransform(_ progress: CGFloat) {
+        clipRect = transformClipRect?.valueForProgress(progress)
+    }
+    
+    func clearTransforms() {
+        transformClipRect = nil
+        clipRect = nil
+    }
+    
+    // MARK: - Action
+    
+    @objc func handleLongPressGesture(_ gestureRecognizer: UILongPressGestureRecognizer)  {
+        let state = gestureRecognizer.state
+        if state == .began || state == .changed {
+            touchLocation = gestureRecognizer.location(in: gestureRecognizer.view)
+        } else {
+            touchLocation = nil
+        }
+        chartView.redraw()
+    }
+    
 }

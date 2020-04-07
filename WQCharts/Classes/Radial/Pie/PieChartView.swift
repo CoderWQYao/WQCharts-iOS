@@ -9,6 +9,13 @@
 
 import UIKit
 
+@objc(WQPieChartViewGraphicItemClickDelegate)
+public protocol PieChartViewGraphicItemClickDelegate {
+    
+    @objc func pieChartView(_ pieChartView: PieChartView, graphicItemDidClick graphicItem: PieGraphicItem)
+     
+}
+
 @objc(WQPieChartView)
 open class PieChartView: RadialChartView {
     
@@ -16,7 +23,15 @@ open class PieChartView: RadialChartView {
     /// The last drew Graphic for Pie in View
     @objc private(set) public var graphic: PieGraphic?
     
-    @objc open var onGraphicItemClick: ((_ chartView: PieChartView, _ graphicItem: PieGraphicItem) -> Void)?
+    @objc open weak var graphicItemClickDelegate: PieChartViewGraphicItemClickDelegate?
+    
+    override open var chartAsRadial: RadialChart {
+        return chart
+    }
+    
+    override open var graphicAsRadial: RadialGraphic? {
+        return graphic
+    }
     
     override func prepare() {
         super.prepare()
@@ -30,14 +45,8 @@ open class PieChartView: RadialChartView {
         self.graphic = graphic
     }
     
-    open override func callRotationOffset(_ rotationOffset: CGFloat) {
-        chart.rotation = Helper.angleIn360Degree(chart.rotation + rotationOffset)
-        redraw()
-        onRotationChange?(self,chart.rotation,rotationOffset)
-    }
-    
     @objc func handleTapGesture(_ gestureRecognizer: UITapGestureRecognizer) {
-        guard let items = graphic?.items, let onGraphicItemClick = onGraphicItemClick else {
+        guard let delegate = graphicItemClickDelegate, let items = graphic?.items else {
             return
         }
         let touchLocation = gestureRecognizer.location(in: self)
@@ -46,9 +55,19 @@ open class PieChartView: RadialChartView {
             let item = items[i]
             let path = item.path!
             if path.contains(touchLocation) {
-                onGraphicItemClick(self, item)
+                delegate.pieChartView(self, graphicItemDidClick: item)
             }
         }
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        chart.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        chart.clearTransforms()
     }
     
 }

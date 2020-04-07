@@ -9,10 +9,11 @@
 
 import UIKit
 
-@objc(WQPolygonGraphicPoint)
+@objc(WQPolygonGraphicItem)
 open class PolygonGraphicItem: GraphicItem {
    
     @objc open var angle = CGFloat(0)
     @objc open var point = CGPoint.zero
+    @objc open var axisPath: CGPath?
     
 }

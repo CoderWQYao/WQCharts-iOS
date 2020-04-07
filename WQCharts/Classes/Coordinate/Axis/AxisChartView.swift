@@ -15,6 +15,14 @@ open class AxisChartView: CoordinateChartView {
     @objc private(set) public var chart = AxisChart()
     /// The last drew Graphic for Axis in View
     @objc private(set) public var graphic: AxisGraphic?
+
+    override open var chartAsCoordinate: CoordinateChart {
+        return chart
+    }
+    
+    override open var graphicAsCoordinate: CoordinateGraphic? {
+        return graphic
+    }
     
     public override func draw(_ rect: CGRect, _ context: CGContext) {
         let graphic = chart.drawGraphic(rect, context)
@@ -22,4 +30,14 @@ open class AxisChartView: CoordinateChartView {
         self.graphic = graphic
     }
 
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        chart.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        chart.clearTransforms()
+    }
+    
 }

@@ -10,10 +10,11 @@
 #import "MainVC.h"
 #import "PolygonChartVC.h"
 #import "PieChartVC.h"
-#import "AxisChartVC.h"
-#import "LineChartVC.h"
-#import "BarChartVC.h"
 #import "RadarChartVC.h"
+#import "AxisChartVC.h"
+#import "BarChartVC.h"
+#import "LineChartVC.h"
+#import "AreaChartVC.h"
 #import "BizChartVC.h"
 
 @interface MainVC () <UITableViewDataSource,UITableViewDelegate>
@@ -24,7 +25,6 @@
 @end
 
 @implementation MainVC
-
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -94,6 +94,7 @@
             @{@"title":@"AxisChart",@"class":AxisChartVC.class},
             @{@"title":@"BarChart",@"class":BarChartVC.class},
             @{@"title":@"LineChart",@"class":LineChartVC.class},
+            @{@"title":@"AreaChart",@"class":AreaChartVC.class},
             @{@"title":@"BizChart",@"class":BizChartVC.class},
         ];
         _datas = datas;

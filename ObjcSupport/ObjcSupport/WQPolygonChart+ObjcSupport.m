@@ -1,17 +1,14 @@
 // https://github.com/CoderWQYao/WQCharts-iOS
 //
-// BaseChartItem.swift
+// WQPolygonChart+ObjcSupport.m
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
 // Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
-import UIKit
+#import "WQPolygonChart+ObjcSupport.h"
 
-@objc(WQChartItem)
-open class BaseChartItem: NSObject {
-    
-    @objc open var tag: Any?
-    
-}
+@implementation WQPolygonChart (ObjcSupport)
+
+@end

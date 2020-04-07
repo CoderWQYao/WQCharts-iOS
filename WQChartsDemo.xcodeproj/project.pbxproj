@@ -7,6 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		810A767B2420690E00AF362B /* AreaChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 810A767A2420690E00AF362B /* AreaChartVC.swift */; };
+		810E1FD0242AEDED00C43784 /* ButtonsCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 810E1FCF242AEDED00C43784 /* ButtonsCell.m */; };
+		810E2171242B303700C43784 /* CheckboxCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 810E2170242B303700C43784 /* CheckboxCell.m */; };
+		810E2179242C4A7A00C43784 /* NSNumber+Random.m in Sources */ = {isa = PBXBuildFile; fileRef = 810E2178242C4A7A00C43784 /* NSNumber+Random.m */; };
+		810E217C242C964F00C43784 /* CoordinateChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 810E217B242C964F00C43784 /* CoordinateChartVC.m */; };
+		810E2313242DAC3700C43784 /* AreaChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 810E2312242DAC3700C43784 /* AreaChartVC.m */; };
+		81358D312418C58000EF7955 /* Int.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81358D302418C58000EF7955 /* Int.swift */; };
 		8183B97B241219F600B38E40 /* WQCharts.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8183B97A241219F600B38E40 /* WQCharts.framework */; };
 		8183B97C241219F600B38E40 /* WQCharts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8183B97A241219F600B38E40 /* WQCharts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8183B9CA24121A9300B38E40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8183B9AF24121A9300B38E40 /* Assets.xcassets */; };
@@ -24,7 +31,7 @@
 		8183B9D724121A9300B38E40 /* LineChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C024121A9300B38E40 /* LineChartVC.swift */; };
 		8183B9D824121A9300B38E40 /* BizChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C124121A9300B38E40 /* BizChartVC.swift */; };
 		8183B9D924121A9300B38E40 /* RadarChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C224121A9300B38E40 /* RadarChartVC.swift */; };
-		8183B9DA24121A9300B38E40 /* BarLineChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C324121A9300B38E40 /* BarLineChartVC.swift */; };
+		8183B9DA24121A9300B38E40 /* CoordinateChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C324121A9300B38E40 /* CoordinateChartVC.swift */; };
 		8183B9DB24121A9300B38E40 /* BaseChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C424121A9300B38E40 /* BaseChartVC.swift */; };
 		8183B9DC24121A9300B38E40 /* PolygonChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C524121A9300B38E40 /* PolygonChartVC.swift */; };
 		8183B9DD24121A9300B38E40 /* AxisChartVC.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B9C624121A9300B38E40 /* AxisChartVC.swift */; };
@@ -41,7 +48,6 @@
 		8183BA6A24121C5600B38E40 /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA4A24121C5600B38E40 /* AppDelegate.m */; };
 		8183BA6B24121C5600B38E40 /* PieChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA4E24121C5600B38E40 /* PieChartVC.m */; };
 		8183BA6C24121C5600B38E40 /* RadialChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA4F24121C5600B38E40 /* RadialChartVC.m */; };
-		8183BA6D24121C5600B38E40 /* BarLineChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5024121C5600B38E40 /* BarLineChartVC.m */; };
 		8183BA6E24121C5600B38E40 /* MainVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5124121C5600B38E40 /* MainVC.m */; };
 		8183BA6F24121C5600B38E40 /* PolygonChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5424121C5600B38E40 /* PolygonChartVC.m */; };
 		8183BA7024121C5600B38E40 /* BizChartVC.m in Sources */ = {isa = PBXBuildFile; fileRef = 8183BA5A24121C5600B38E40 /* BizChartVC.m */; };
@@ -54,6 +60,8 @@
 		8183BA7824121C6D00B38E40 /* WQCharts.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 8183BA7624121C6D00B38E40 /* WQCharts.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		8183BA7A24121C9E00B38E40 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 8183B9AF24121A9300B38E40 /* Assets.xcassets */; };
 		8183BA7B24121C9E00B38E40 /* Launch Screen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 8183B9B124121A9300B38E40 /* Launch Screen.storyboard */; };
+		81E29960241789B2009D8581 /* ButtonsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81E2995F241789B2009D8581 /* ButtonsCell.swift */; };
+		81E2996224178E78009D8581 /* CheckboxCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 81E2996124178E78009D8581 /* CheckboxCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -82,6 +90,19 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		810A767A2420690E00AF362B /* AreaChartVC.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AreaChartVC.swift; sourceTree = "<group>"; };
+		810E1FCE242AEDED00C43784 /* ButtonsCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ButtonsCell.h; sourceTree = "<group>"; };
+		810E1FCF242AEDED00C43784 /* ButtonsCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ButtonsCell.m; sourceTree = "<group>"; };
+		810E216F242B303700C43784 /* CheckboxCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CheckboxCell.h; sourceTree = "<group>"; };
+		810E2170242B303700C43784 /* CheckboxCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CheckboxCell.m; sourceTree = "<group>"; };
+		810E2177242C4A7A00C43784 /* NSNumber+Random.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "NSNumber+Random.h"; sourceTree = "<group>"; };
+		810E2178242C4A7A00C43784 /* NSNumber+Random.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "NSNumber+Random.m"; sourceTree = "<group>"; };
+		810E217A242C964F00C43784 /* CoordinateChartVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = CoordinateChartVC.h; sourceTree = "<group>"; };
+		810E217B242C964F00C43784 /* CoordinateChartVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = CoordinateChartVC.m; sourceTree = "<group>"; };
+		810E2311242DAC3700C43784 /* AreaChartVC.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AreaChartVC.h; sourceTree = "<group>"; };
+		810E2312242DAC3700C43784 /* AreaChartVC.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = AreaChartVC.m; sourceTree = "<group>"; };
+		81358D302418C58000EF7955 /* Int.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Int.swift; sourceTree = "<group>"; };
+		8170000A24161F97000AEB05 /* ObjcSupport.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = ObjcSupport.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8183B962241219A100B38E40 /* WQChartsDemo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = WQChartsDemo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8183B97A241219F600B38E40 /* WQCharts.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WQCharts.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8183B9AF24121A9300B38E40 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -100,7 +121,7 @@
 		8183B9C024121A9300B38E40 /* LineChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LineChartVC.swift; sourceTree = "<group>"; };
 		8183B9C124121A9300B38E40 /* BizChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BizChartVC.swift; sourceTree = "<group>"; };
 		8183B9C224121A9300B38E40 /* RadarChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadarChartVC.swift; sourceTree = "<group>"; };
-		8183B9C324121A9300B38E40 /* BarLineChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BarLineChartVC.swift; sourceTree = "<group>"; };
+		8183B9C324121A9300B38E40 /* CoordinateChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CoordinateChartVC.swift; sourceTree = "<group>"; };
 		8183B9C424121A9300B38E40 /* BaseChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseChartVC.swift; sourceTree = "<group>"; };
 		8183B9C524121A9300B38E40 /* PolygonChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PolygonChartVC.swift; sourceTree = "<group>"; };
 		8183B9C624121A9300B38E40 /* AxisChartVC.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AxisChartVC.swift; sourceTree = "<group>"; };
@@ -126,7 +147,6 @@
 		8183BA4D24121C5600B38E40 /* BizChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BizChartVC.h; sourceTree = "<group>"; };
 		8183BA4E24121C5600B38E40 /* PieChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PieChartVC.m; sourceTree = "<group>"; };
 		8183BA4F24121C5600B38E40 /* RadialChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RadialChartVC.m; sourceTree = "<group>"; };
-		8183BA5024121C5600B38E40 /* BarLineChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarLineChartVC.m; sourceTree = "<group>"; };
 		8183BA5124121C5600B38E40 /* MainVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = MainVC.m; sourceTree = "<group>"; };
 		8183BA5224121C5600B38E40 /* BarChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarChartVC.h; sourceTree = "<group>"; };
 		8183BA5324121C5600B38E40 /* LineChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = LineChartVC.h; sourceTree = "<group>"; };
@@ -138,7 +158,6 @@
 		8183BA5924121C5600B38E40 /* RadialChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = RadialChartVC.h; sourceTree = "<group>"; };
 		8183BA5A24121C5600B38E40 /* BizChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BizChartVC.m; sourceTree = "<group>"; };
 		8183BA5B24121C5600B38E40 /* MainVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MainVC.h; sourceTree = "<group>"; };
-		8183BA5C24121C5600B38E40 /* BarLineChartVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = BarLineChartVC.h; sourceTree = "<group>"; };
 		8183BA5D24121C5600B38E40 /* LineChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = LineChartVC.m; sourceTree = "<group>"; };
 		8183BA5E24121C5600B38E40 /* BarChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BarChartVC.m; sourceTree = "<group>"; };
 		8183BA5F24121C5600B38E40 /* BaseChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = BaseChartVC.m; sourceTree = "<group>"; };
@@ -147,6 +166,8 @@
 		8183BA6224121C5600B38E40 /* RadarChartVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = RadarChartVC.m; sourceTree = "<group>"; };
 		8183BA7624121C6D00B38E40 /* WQCharts.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; path = WQCharts.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8183BA7C24121F1B00B38E40 /* WQCharts-prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "WQCharts-prefix.pch"; sourceTree = "<group>"; };
+		81E2995F241789B2009D8581 /* ButtonsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonsCell.swift; sourceTree = "<group>"; };
+		81E2996124178E78009D8581 /* CheckboxCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CheckboxCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -202,6 +223,7 @@
 		8183B979241219F600B38E40 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				8170000A24161F97000AEB05 /* ObjcSupport.framework */,
 				8183BA7624121C6D00B38E40 /* WQCharts.framework */,
 				8183B97A241219F600B38E40 /* WQCharts.framework */,
 			);
@@ -212,6 +234,7 @@
 			isa = PBXGroup;
 			children = (
 				8183B9BD24121A9300B38E40 /* AppDelegate.swift */,
+				81358D302418C58000EF7955 /* Int.swift */,
 				8183B9B424121A9300B38E40 /* Macro.swift */,
 				8183B9B324121A9300B38E40 /* UIColor.swift */,
 				8183B9B624121A9300B38E40 /* View */,
@@ -223,10 +246,12 @@
 		8183B9B624121A9300B38E40 /* View */ = {
 			isa = PBXGroup;
 			children = (
+				81E2996124178E78009D8581 /* CheckboxCell.swift */,
 				8183B9BA24121A9300B38E40 /* ListCell.swift */,
 				8183B9B924121A9300B38E40 /* ListView.swift */,
 				8183B9BB24121A9300B38E40 /* RadioCell.swift */,
 				8183B9B724121A9300B38E40 /* SectionCell.swift */,
+				81E2995F241789B2009D8581 /* ButtonsCell.swift */,
 				8183B9BC24121A9300B38E40 /* SliderCell.swift */,
 				8183B9B824121A9300B38E40 /* StyleView.swift */,
 			);
@@ -236,11 +261,12 @@
 		8183B9BE24121A9300B38E40 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				810A767A2420690E00AF362B /* AreaChartVC.swift */,
 				8183B9C624121A9300B38E40 /* AxisChartVC.swift */,
 				8183B9C724121A9300B38E40 /* BarChartVC.swift */,
-				8183B9C324121A9300B38E40 /* BarLineChartVC.swift */,
 				8183B9C424121A9300B38E40 /* BaseChartVC.swift */,
 				8183B9C124121A9300B38E40 /* BizChartVC.swift */,
+				8183B9C324121A9300B38E40 /* CoordinateChartVC.swift */,
 				8183B9C024121A9300B38E40 /* LineChartVC.swift */,
 				8183B9C924121A9300B38E40 /* MainVC.swift */,
 				8183B9BF24121A9300B38E40 /* PieChartVC.swift */,
@@ -257,6 +283,8 @@
 				8183BA3C24121C5600B38E40 /* AppDelegate.h */,
 				8183BA4A24121C5600B38E40 /* AppDelegate.m */,
 				8183BA3E24121C5600B38E40 /* main.m */,
+				810E2177242C4A7A00C43784 /* NSNumber+Random.h */,
+				810E2178242C4A7A00C43784 /* NSNumber+Random.m */,
 				8183BA4B24121C5600B38E40 /* UIColor+WQCharts.h */,
 				8183BA3D24121C5600B38E40 /* UIColor+WQCharts.m */,
 				8183BA3F24121C5600B38E40 /* View */,
@@ -279,6 +307,10 @@
 				8183BA4224121C5600B38E40 /* SectionCell.m */,
 				8183BA4724121C5600B38E40 /* SliderCell.h */,
 				8183BA4024121C5600B38E40 /* SliderCell.m */,
+				810E1FCE242AEDED00C43784 /* ButtonsCell.h */,
+				810E1FCF242AEDED00C43784 /* ButtonsCell.m */,
+				810E216F242B303700C43784 /* CheckboxCell.h */,
+				810E2170242B303700C43784 /* CheckboxCell.m */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -286,16 +318,18 @@
 		8183BA4C24121C5600B38E40 /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				810E2311242DAC3700C43784 /* AreaChartVC.h */,
+				810E2312242DAC3700C43784 /* AreaChartVC.m */,
 				8183BA5724121C5600B38E40 /* AxisChartVC.h */,
 				8183BA6024121C5600B38E40 /* AxisChartVC.m */,
 				8183BA5224121C5600B38E40 /* BarChartVC.h */,
 				8183BA5E24121C5600B38E40 /* BarChartVC.m */,
-				8183BA5C24121C5600B38E40 /* BarLineChartVC.h */,
-				8183BA5024121C5600B38E40 /* BarLineChartVC.m */,
 				8183BA5624121C5600B38E40 /* BaseChartVC.h */,
 				8183BA5F24121C5600B38E40 /* BaseChartVC.m */,
 				8183BA4D24121C5600B38E40 /* BizChartVC.h */,
 				8183BA5A24121C5600B38E40 /* BizChartVC.m */,
+				810E217A242C964F00C43784 /* CoordinateChartVC.h */,
+				810E217B242C964F00C43784 /* CoordinateChartVC.m */,
 				8183BA5324121C5600B38E40 /* LineChartVC.h */,
 				8183BA5D24121C5600B38E40 /* LineChartVC.m */,
 				8183BA5B24121C5600B38E40 /* MainVC.h */,
@@ -416,20 +450,24 @@
 			files = (
 				8183B9CF24121A9300B38E40 /* SectionCell.swift in Sources */,
 				8183B9E024121A9300B38E40 /* MainVC.swift in Sources */,
+				81E29960241789B2009D8581 /* ButtonsCell.swift in Sources */,
 				8183B9D924121A9300B38E40 /* RadarChartVC.swift in Sources */,
 				8183B9DC24121A9300B38E40 /* PolygonChartVC.swift in Sources */,
 				8183B9CE24121A9300B38E40 /* Macro.swift in Sources */,
 				8183B9D124121A9300B38E40 /* ListView.swift in Sources */,
 				8183B9D524121A9300B38E40 /* AppDelegate.swift in Sources */,
+				810A767B2420690E00AF362B /* AreaChartVC.swift in Sources */,
 				8183B9D724121A9300B38E40 /* LineChartVC.swift in Sources */,
 				8183B9D224121A9300B38E40 /* ListCell.swift in Sources */,
-				8183B9DA24121A9300B38E40 /* BarLineChartVC.swift in Sources */,
+				8183B9DA24121A9300B38E40 /* CoordinateChartVC.swift in Sources */,
 				8183B9D024121A9300B38E40 /* StyleView.swift in Sources */,
 				8183B9DD24121A9300B38E40 /* AxisChartVC.swift in Sources */,
 				8183B9D824121A9300B38E40 /* BizChartVC.swift in Sources */,
+				81E2996224178E78009D8581 /* CheckboxCell.swift in Sources */,
 				8183B9CD24121A9300B38E40 /* UIColor.swift in Sources */,
 				8183B9D424121A9300B38E40 /* SliderCell.swift in Sources */,
 				8183B9DB24121A9300B38E40 /* BaseChartVC.swift in Sources */,
+				81358D312418C58000EF7955 /* Int.swift in Sources */,
 				8183B9D624121A9300B38E40 /* PieChartVC.swift in Sources */,
 				8183B9DF24121A9300B38E40 /* RadialChartVC.swift in Sources */,
 				8183B9D324121A9300B38E40 /* RadioCell.swift in Sources */,
@@ -446,11 +484,15 @@
 				8183BA6824121C5600B38E40 /* ListCell.m in Sources */,
 				8183BA7424121C5600B38E40 /* AxisChartVC.m in Sources */,
 				8183BA7524121C5600B38E40 /* RadarChartVC.m in Sources */,
-				8183BA6D24121C5600B38E40 /* BarLineChartVC.m in Sources */,
+				810E217C242C964F00C43784 /* CoordinateChartVC.m in Sources */,
 				8183BA6724121C5600B38E40 /* SectionCell.m in Sources */,
+				810E2171242B303700C43784 /* CheckboxCell.m in Sources */,
 				8183BA6524121C5600B38E40 /* SliderCell.m in Sources */,
+				810E1FD0242AEDED00C43784 /* ButtonsCell.m in Sources */,
 				8183BA6F24121C5600B38E40 /* PolygonChartVC.m in Sources */,
 				8183BA6624121C5600B38E40 /* ListView.m in Sources */,
+				810E2179242C4A7A00C43784 /* NSNumber+Random.m in Sources */,
+				810E2313242DAC3700C43784 /* AreaChartVC.m in Sources */,
 				8183BA6B24121C5600B38E40 /* PieChartVC.m in Sources */,
 				8183BA6A24121C5600B38E40 /* AppDelegate.m in Sources */,
 				8183BA6424121C5600B38E40 /* main.m in Sources */,

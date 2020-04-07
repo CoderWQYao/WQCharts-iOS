@@ -9,6 +9,7 @@
 
 import UIKit
 
+
 @objc(WQPolygonChartView)
 open class PolygonChartView: RadialChartView {
 
@@ -16,16 +17,28 @@ open class PolygonChartView: RadialChartView {
     /// The last drew Graphic for Polygon in View
     @objc private(set) public var graphic: PolygonGraphic?
 
+    override open var chartAsRadial: RadialChart {
+        return chart
+    }
+    
+    override open var graphicAsRadial: RadialGraphic? {
+        return graphic
+    }
+    
     public override func draw(_ rect: CGRect, _ context: CGContext) {
         let graphic = chart.drawGraphic(rect, context)
         chart.drawText(graphic, context)
         self.graphic = graphic
     }
     
-    open override func callRotationOffset(_ rotationOffset: CGFloat) {
-        chart.rotation = Helper.angleIn360Degree(chart.rotation + rotationOffset)
-        redraw()
-        onRotationChange?(self,chart.rotation,rotationOffset)
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        chart.nextTransform(progress)
     }
-
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        chart.clearTransforms()
+    }
 }
+

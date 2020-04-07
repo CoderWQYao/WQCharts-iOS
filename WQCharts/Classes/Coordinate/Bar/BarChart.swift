@@ -14,7 +14,7 @@ open class BarChart: CoordinateChart {
     
     @objc open var items: [BarChartItem]?
     
-    open override func draw(_ rect: CGRect, _ context: CGContext) {
+    override open func draw(inRect rect: CGRect, context: CGContext) {
         let graphic = drawGraphic(rect, context)
         drawText(graphic, context)
     }
@@ -109,7 +109,7 @@ open class BarChart: CoordinateChart {
         }
     }
     
-    override open func calculateUnfixedBounds() -> CGRect {
+    override open func calcBounds() -> CGRect {
         guard let items = items else {
             return .zero
         }
@@ -152,4 +152,23 @@ open class BarChart: CoordinateChart {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
     
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let items = items {
+            for item in items {
+                item.nextTransform(progress)
+            }
+        }
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        if let items = items {
+            for item in items {
+                item.clearTransforms()
+            }
+        }
+    }
 }

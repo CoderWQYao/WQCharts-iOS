@@ -47,7 +47,7 @@ class Helper: NSObject {
         var isMatched = false
         var matchingAngle:CGFloat = 0
         for i in 0..<count {
-            if matchingAngle==angle {
+            if matchingAngle == angle {
                 isMatched = true
                 var tempPoints: [CGPoint] = [CGPoint](repeating: .zero, count: 4)
                 for j in 0..<count {
@@ -68,7 +68,7 @@ class Helper: NSObject {
         for i in 0..<count {
             let cornerRadius = cornerRadii[i]
             let point = points[i]
-            if(cornerRadius>0 && min(size.width, size.height)>=cornerRadius) {
+            if(cornerRadius>0 && min(size.width, size.height) >= cornerRadius) {
                 let offsetRadian = convertAngleToRadian(cornerAngle + 45)
                 let offsetDistance = sqrt(cornerRadius * cornerRadius * 2)
                 let center = CGPoint(x: point.x + offsetDistance * sin(offsetRadian), y: point.y - offsetDistance * cos(offsetRadian))

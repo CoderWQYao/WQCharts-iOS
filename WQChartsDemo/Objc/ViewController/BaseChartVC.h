@@ -10,29 +10,60 @@
 #import <UIKit/UIKit.h>
 #import "ListView.h"
 #import "RadioCell.h"
+#import "CheckboxCell.h"
 #import "ListCell.h"
 #import "SliderCell.h"
 #import "SectionCell.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BaseChartVC : UIViewController
+@class BaseChartVC;
 
-@property (nonatomic, strong) UIView* chartContainer;
-@property (nonatomic, strong) ListView* optionsView;
+@protocol ItemsOptionsDelegate <NSObject>
 
+@property (nonatomic, readonly) NSMutableArray* items;
+@property (nonatomic, readonly) NSString* itemsOptionTitle;
+- (id)createItemAtIndex:(NSInteger)index;
+- (UIView*)createItemCellWithItem:(id)item atIndex:(NSInteger)index;
+- (void)itemsDidChange:(NSMutableArray*)items;
 
-#pragma mark - Paint Support
+@end
+
+@interface BaseChartVC : UIViewController<WQAnimationDelegate>
+
+@property (nonatomic, readonly) UIView* chartContainer;
+@property (nonatomic, readonly) ListView* optionsView;
+@property (nonatomic, readonly) UIView* chartViewRef;
+@property (nonatomic, readonly) WQAnimationPlayer* animationPlayer;
+@property (nonatomic, readonly) NSTimeInterval animationDuration;
+@property (nonatomic, readonly) id<WQInterpolator> animationInterpolator;
+
+- (UIView*)createChartView;
+- (void)chartViewDidCreate:(UIView*)chartView;
+- (void)configChartOptions;
+- (void)configChartItemsOptions;
+
+#pragma mark - Paint
+
 - (void)setupStrokePaint:(WQLinePaint* _Nullable)paint color:(UIColor* _Nullable)color type:(NSInteger)type;
 
-#pragma mark - Cells Support
+#pragma mark - Cell
+
 - (ListCell*)findListCellForKey:(NSString*)key;
-- (NSUInteger)radioCellSelectionForKey:(NSString*)key;
-- (void)updateSliderValueForKey:(NSString*)key index:(NSUInteger)index value:(CGFloat)value;
-- (CGFloat)sliderValueForKey:(NSString*)key index:(NSUInteger)index;
-- (CGFloat)sliderIntegerValueForKey:(NSString*)key index:(NSUInteger)index;
+- (RadioCell*)findRadioCellForKey:(NSString*)key;
+- (NSInteger)radioCellSelectionForKey:(NSString*)key;
+- (void)updateSliderValue:(CGFloat)value forKey:(NSString*)key atIndex:(NSUInteger)index;
+- (CGFloat)sliderValueForKey:(NSString*)key atIndex:(NSUInteger)index;
+- (CGFloat)sliderIntegerValueForKey:(NSString*)key atIndex:(NSUInteger)index;
 - (void)scrollToListCellForKey:(NSString*)key atScrollPosition:(ListViewScrollPosition)scrollPosition animated:(BOOL)animated;
 - (void)callRadioCellsSectionChange;
+
+#pragma mark - Animation
+
+- (void)configAnimationOptions;
+- (void)appendAnimationKeys:(NSMutableArray<NSString*>*)animationKeys;
+- (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys;
+- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation*>*)array forKeys:(NSArray<NSString*>*)keys;
 
 @end
 

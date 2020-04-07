@@ -43,18 +43,22 @@
 
 @end
 
-@interface BizChartVC () <WQBizChartViewAdapter>
+@interface BizChartVC () <WQTransformable>
+
+@property (nonatomic, strong) WQBizChartView* chartView;
 
 @property (nonatomic) CGFloat barWidth;
 @property (nonatomic) CGFloat barWidthHalf;
 @property (nonatomic) NSInteger dataCount;
 @property (nonatomic) CGFloat maxDataValue;
-@property (nonatomic) UIEdgeInsets clipInset;
+@property (nonatomic) UIEdgeInsets clipToRectInset;
 
-@property (nonatomic, strong) WQBizChartView* chartView;
 @property (nonatomic, strong) NSMutableArray<BizChartItem*>* items;
 @property (nonatomic, strong) NSMutableArray<WQBarGraphic*>* barGraphics;
 @property (nonatomic, strong) NSValue* touchLocation;
+
+@property (nonatomic, strong) NSValue* clipRect;
+@property (nonatomic, strong) WQTransformCGRect* transformClipRect;
 
 @end
 
@@ -62,18 +66,30 @@
 
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        self.barWidth = 4;
+        self.barWidth = 5;
         self.barWidthHalf = self.barWidth / 2;
         self.dataCount = 1000;
         self.maxDataValue = 1000;
-        self.clipInset = UIEdgeInsetsMake(0, -self.barWidthHalf, 0, -self.barWidthHalf);
+        self.clipToRectInset = UIEdgeInsetsMake(0, -self.barWidthHalf, 0, -self.barWidthHalf);
     }
     return self;
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self.chartContainer addSubview:self.chartView];
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    self.chartView.frame = self.chartContainer.bounds;
+}
+
+- (UIView *)createChartView {
+    _chartView = [[WQBizChartView alloc] init];
+    _chartView.adapter = self;
+    _chartView.separatorWidth = 10;
+    [_chartView addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)]];
+    return _chartView;
+}
+
+- (void)configChartOptions {
+    [super configChartOptions];
     
     __weak typeof(self) weakSelf = self;
     
@@ -82,10 +98,11 @@
      .setOptions(@[@"OFF",@"ON"])
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
+        WQBizChartView* chartView = weakSelf.chartView;
         if(selection) {
-            weakSelf.chartView.padding = UIEdgeInsetsMake(20, 15, 20, 15);
+            chartView.padding = UIEdgeInsetsMake(20, 15, 20, 15);
         } else {
-            weakSelf.chartView.padding = UIEdgeInsetsZero;
+            chartView.padding = UIEdgeInsetsZero;
         }
     })];
     
@@ -124,76 +141,42 @@
         [weakSelf.chartView redraw];
     })];
     
-    ListCell* rowsCell = ListCell.new
-    .setTitle(@"Rows")
-    .setIsMutable(YES)
-    .setOnAppend(^void(ListCell* cell) {
-        BizChartItem* item = [weakSelf createItem];
-        [weakSelf.items addObject:item];
-        [(WQBizChartView*)weakSelf.chartView reloadData];
-        
-        cell.addItem([weakSelf createRowCellWithItem:item index:weakSelf.items.count - 1]);
-        [weakSelf scrollToListCellForKey:@"Rows" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-    })
-    .setOnRemove(^(ListCell* cell) {
-        NSMutableArray<BizChartItem*>* items = weakSelf.items;
-        NSInteger index = items.count - 1;
-        if(index < 0) {
-            return;
-        }
-        cell.removeItemAtIndex(index);
-        [weakSelf scrollToListCellForKey:@"Rows" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-        
-        [items removeObjectAtIndex:index];
-        [weakSelf.chartView reloadData];
-    });
-    NSMutableArray<BizChartItem*>* items = self.items;
-    for (NSInteger i=0; i<1; i++) {
-        BizChartItem* item = [self createItem];
-        [items addObject:item];
-        rowsCell.addItem([self createRowCellWithItem:item index:i]);
-    }
-    [self.optionsView addItem:rowsCell];
-    
-    [self callRadioCellsSectionChange];
-    [self.chartView addGestureRecognizer:[[UILongPressGestureRecognizer alloc] initWithTarget:self action:@selector(handleLongPressGesture:)]];
 }
 
-- (void)viewWillLayoutSubviews {
-    [super viewWillLayoutSubviews];
-    self.chartView.frame = self.chartContainer.bounds;
-}
+#pragma mark - Items
 
-- (WQBizChartView *)chartView {
-    if(!_chartView) {
-        _chartView = [[WQBizChartView alloc] init];
-        _chartView.adapter = self;
-        _chartView.separatorWidth = 10;
-    }
-    return _chartView;
+- (void)configChartItemsOptions {
+    [super configChartItemsOptions];
 }
 
 - (NSMutableArray<BizChartItem *> *)items {
     if(!_items) {
-        _items = [NSMutableArray array];
+        NSMutableArray<BizChartItem*>* items = [NSMutableArray array];
+        for (NSInteger i=0; i<1; i++) {
+            BizChartItem* item = [self createItemAtIndex:i];
+            [items addObject:item];
+        }
+        _items = items;
     }
     return _items;
 }
 
-- (BizChartItem*)createItem {
+- (NSString*)itemsOptionTitle {
+    return @"Rows";
+}
+
+- (BizChartItem*)createItemAtIndex:(NSInteger)index {
     NSMutableArray<id<WQChart>>* charts = [NSMutableArray array];
     
     [charts addObject:[[WQAxisChart alloc] init]];
     [charts addObject:[[WQBarChart alloc] init]];
     
     WQLineChart* lineChart = [[WQLineChart alloc] init];
-    lineChart.shapePaint = nil;
-    lineChart.linePaint.color = Color_Red;
+    lineChart.paint.color = Color_Red;
     [charts addObject:lineChart];
     
     WQLineChart* lineChart2 = [[WQLineChart alloc] init];
-    lineChart2.shapePaint = nil;
-    lineChart2.linePaint.color = Color_Orange;
+    lineChart2.paint.color = Color_Orange;
     [charts addObject:lineChart2];
     
     return [[BizChartItem alloc] initWithCharts:charts datas:[self createDatas]];
@@ -203,17 +186,18 @@
     NSMutableArray<BizChartData*>* datas = [NSMutableArray array];
     for (NSInteger i=0; i<self.dataCount; i++) {
         BizChartData* data = [[BizChartData alloc] init];
-        data.barValue = arc4random() % ((NSInteger)self.maxDataValue + 1);
+        data.barValue = [NSNumber randomCGFloatFrom:0 to:self.maxDataValue];
         // 让线段不顶边
+        NSInteger lineMinValue = self.maxDataValue * 0.2;
         NSInteger lineMaxValue = self.maxDataValue * 0.8;
-        data.lineValue = arc4random() % (lineMaxValue + 1) + (self.maxDataValue - lineMaxValue) / 2;
-        data.lineValue2 = arc4random() % (lineMaxValue + 1) + (self.maxDataValue - lineMaxValue) / 2;
+        data.lineValue = [NSNumber randomCGFloatFrom:lineMinValue to:lineMaxValue];
+        data.lineValue2 =[NSNumber randomCGFloatFrom:lineMinValue to:lineMaxValue];
         [datas addObject:data];
     }
     return datas;
 }
 
-- (SectionCell*)createRowCellWithItem:(BizChartItem*)item index:(NSInteger)index {
+- (SectionCell*)createItemCellWithItem:(BizChartItem*)item atIndex:(NSInteger)index {
     __weak typeof(self) weakSelf = self;
     return SectionCell.new
     .setObject(item)
@@ -223,6 +207,143 @@
         item.datas = [weakSelf createDatas];
         [weakSelf.chartView redraw];
     });
+}
+
+- (void)itemsDidChange:(NSMutableArray*)items {
+    [self.chartView reloadData];
+}
+
+#pragma mark - BizChartViewAdapter
+
+- (NSInteger)numberOfRowsInBizChartView:(WQBizChartView *)bizChartView {
+    return self.items.count;
+}
+
+- (WQBizChartViewRow *)bizChartView:(WQBizChartView *)bizChartView rowAtIndex:(NSInteger)index {
+    CGFloat rowWidth = MIN(bizChartView.bounds.size.height, bizChartView.bounds.size.width) / 3;
+    if([self radioCellSelectionForKey:@"DistributionMode"] != 0) {
+        NSInteger visiableCount = (bizChartView.bounds.size.width - bizChartView.padding.left - bizChartView.padding.right) / (self.barWidth + 2);
+        return [[WQFixedVisiableCountDistributionRow alloc] initWithWidth:rowWidth visiableCount:visiableCount itemCount:self.dataCount];
+    } else {
+        return [[WQFixedItemSpacingDistributionRow alloc] initWithWidth:rowWidth itemSpacing:self.barWidth + 2 itemCount:self.dataCount];
+    }
+}
+
+- (void)bizChartView:(WQBizChartView *)bizChartView distributeRowForDistributionPath:(WQDistributionPath *)distributionPath atIndex:(NSInteger)index {
+    BizChartItem* item = self.items[index];
+    WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
+    WQBarChart* barChart = (WQBarChart*)item.charts[1];
+    WQLineChart* lineChart = (WQLineChart*)item.charts[2];
+    WQLineChart* lineChart2 = (WQLineChart*)item.charts[3];
+    
+    NSArray<WQDistributionPathItem*>* distributionPathItems = distributionPath.items;
+    NSInteger capacity = distributionPathItems.count;
+    
+    // Build Items
+    CGFloat minValue = 0;
+    CGFloat maxValue = 0;
+    NSMutableArray<WQBarChartItem*>* barChartItems = [NSMutableArray arrayWithCapacity:capacity];
+    NSMutableArray<WQLineChartItem*>* lineChartItems = [NSMutableArray arrayWithCapacity:capacity];
+    NSMutableArray<WQLineChartItem*>* lineChartItems2 = [NSMutableArray arrayWithCapacity:capacity];
+    for (NSInteger i=0; i<capacity; i++) {
+        WQDistributionPathItem* distributionPathItem = distributionPathItems[i];
+        BizChartData* data = item.datas[distributionPathItem.index];
+        NSInteger location = distributionPathItem.location;
+        CGFloat barValue = data.barValue;
+        CGFloat lineValue = data.lineValue;
+        CGFloat lineValue2 = data.lineValue2;
+        
+        WQBarChartItem* barChartItem = [[WQBarChartItem alloc] initWithX:location endY:barValue];
+        barChartItem.barWidth = self.barWidth;
+        barChartItem.paint.fill.color = Color_Gray;
+        barChartItem.paint.stroke = nil;
+        [barChartItems addObject:barChartItem];
+        
+        [lineChartItems addObject:[[WQLineChartItem alloc] initWithValue:CGPointMake(location, lineValue)]];
+        [lineChartItems2 addObject:[[WQLineChartItem alloc] initWithValue:CGPointMake(location, lineValue2)]];
+        
+        CGFloat itemMinValue = MIN(MIN(barValue, lineValue),lineValue2);
+        CGFloat itemMaxValue = MAX(MAX(barValue, lineValue),lineValue2);
+        if(i==0) {
+            minValue = itemMinValue;
+            maxValue = itemMaxValue;
+        } else {
+            minValue = MIN(minValue, itemMinValue);
+            maxValue = MAX(maxValue, itemMaxValue);
+        }
+    }
+    
+    barChart.items = barChartItems;
+    lineChart.items = lineChartItems;
+    lineChart2.items = lineChartItems2;
+    
+    // Fix Bounds
+    BOOL fixedBoundsX = [self radioCellSelectionForKey:@"FixedBoundsX"] != 0;
+    BOOL fixedBoundsY = [self radioCellSelectionForKey:@"FixedBoundsY"] != 0;
+    for (NSInteger i=1; i<item.charts.count; i++) {
+        WQCoordinateChart* chart = (WQCoordinateChart*)item.charts[i];
+        if(fixedBoundsX) {
+            chart.fixedMinX = @(distributionPath.lowerBound);
+            chart.fixedMaxX = @(distributionPath.upperBound);
+        } else {
+            chart.fixedMinX = nil;
+            chart.fixedMaxX = nil;
+        }
+        
+        if(fixedBoundsY) {
+            chart.fixedMinY = @(0);
+            chart.fixedMaxY = @(self.maxDataValue);
+        } else {
+            chart.fixedMinY = @(minValue);
+            chart.fixedMaxY = @(maxValue);
+        }
+    }
+    
+    axisChart.items = [self createAxisChartItemsWithLowerBound:barChart.fixedMinY.doubleValue upperBound:barChart.fixedMaxY.doubleValue];
+}
+
+// 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
+// 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
+- (void)bizChartView:(WQBizChartView *)bizChartView drawRowAtIndex:(NSInteger)index inContext:(CGContextRef)context {
+    WQBizChartViewRow* row = bizChartView.rows[index];
+    CGRect rect = row.rect;
+    
+    BizChartItem* item = self.items[index];
+    WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
+    WQBarChart* barChart = (WQBarChart*)item.charts[1];
+    WQLineChart* lineChart = (WQLineChart*)item.charts[2];
+    WQLineChart* lineChart2 = (WQLineChart*)item.charts[3];
+    
+    WQAxisGraphic* axisGraphic = [axisChart drawGraphicInRect:UIEdgeInsetsInsetRect(rect, UIEdgeInsetsMake(-0.5, -self.barWidthHalf - 0.5, -0.5, -self.barWidthHalf - 0.5))  context:context];
+    
+    BOOL clipToRect = [self radioCellSelectionForKey:@"ClipToRect"] != 0;
+    if(clipToRect) {
+        CGContextClipToRect(context, UIEdgeInsetsInsetRect(rect, self.clipToRectInset));
+    }
+    
+    if (self.clipRect) {
+        CGContextClipToRect(context, self.clipRect.CGRectValue);
+    }
+    
+    WQBarGraphic* barGraphic = [barChart drawGraphicInRect:rect context:context];
+    [self.barGraphics addObject:barGraphic];
+    
+    [lineChart drawGraphicInRect:rect context:context];
+    [lineChart2 drawGraphicInRect:rect context:context];
+    
+    if(clipToRect || self.clipRect) {
+        CGContextResetClip(context);
+    }
+    
+    [axisChart drawTextForGraphic:axisGraphic inContext:context];
+}
+
+- (void)bizChartViewWillDraw:(WQBizChartView *)bizChartView inContext:(CGContextRef)context {
+    self.barGraphics = [NSMutableArray arrayWithCapacity:bizChartView.rows.count];
+}
+
+- (void)bizChartViewDidDraw:(WQBizChartView *)bizChartView inContext:(CGContextRef)context {
+    [self drawTouchFocusInContext:context];
 }
 
 - (NSArray<WQAxisChartItem*>*)createAxisChartItemsWithLowerBound:(CGFloat)lowerBound upperBound:(CGFloat)upperBound {
@@ -270,144 +391,7 @@
     return items;
 }
 
-- (void)handleLongPressGesture:(UILongPressGestureRecognizer*)gestureRecognizer  {
-    UIGestureRecognizerState state = gestureRecognizer.state;
-    if (state == UIGestureRecognizerStateBegan || state == UIGestureRecognizerStateChanged) {
-        self.touchLocation = [NSValue valueWithCGPoint:[gestureRecognizer locationInView:gestureRecognizer.view]];
-    } else {
-        self.touchLocation = nil;
-    }
-    [self.chartView redraw];
-}
-
-
-#pragma mark - BizChartViewAdapter
-
-- (NSInteger)numberOfRowsInHorizontalBizChartView:(WQBizChartView *)BizChartView {
-    return _items.count;
-}
-
-- (WQBizChartViewRow *)BizChartView:(WQBizChartView *)BizChartView rowAtIndex:(NSInteger)index {
-    CGFloat rowWidth = MIN(BizChartView.bounds.size.height, BizChartView.bounds.size.width) / 3;
-    if([self radioCellSelectionForKey:@"DistributionMode"] != 0) {
-        NSInteger visiableCount = (BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (self.barWidth + 2);
-        return [[WQFixedVisiableCountDistributionRow alloc] initWithWidth:rowWidth visiableCount:visiableCount itemCount:self.dataCount];
-    } else {
-        return [[WQFixedItemSpacingDistributionRow alloc] initWithWidth:rowWidth itemSpacing:self.barWidth + 2 itemCount:self.dataCount];
-    }
-}
-
-- (void)BizChartView:(WQBizChartView *)BizChartView distributionForRow:(WQBizDistribution*)distribution atIndex:(NSInteger)index {
-    BizChartItem* item = self.items[index];
-    WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
-    WQBarChart* barChart = (WQBarChart*)item.charts[1];
-    WQLineChart* lineChart = (WQLineChart*)item.charts[2];
-    WQLineChart* lineChart2 = (WQLineChart*)item.charts[3];
-    
-    NSArray<WQBizDistributionItem*>* distributionItems = distribution.items;
-    NSInteger capacity = distributionItems.count;
-    
-    // Build Items
-    CGFloat minValue = 0;
-    CGFloat maxValue = 0;
-    NSMutableArray<WQBarChartItem*>* barChartItems = [NSMutableArray arrayWithCapacity:capacity];
-    NSMutableArray<WQLineChartItem*>* lineChartItems = [NSMutableArray arrayWithCapacity:capacity];
-    NSMutableArray<WQLineChartItem*>* lineChartItems2 = [NSMutableArray arrayWithCapacity:capacity];
-    for (NSInteger i=0; i<capacity; i++) {
-        WQBizDistributionItem* distributionItem = distributionItems[i];
-        BizChartData* data = item.datas[distributionItem.index];
-        NSInteger location = distributionItem.location;
-        CGFloat barValue = data.barValue;
-        CGFloat lineValue = data.lineValue;
-        CGFloat lineValue2 = data.lineValue2;
-        
-        WQBarChartItem* barChartItem = [[WQBarChartItem alloc] initWithX:location endY:barValue];
-        barChartItem.barWidth = self.barWidth;
-        barChartItem.paint.fill.color = Color_Gray;
-        barChartItem.paint.stroke = nil;
-        [barChartItems addObject:barChartItem];
-        
-        [lineChartItems addObject:[[WQLineChartItem alloc] initWithValue:CGPointMake(location, lineValue)]];
-        [lineChartItems2 addObject:[[WQLineChartItem alloc] initWithValue:CGPointMake(location, lineValue2)]];
-        
-        CGFloat itemMinValue = MIN(MIN(barValue, lineValue),lineValue2);
-        CGFloat itemMaxValue = MAX(MAX(barValue, lineValue),lineValue2);
-        if(i==0) {
-            minValue = itemMinValue;
-            maxValue = itemMaxValue;
-        } else {
-            minValue = MIN(minValue, itemMinValue);
-            maxValue = MAX(maxValue, itemMaxValue);
-        }
-    }
-    
-    barChart.items = barChartItems;
-    lineChart.items = lineChartItems;
-    lineChart2.items = lineChartItems2;
-    
-    // Fix Bounds
-    BOOL fixedBoundsX = [self radioCellSelectionForKey:@"FixedBoundsX"] != 0;
-    BOOL fixedBoundsY = [self radioCellSelectionForKey:@"FixedBoundsY"] != 0;
-    for (NSInteger i=1; i<item.charts.count; i++) {
-        WQCoordinateChart* chart = (WQCoordinateChart*)item.charts[i];
-        if(fixedBoundsX) {
-            chart.fixedMinX = @(distribution.lowerBound);
-            chart.fixedMaxX = @(distribution.upperBound);
-        } else {
-            chart.fixedMinX = nil;
-            chart.fixedMaxX = nil;
-        }
-        
-        if(fixedBoundsY) {
-            chart.fixedMinY = @(0);
-            chart.fixedMaxY = @(self.maxDataValue);
-        } else {
-            chart.fixedMinY = @(minValue);
-            chart.fixedMaxY = @(maxValue);
-        }
-    }
-    
-    axisChart.items = [self createAxisChartItemsWithLowerBound:barChart.fixedMinY.doubleValue upperBound:barChart.fixedMaxY.doubleValue];
-}
-
-
-// 绘制的分布内容的Charts.Rect不建议改动，因为Items是按照Row.length来分布的，Rect则按照Row.width、Row.length、BizChartView.contentOffset算出。
-// 需要显示上的调整修改BizChartView.padding、Axis.rect、Context.clip等即可
-- (void)BizChartView:(WQBizChartView *)BizChartView drawRowAtIndex:(NSInteger)index inContext:(CGContextRef)context {
-    WQBizChartViewRow* row = BizChartView.rows[index];
-    CGRect rect = row.rect;
-    
-    BizChartItem* item = self.items[index];
-    WQAxisChart* axisChart = (WQAxisChart*)item.charts[0];
-    WQBarChart* barChart = (WQBarChart*)item.charts[1];
-    WQLineChart* lineChart = (WQLineChart*)item.charts[2];
-    WQLineChart* lineChart2 = (WQLineChart*)item.charts[3];
-    
-    WQAxisGraphic* axisGraphic = [axisChart drawGraphicInRect:UIEdgeInsetsInsetRect(rect, UIEdgeInsetsMake(-0.5, -self.barWidthHalf - 0.5, -0.5, -self.barWidthHalf - 0.5))  context:context];
-    
-    BOOL clipToRect = [self radioCellSelectionForKey:@"ClipToRect"] != 0;
-    if(clipToRect) {
-        CGContextClipToRect(context, UIEdgeInsetsInsetRect(rect, self.clipInset));
-    }
-    
-    WQBarGraphic* barGraphic = [barChart drawGraphicInRect:rect context:context];
-    [self.barGraphics addObject:barGraphic];
-    
-    [lineChart drawGraphicInRect:rect context:context];
-    [lineChart2 drawGraphicInRect:rect context:context];
-    
-    if(clipToRect) {
-        CGContextResetClip(context);
-    }
-    
-    [axisChart drawTextForGraphic:axisGraphic inContext:context];
-}
-
-- (void)BizChartViewWillDraw:(WQBizChartView *)BizChartView inContext:(CGContextRef)context {
-    self.barGraphics = [NSMutableArray arrayWithCapacity:BizChartView.rows.count];
-}
-
-- (void)BizChartViewDidDraw:(WQBizChartView *)BizChartView inContext:(CGContextRef)context {
+- (void)drawTouchFocusInContext:(CGContextRef)context {
     if(self.touchLocation==nil || self.barGraphics.count==0) {
         return;
     }
@@ -425,7 +409,7 @@
     }
     
     WQBarGraphic* firstBarGraphic = self.barGraphics.firstObject;
-    WQBarGraphicItem* nearestBarGraphicItem = [firstBarGraphic findNearestItemAtPoint:touchLocation inRect:UIEdgeInsetsInsetRect(insideBarGraphic.rect, self.clipInset)];
+    WQBarGraphicItem* nearestBarGraphicItem = [firstBarGraphic findNearestItemAtPoint:touchLocation inRect:UIEdgeInsetsInsetRect(insideBarGraphic.rect, self.clipToRectInset)];
     WQBarChartItem* nearestBarItem = (WQBarChartItem*)nearestBarGraphicItem.builder;
     if(nearestBarGraphicItem==nil) {
         return;
@@ -433,7 +417,7 @@
     
     CGContextSaveGState(context);
     
-    CGRect bounds = BizChartView.bounds;
+    CGRect bounds = self.chartView.bounds;
     CGFloat stringX = nearestBarGraphicItem.stringStart.x;
     
     CGContextMoveToPoint(context, stringX, CGRectGetMinY(bounds));
@@ -476,6 +460,78 @@
     }
     
     CGContextRestoreGState(context);
+}
+
+#pragma mark - Animation
+
+- (void)appendAnimationKeys:(NSMutableArray<NSString *> *)animationKeys {
+    [super appendAnimationKeys:animationKeys];
+    [animationKeys addObject:@"Padding"];
+    [animationKeys addObject:@"Clip"];
+}
+
+- (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys {
+    [super prepareAnimationOfChartViewForKeys:keys];
+    
+    WQBizChartView* chartView = self.chartView;
+    
+    if ([keys containsObject:@"Padding"]) {
+        RadioCell* paddingCell = [self findRadioCellForKey:@"Padding"];
+        UIEdgeInsets padding = paddingCell.selection == 0 ? UIEdgeInsetsMake(20, 15, 20, 15) : UIEdgeInsetsZero;
+        chartView.transformPadding = [[WQTransformUIEdgeInsets alloc] initWithFrom:chartView.padding to:padding];
+        paddingCell.selection = paddingCell.selection == 0 ? 1 : 0;
+    }
+    
+}
+
+- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation *> *)array forKeys:(NSArray<NSString *> *)keys {
+    [super appendAnimationsInArray:array forKeys:keys];
+    
+    WQBizChartView* chartView = self.chartView;
+    
+    if ([keys containsObject:@"Clip"]) {
+        CGRect rect = chartView.bounds;
+        BOOL isReversed = [NSNumber randomBOOL];
+        if (isReversed) {
+            self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                                           CGRectMake(CGRectGetMaxX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
+                                                                               to:
+                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
+        } else {
+            self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
+                                                                               to:
+                                           CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
+        }
+        [array addObject:[[WQAnimation alloc] initWithTransformable:self duration:self.animationDuration interpolator:self.animationInterpolator]];
+    }
+    
+}
+
+#pragma mark - Transformable
+
+- (void)nextTransform:(CGFloat)progress {
+    WQTransformCGRect* transformClipRect = self.transformClipRect;
+    if (transformClipRect) {
+        self.clipRect = [NSValue valueWithCGRect:[self.transformClipRect valueForProgress:progress]];
+    }
+}
+
+- (void)clearTransforms {
+    self.transformClipRect = nil;
+    self.clipRect = nil;
+}
+
+#pragma mark - Action
+
+- (void)handleLongPressGesture:(UILongPressGestureRecognizer*)gestureRecognizer  {
+    UIGestureRecognizerState state = gestureRecognizer.state;
+    if (state == UIGestureRecognizerStateBegan || state == UIGestureRecognizerStateChanged) {
+        self.touchLocation = [NSValue valueWithCGPoint:[gestureRecognizer locationInView:gestureRecognizer.view]];
+    } else {
+        self.touchLocation = nil;
+    }
+    [self.chartView redraw];
 }
 
 

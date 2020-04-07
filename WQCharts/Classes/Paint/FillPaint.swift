@@ -18,11 +18,14 @@ public protocol Shader {
 }
 
 @objc(WQFillPaint)
-open class FillPaint: BaseChartItem {
+open class FillPaint: ChartItem {
  
     @objc open var color: UIColor?
     
     @objc open var shader: ((_ paint: FillPaint, _ path: CGPath, _ object: Any?) -> Shader?)?
+    
+    @objc open var transformColor: TransformUIColor?
+      
     
     @objc
     public override convenience init() {
@@ -55,5 +58,19 @@ open class FillPaint: BaseChartItem {
         }
 
         context.restoreGState()
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformColor = transformColor {
+            color = transformColor.valueForProgress(progress)
+        }
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformColor = nil
     }
 }

@@ -10,8 +10,8 @@
 import UIKit
 
 @objc(WQRadarChartPolygon)
-open class RadarChartPolygon: BaseChartItem {
-
+open class RadarChartPolygon: ChartItem {
+    
     @objc open var chart: PolygonChart
     @objc open var needsReloadItems = false
     
@@ -19,6 +19,18 @@ open class RadarChartPolygon: BaseChartItem {
     public init(_ chart: PolygonChart) {
         self.chart = chart
         self.needsReloadItems = true
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        chart.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        chart.clearTransforms()
     }
     
 }

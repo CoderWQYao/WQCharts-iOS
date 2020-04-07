@@ -9,7 +9,16 @@
 
 import UIKit
 
+
 @objc(WQCoordinateChartView)
 open class CoordinateChartView: ChartView {
+    
+    @objc open var chartAsCoordinate: CoordinateChart {
+        fatalError("chartAsCoordinate has not been implemented")
+    }
+    
+    @objc open var graphicAsCoordinate: CoordinateGraphic? {
+        fatalError("graphicAsCoordinate has not been implemented")
+    }
 
 }

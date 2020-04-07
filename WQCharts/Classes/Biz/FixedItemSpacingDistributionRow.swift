@@ -27,8 +27,8 @@ open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistri
     }
     
     
-    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> BizDistribution {
-        let distribution = BizDistribution()
+    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> DistributionPath {
+        let distribution = DistributionPath()
 
         let spacing = self.itemSpacing
         let start = lowerBound >= 0 && spacing > 0 ? lowerBound / spacing : 0
@@ -40,25 +40,25 @@ open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistri
 
         let items = NSMutableArray(capacity: capacityInt)
         if startDecimal > 0 { // 超出范围的点
-            let item = BizDistributionItem()
+            let item = DistributionPathItem()
             item.index = startInt - 1
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
         for i in 0..<capacityInt {
-            let item = BizDistributionItem()
+            let item = DistributionPathItem()
             item.index = i + startInt
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
         if capacityDecimal > 0 && capacityInt + startInt < itemCount { // 超出范围的点
-            let item = BizDistributionItem()
+            let item = DistributionPathItem()
             item.index = capacityInt + startInt
             item.location = CGFloat(item.index) * spacing
             items.add(item)
         }
 
-        distribution.items = items as? [BizDistributionItem]
+        distribution.items = items as? [DistributionPathItem]
         distribution.lowerBound = lowerBound
         distribution.upperBound = upperBound
         return distribution

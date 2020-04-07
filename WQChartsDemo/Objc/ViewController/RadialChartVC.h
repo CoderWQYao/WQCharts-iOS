@@ -11,9 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface RadialChartVC : BaseChartVC
-
-@property (nonatomic, readonly) WQRadialChartView* radialChartView;
+@interface RadialChartVC : BaseChartVC<WQChartViewDrawDelegate, WQRadialChartViewRotationDelegate>
 
 
 @end

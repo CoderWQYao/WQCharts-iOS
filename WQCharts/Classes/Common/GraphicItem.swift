@@ -12,10 +12,10 @@ import UIKit
 @objc(WQGraphicItem)
 open class GraphicItem: NSObject {
     
-    @objc public let builder: BaseChartItem
+    @objc public let builder: ChartItem
     
     @objc(initWithBuilder:)
-    public init(_ builder: BaseChartItem) {
+    public init(_ builder: ChartItem) {
         self.builder = builder
         super.init()
     }

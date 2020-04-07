@@ -11,7 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface BizChartVC : BaseChartVC
+@interface BizChartVC : BaseChartVC<ItemsOptionsDelegate,WQBizChartViewAdapter>
 
 @end
 

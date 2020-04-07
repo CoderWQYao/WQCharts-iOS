@@ -10,11 +10,12 @@
 import UIKit
 
 @objc(WQLineChartItem)
-open class LineChartItem: BaseChartItem {
+open class LineChartItem: ChartItem {
     
     @objc open var value = CGPoint.zero
-    @objc open var headerText: ChartText?
-    @objc open var footerText: ChartText?
+    @objc open var text: ChartText?
+    
+    @objc open var transformValue: TransformCGPoint?
     
     @objc
     public convenience override init() {
@@ -26,6 +27,20 @@ open class LineChartItem: BaseChartItem {
         super.init()
         
         self.value = value
+    }
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformValue = transformValue {
+            value = transformValue.valueForProgress(progress)
+        }
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformValue = nil
     }
     
 }

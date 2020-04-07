@@ -7,11 +7,11 @@
 // Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
-#import "BaseChartVC.h"
+#import "CoordinateChartVC.h"
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface AxisChartVC : BaseChartVC
+@interface AxisChartVC : CoordinateChartVC
 
 @end
 

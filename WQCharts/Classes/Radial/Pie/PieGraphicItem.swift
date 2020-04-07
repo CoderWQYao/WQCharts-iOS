@@ -13,8 +13,8 @@ import UIKit
 open class PieGraphicItem: GraphicItem {
     
     @objc internal(set) public var center: CGPoint = CGPoint()
-    @objc internal(set) public var innerRadius = CGFloat(0)
-    @objc internal(set) public var outerRadius = CGFloat(0)
+    @objc internal(set) public var arc2Radius = CGFloat(0)
+    @objc internal(set) public var arc1Radius = CGFloat(0)
     @objc internal(set) public var startAngle = CGFloat(0)
     @objc internal(set) public var sweepAngle = CGFloat(0)
     @objc internal(set) public var path: CGPath?

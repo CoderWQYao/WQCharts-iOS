@@ -9,19 +9,31 @@
 
 #import "RadarChartVC.h"
 
-@interface RadarChartVC () <WQRadarChartDataSource>
+@interface RadarChartVC () 
 
-@property (nonatomic, strong) NSArray<UIColor*>* colors;
 @property (nonatomic, strong) WQRadarChartView* chartView;
-@property (nonatomic, strong) NSMutableArray<WQRadarChartPolygon*>* polygons;
+@property (nonatomic, strong) NSMutableArray<WQRadarChartPolygon*>* items;
+@property (nonatomic, strong) NSArray<UIColor*>* colors;
 
 @end
 
 @implementation RadarChartVC
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self.chartContainer addSubview:self.chartView];
+- (NSArray<UIColor *> *)colors {
+    if(!_colors) {
+        _colors = Colors;
+    }
+    return _colors;
+}
+
+- (UIView *)createChartView {
+    _chartView = [[WQRadarChartView alloc] init];
+    _chartView.chart.dataSource = self;
+    return _chartView;
+}
+
+- (void)configChartOptions {
+    [super configChartOptions];
     
     __weak typeof(self) weakSelf = self;
     
@@ -85,91 +97,47 @@
         [chartView redraw];
     })];
     
-    ListCell* polygonsCell = ListCell.new
-    .setTitle(@"Polygons")
-    .setIsMutable(YES)
-    .setOnAppend(^void(ListCell* cell) {
-        NSInteger index = weakSelf.polygons.count;
-        if(index >= weakSelf.colors.count) {
-            return;
+}
+
+#pragma mark - Items
+
+- (void)configChartItemsOptions {
+    [super configChartItemsOptions];
+}
+
+- (NSMutableArray<WQRadarChartPolygon*>*)items {
+    if(!_items) {
+        NSMutableArray<WQRadarChartPolygon*>* items = [NSMutableArray array];
+        for (NSInteger i=0; i<2; i++) {
+            WQRadarChartPolygon* item = [self createItemAtIndex:i];
+            if (item) {
+                [items addObject:item];
+            }
         }
-        
-        WQRadarChartView* chartView = weakSelf.chartView;
-        
-        WQRadarChartPolygon* polygon = [weakSelf createPolygonWithIndex:index];
-        [weakSelf.polygons addObject:polygon];
-        [chartView.chart setNeedsReloadPolygons];
-        [chartView redraw];
-        
-        cell.addItem([weakSelf createPolygonCellWithPolygon:polygon index:index]);
-        [weakSelf scrollToListCellForKey:@"Polygons" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-    })
-    .setOnRemove(^(ListCell* cell) {
-        WQRadarChartView* chartView = weakSelf.chartView;
-        
-        NSMutableArray<WQRadarChartPolygon*>* polygons = weakSelf.polygons;
-        NSInteger index = polygons.count - 1;
-        if(index < 0) {
-            return;
-        }
-        cell.removeItemAtIndex(index);
-        [polygons removeObjectAtIndex:index];
-        [weakSelf scrollToListCellForKey:@"Polygons" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-        
-        [chartView.chart setNeedsReloadPolygons];
-        [chartView redraw];
-    });
-    NSMutableArray<WQRadarChartPolygon*>* polygons = self.polygons;
-    for (NSInteger i=0; i<2; i++) {
-        WQRadarChartPolygon* polygon = [self createPolygonWithIndex:i];
-        [polygons addObject:polygon];
-        polygonsCell.addItem([self createPolygonCellWithPolygon:polygon index:i]);
+        _items = items;
     }
-    self.polygons = polygons;
-    [self.optionsView addItem:polygonsCell];
-    
-    [self callRadioCellsSectionChange];
+    return _items;
 }
 
-- (NSArray<UIColor *> *)colors {
-    if(!_colors) {
-        _colors = Colors;
+- (NSString*)itemsOptionTitle {
+    return @"Polygons";
+}
+
+- (WQRadarChartPolygon*)createItemAtIndex:(NSInteger)index {
+    if (index >= self.colors.count) {
+        return nil;
     }
-    return _colors;
-}
-
-- (WQRadarChartView *)chartView {
-    if(!_chartView) {
-        _chartView = [[WQRadarChartView alloc] init];
-        _chartView.chart.dataSource = self;
-    }
-    return _chartView;
-}
-
-- (WQRadialChartView *)radialChartView {
-    return self.chartView;
-}
-
-- (NSMutableArray<WQRadarChartPolygon *> *)polygons {
-    if(!_polygons) {
-        _polygons = [NSMutableArray array];
-    }
-    return _polygons;
-}
-
-- (WQRadarChartPolygon*)createPolygonWithIndex:(NSInteger)index {
-    UIColor* color = index < self.colors.count ? self.colors[index] : UIColor.clearColor;
+    UIColor* color = self.colors[index];
     WQPolygonChart* chart = [[WQPolygonChart alloc] init];
-    chart.shapePaint.fill.color = [color colorWithAlphaComponent:0.5];
-    chart.shapePaint.stroke = nil;
-    chart.axisPaint = nil;
+    chart.paint.fill.color = [color colorWithAlphaComponent:0.5];
+    chart.paint.stroke = nil;
     return [[WQRadarChartPolygon alloc] initWithChart:chart];
 }
 
-- (SectionCell*)createPolygonCellWithPolygon:(WQRadarChartPolygon*)polygon index:(NSInteger)index {
+- (SectionCell*)createItemCellWithItem:(WQRadarChartPolygon*)item atIndex:(NSInteger)index {
     __weak typeof(self) weakSelf = self;
     return SectionCell.new
-    .setObject(polygon)
+    .setObject(item)
     .setTitle([NSString stringWithFormat:@"Polygon%ld",index])
     .setOnReload(^(SectionCell* cell) {
         WQRadarChartPolygon* polygon = (WQRadarChartPolygon*)cell.objcect;
@@ -178,11 +146,15 @@
     });
 }
 
+- (void)itemsDidChange:(NSMutableArray*)items {
+    [self.chartView.chart setNeedsReloadPolygons];
+    [self.chartView redraw];
+}
 
-#pragma mark - WQRadarChartDataSource
+#pragma mark - RadarChartDataSource
 
 - (NSInteger)numberOfIndicatorsInRadarChart:(WQRadarChart *)radarChart {
-    return [self sliderIntegerValueForKey:@"IndicatorCount" index:0];
+    return [self sliderIntegerValueForKey:@"IndicatorCount" atIndex:0];
 }
 
 - (WQRadarChartIndicator *)radarChart:(WQRadarChart *)radarChart indicatorAtIndex:(NSInteger)index {
@@ -204,7 +176,7 @@
 }
 
 - (NSInteger)numberOfSegmentsInRadarChart:(WQRadarChart *)radarChart {
-    return [self sliderIntegerValueForKey:@"SegmentCount" index:0];
+    return [self sliderIntegerValueForKey:@"SegmentCount" atIndex:0];
 }
 
 - (WQRadarChartSegment *)radarChart:(WQRadarChart *)radarChart segmentAtIndex:(NSInteger)index {
@@ -216,16 +188,37 @@
 }
 
 - (NSInteger)numberOfPolygonsInRadarChart:(WQRadarChart *)radarChart {
-    return self.polygons.count;
+    return self.items.count;
 }
 
 - (WQRadarChartPolygon *)radarChart:(WQRadarChart *)radarChart polygontAtIndex:(NSInteger)index {
-    return self.polygons[index];
+    return self.items[index];
 }
 
 - (WQPolygonChartItem *)radarChart:(WQRadarChart *)radarChart itemOfChartForPolygonAtIndexPath:(NSIndexPath *)indexPath {
-    return [[WQPolygonChartItem alloc] initWithValue:arc4random() % 101 / 100.0];
+    WQPolygonChartItem* item = [[WQPolygonChartItem alloc] initWithValue:[NSNumber randomCGFloatFrom:0 to:1]];
+    item.axisPaint = nil;
+    return item;
 }
 
+#pragma mark - Animation
+
+- (void)appendAnimationKeys:(NSMutableArray<NSString *> *)animationKeys {
+    [super appendAnimationKeys:animationKeys];
+    [animationKeys addObject:@"Values"];
+}
+
+- (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys {
+    [super prepareAnimationOfChartViewForKeys:keys];
+    
+    if ([keys containsObject:@"Values"]) {
+        for (WQRadarChartPolygon* polygon in self.items) {
+            for (WQPolygonChartItem* item in polygon.chart.items) {
+                item.transformValue = [[WQTransformCGFloat alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]	];
+            }
+        }
+    }
+    
+}
 
 @end

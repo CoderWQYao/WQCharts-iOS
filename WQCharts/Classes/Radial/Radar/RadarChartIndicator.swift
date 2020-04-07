@@ -10,7 +10,7 @@
 import UIKit
 
 @objc(WQRadarChartIndicator)
-open class RadarChartIndicator: BaseChartItem {
+open class RadarChartIndicator: ChartItem {
     
     @objc open var text: ChartText?
     @objc open var paint: LinePaint?
@@ -20,5 +20,17 @@ open class RadarChartIndicator: BaseChartItem {
         super.init()
         self.paint = LinePaint()
     }
-
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        paint?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        paint?.clearTransforms()
+    }
+    
 }

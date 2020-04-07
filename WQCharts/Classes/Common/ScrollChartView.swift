@@ -11,9 +11,9 @@ import UIKit
 
 @objc(WQScrollChartView)
 open class ScrollChartView: UIScrollView, UIGestureRecognizerDelegate {
-   
-    private var layoutSize = CGSize.zero
     
+    private var layoutSize = CGSize.zero
+
     public override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .clear
@@ -36,7 +36,7 @@ open class ScrollChartView: UIScrollView, UIGestureRecognizerDelegate {
     }
     
     override open func observeValue(forKeyPath keyPath: String?, of object: Any?, change: [NSKeyValueChangeKey : Any]?, context: UnsafeMutableRawPointer?) {
-       
+        
         guard let dict = change else {
             return
         }
@@ -45,20 +45,20 @@ open class ScrollChartView: UIScrollView, UIGestureRecognizerDelegate {
             let oldValue = dict[NSKeyValueChangeKey.oldKey] as! CGPoint
             let newValue = dict[NSKeyValueChangeKey.newKey] as! CGPoint
             if oldValue.equalTo(newValue)  {
-               return
+                return
             }
         } else if keyPath == "contentSize" {
             let oldValue = dict[NSKeyValueChangeKey.oldKey] as! CGSize
             let newValue = dict[NSKeyValueChangeKey.newKey] as! CGSize
             if oldValue.equalTo(newValue)  {
-               return
+                return
             }
         }
         
         redraw()
     }
     
-    open override func layoutSubviews() {
+    override open func layoutSubviews() {
         super.layoutSubviews()
         if !layoutSize.equalTo(bounds.size) {
             layoutSize = bounds.size

@@ -9,10 +9,22 @@
 
 import UIKit
 
-class LineChartVC: BarLineChartVC<LineChartView> {
+class LineChartVC: CoordinateChartVC<LineChartView>, ItemsOptionsDelegate {
+
+    var curentColor: UIColor = Color_Blue
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        layoutRectangleChartView()
+    }
+    
+    override func chartViewDidCreate(_ chartView: LineChartView) {
+        super.chartViewDidCreate(chartView)
+        chartView.chart.paint?.color = curentColor
+    }
+    
+    override func configChartOptions() {
+        super.configChartOptions()
         
         optionsView.addItem(RadioCell()
             .setTitle("FixedBounds")
@@ -34,210 +46,63 @@ class LineChartVC: BarLineChartVC<LineChartView> {
             })
         )
         
-        optionsView.addItem(RadioCell()
-            .setTitle("ShapeFill")
-            .setOptions(["OFF","ON","Gradient"])
-            .setSelection(2)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                guard let paint = chartView.chart.shapePaint?.fill else {
-                    return
-                }
-                switch (selection) {
-                case 1:
-                    paint.color = Color_Blue
-                    paint.shader = nil
-                case 2:
-                    paint.color = nil
-                    paint.shader = {(paint, path, object) -> Shader? in
-                        let graphic = object as! LineGraphic
-                        return LinearGradientShader(graphic.stringStart, graphic.stringEnd, [Color_Blue.withAlphaComponent(0.1),Color_Blue], [0,1])
-                    }
-                default:
-                    paint.color = nil
-                    paint.shader = nil
-                }
-                chartView.redraw()
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ShapeStoke")
-            .setOptions(["OFF","ON","Dash"])
-            .setSelection(1)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                self.setupStrokePaint(chartView.chart.shapePaint?.stroke, Color_White, selection)
-                chartView.redraw()
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("LinePaint")
-            .setOptions(["OFF","ON"])
-            .setSelection(0)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                chartView.chart.linePaint?.color = selection != 0 ? Color_Red : .clear
-                chartView.redraw()
-            })
-        )
-        
-        let itemsCell = ListCell()
-            .setTitle("Items")
-            .setIsMutable(true)
-            .setOnAppend({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                let item = self.createItem(chartView.chart.items?.count ?? 0)
-                chartView.chart.items?.append(item)
-                chartView.redraw()
-                
-                cell.addItem(self.createCell(item))
-                self.scrollToListCell("Items", .Bottom, true)
-            }).setOnRemove({[weak self](cell) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                let index = (chartView.chart.items?.count ?? 0) - 1
-                if index < 0 {
-                    return
-                }
-                cell.removeItem(at: index)
-                self.scrollToListCell("Items", .Bottom, true)
-                
-                chartView.chart.items?.remove(at: index)
-                chartView.redraw()
-            })
-        let items = NSMutableArray()
-        for i in 0..<5 {
-            let item = createItem(i)
-            items.add(item)
-            itemsCell.addItem(createCell(item))
-        }
-        chartView.chart.items = (items as! [LineChartItem])
-        optionsView.addItem(itemsCell)
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ItemsHeaderText")
-            .setOptions(["OFF","ON"]).setSelection(1)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                guard let items = chartView.chart.items else {
-                    return
-                }
-                
-                for item in items {
-                    item.headerText?.hidden = selection == 0
-                }
-                chartView.redraw()
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ItemsFooterText")
-            .setOptions(["OFF","ON"])
-            .setSelection(0)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                guard let items = chartView.chart.items else {
-                    return
-                }
-                
-                for item in items {
-                    item.footerText?.hidden = selection == 0
-                }
-                chartView.redraw()
-            })
-        )
-        
-        callRadioCellsSectionChange()
     }
     
-    func createItem(_ index: Int) -> LineChartItem {
-        let item = LineChartItem(CGPoint(x: CGFloat(index), y: CGFloat(arc4random() % 100)))
+    override func updateChartExchangeXY() {
+        super.updateChartExchangeXY()
+        chartView.padding = chartViewPadding(forSelection: radioCellSelectionForKey("Padding"))
+        view.setNeedsLayout()
+    }
+    
+    // MARK: - Items
+    
+    override func configChartItemsOptions() {
+        super.configChartItemsOptions()
         
-        let headerText = ChartText()
-        headerText.font = UIFont.systemFont(ofSize: 9)
-        headerText.color = Color_White
-        item.headerText = headerText
+        optionsView.addItem(RadioCell()
+            .setTitle("ItemsText")
+            .setOptions(["OFF","ON"]).setSelection(0)
+            .setOnSelectionChange({[weak self](cell, selection) in
+                self?.updateItems()
+            })
+        )
         
-        let footerText = ChartText()
-        footerText.font = UIFont.systemFont(ofSize: 9)
-        footerText.color = Color_White
-        item.footerText = footerText
+    }
+    
+    var items: NSMutableArray {
+        if let items = chartView.chart.items {
+            return NSMutableArray.init(array: items)
+        } else {
+            let items = NSMutableArray()
+            for i in 0..<5 {
+                let item = createItem(atIndex: i)!
+                items.add(item)
+            }
+            chartView.chart.items = (items as! [LineChartItem])
+            return items
+        }
+    }
+    
+    var itemsOptionTitle: String {
+        return "Items"
+    }
+    
+    func createItem(atIndex index: Int) -> Any? {
+        let item = LineChartItem(CGPoint(x: CGFloat(index), y: CGFloat(Int.random(in: 0...99))))
+        
+        let text = ChartText()
+        text.font = UIFont.systemFont(ofSize: 9)
+        text.color = Color_White
+        item.text = text
         
         updateItem(item)
         return item
     }
     
-    func updateItem(_ item: LineChartItem) {
-        let exchangeXY = radioCellSelectionForKey("ExchangeXY") != 0
-        
-        let string = String(format: "%ld", Int(item.value.y))
-        
-        if let headerText = item.headerText {
-            headerText.string = string
-            headerText.hidden = radioCellSelectionForKey("ItemsHeaderText") == 0
-            headerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
-                if exchangeXY {
-                    return 10
-                } else {
-                    return 10
-                }
-            }
-        }
-        
-        if let footerText = item.footerText {
-            footerText.string = string
-            footerText.hidden = radioCellSelectionForKey("ItemsFooterText") == 0
-            footerText.textOffsetByAngle = {(text, size, angle) -> CGFloat in
-                if exchangeXY {
-                    return 10
-                } else {
-                    return 10
-                }
-            }
-        }
-    }
-    
-    override func updateItems() {
-        let chartView = self.chartView
-        if let items = chartView.chart.items {
-            for item in items {
-                updateItem(item)
-            }
-        }
-        chartView.redraw()
-    }
-    
-    func createCell(_ item: LineChartItem) -> SliderCell {
+    func createItemCell(withItem item: Any, atIndex index: Int)  -> UIView {
         return SliderCell()
             .setObject(item)
-            .setSliderValue(0,99,item.value.y)
+            .setSliderValue(0,99,(item as! LineChartItem).value.y)
             .setDecimalCount(0)
             .setOnValueChange {[weak self](cell, value) in
                 guard let self = self, let item = cell.object as? LineChartItem else {
@@ -248,6 +113,83 @@ class LineChartVC: BarLineChartVC<LineChartView> {
                 self.updateItem(item)
                 self.chartView.redraw()
         }
+    }
+    
+    func itemsDidChange(_ items: NSMutableArray) {
+        chartView.chart.items = (items as! [LineChartItem])
+        chartView.redraw()
+    }
+    
+    func updateItem(_ item: LineChartItem) {
+        if let text = item.text {
+            text.hidden = radioCellSelectionForKey("ItemsText") == 0
+        }
+    }
+    
+    func updateItems() {
+        let chartView = self.chartView
+        if let items = chartView.chart.items {
+            for item in items {
+                updateItem(item)
+            }
+        }
+        chartView.redraw()
+    }
+    
+    // MARK: - ChartViewDrawDelegate
+    
+    override func chartViewWillDraw(_ chartView: ChartView, inRect rect: CGRect, context: CGContext) {
+        super.chartViewWillDraw(chartView, inRect: rect, context: context)
+        
+        if let items = (chartView as! LineChartView).chart.items {
+            for item in items {
+                item.text?.string = String(format: "%ld", Int(round(item.value.y)))
+            }
+        }
+        
+    }
+    
+    // MARK: - Animation
+    
+    override func appendAnimationKeys(_ animationKeys: NSMutableArray) {
+        super.appendAnimationKeys(animationKeys)
+        animationKeys.add("Color")
+        animationKeys.add("Values")
+    }
+    
+    override func prepareAnimationOfChartView(forKeys keys: [String]) {
+        super.prepareAnimationOfChartView(forKeys: keys)
+        
+        let chart = chartView.chart
+        
+        if keys.contains("Color"), let paint = chart.paint {
+            let color = curentColor == Color_Blue ? Color_Red : Color_Blue
+            paint.transformColor = TransformUIColor(paint.color ?? .clear, color)
+            curentColor = color
+        }
+        
+        if keys.contains("Values"), let items = chart.items {
+            for item in items {
+                item.transformValue = TransformCGPoint(item.value, CGPoint(x: item.value.x, y: CGFloat(Int.random(in: 0...99))))
+            }
+        }
+        
+    }
+    
+    // MARK: - AnimationDelegate
+    
+    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+        super.animation(animation, progressDidChange: progress)
+        
+        if chartView.isEqual(animation.transformable) {
+            if let items = chartView.chart.items {
+                for (idx, item) in items.enumerated() {
+                    updateSliderValue(item.value.y, forKey: "Items", atIndex: idx)
+                }
+            }
+        }
+        
+        
     }
     
 }

@@ -30,7 +30,7 @@ open class CoordinateGraphic: Graphic {
     public override init(_ builder: Chart, _ rect: CGRect) {
         super.init(builder,rect)
         let chart = builder as! CoordinateChart
-        self.bounds = chart.fixBounds(chart.calculateUnfixedBounds())
+        self.bounds = chart.fixBounds(chart.calcBounds())
         self.exchangeXY = chart.exchangeXY
         self.reverseX = chart.reverseX
         self.reverseY = chart.reverseY

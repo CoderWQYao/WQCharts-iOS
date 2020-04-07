@@ -9,68 +9,29 @@
 
 import UIKit
 
-class AxisChartVC: BaseChartVC<AxisChartView> {
+class AxisChartVC: CoordinateChartVC<AxisChartView> {
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("Padding")
-            .setOptions(["OFF","ON"])
-            .setSelection(1)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                
-                let padding: CGFloat = selection != 0 ? 30 : 0
-                chartView.padding = UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ExchangeXY")
-            .setOptions(["OFF","ON"])
-            .setSelection(0)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                chartView.chart.exchangeXY = selection != 0
-                chartView.redraw()
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ReverseX")
-            .setOptions(["OFF","ON"])
-            .setSelection(0)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                chartView.chart.reverseX = selection != 0
-                chartView.redraw()
-            })
-        )
-        
-        optionsView.addItem(RadioCell()
-            .setTitle("ReverseY")
-            .setOptions(["OFF","ON"])
-            .setSelection(0)
-            .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                chartView.chart.reverseY = selection != 0
-                chartView.redraw()
-            })
-        )
-        
+    lazy var horizontalItems: NSMutableArray = {
+        let horizontalItems = NSMutableArray()
+        return horizontalItems
+    }()
+    
+    lazy var verticalItems: NSMutableArray = {
+        let verticalItems = NSMutableArray()
+        return verticalItems
+    }()
+    
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        let width = chartContainer.bounds.width
+        let height = chartContainer.bounds.height
+        let fitSize = min(width, height)
+        self.chartView.frame = CGRect(x: (width - fitSize) / 2, y: (height - fitSize) / 2, width: fitSize, height: fitSize)
+    }
+
+    override func configChartOptions() {
+        super.configChartOptions()
+
         optionsView.addItem(ListCell()
             .setTitle("HorizontalItems")
             .addItem(SliderCell()
@@ -93,7 +54,6 @@ class AxisChartVC: BaseChartVC<AxisChartView> {
             )
         )
         
-        
         optionsView.addItem(RadioCell()
             .setTitle("ItemsHeaderText")
             .setOptions(["OFF","ON"])
@@ -103,7 +63,6 @@ class AxisChartVC: BaseChartVC<AxisChartView> {
                     return
                 }
                 let chartView = self.chartView
-                
                 if let items = chartView.chart.items {
                     for item in items {
                         item.headerText?.hidden = selection == 0
@@ -122,7 +81,6 @@ class AxisChartVC: BaseChartVC<AxisChartView> {
                     return
                 }
                 let chartView = self.chartView
-                
                 if let items = chartView.chart.items {
                     for item in items {
                         item.footerText?.hidden = selection == 0
@@ -133,16 +91,14 @@ class AxisChartVC: BaseChartVC<AxisChartView> {
         )
         
         resetItems()
-        callRadioCellsSectionChange()
     }
     
-    override func viewWillLayoutSubviews() {
-        super.viewWillLayoutSubviews()
-        let width = chartContainer.bounds.width
-        let height = chartContainer.bounds.height
-        let fitSize = min(width, height)
-        self.chartView.frame = CGRect(x: (width - fitSize) / 2, y: (height - fitSize) / 2, width: fitSize, height: fitSize)
+    override func chartViewPadding(forSelection selection: Int) -> UIEdgeInsets {
+        let padding: CGFloat = selection != 0 ? 30 : 0
+        return UIEdgeInsets(top: padding, left: padding, bottom: padding, right: padding)
     }
+    
+    // MARK: - Items
     
     func createItem(_ start: CGPoint, _ end: CGPoint) -> AxisChartItem {
         let item = AxisChartItem(start,end)
@@ -169,34 +125,83 @@ class AxisChartVC: BaseChartVC<AxisChartView> {
     }
     
     func updateItem(_ item: AxisChartItem) {
-        if let headerText = item.headerText {
-            headerText.string = String(format: "%.f,%.f", item.start.x, item.start.y)
-            headerText.hidden = radioCellSelectionForKey("ItemsHeaderText") == 0
-        }
-        
-        if let footerText = item.footerText {
-            footerText.string = String(format: "%.f,%.f", item.end.x, item.end.y)
-            footerText.hidden = radioCellSelectionForKey("ItemsFooterText") == 0
-        }
+        item.headerText?.hidden = radioCellSelectionForKey("ItemsHeaderText") == 0
+        item.footerText?.hidden = radioCellSelectionForKey("ItemsFooterText") == 0
     }
     
     func resetItems() {
-        let items = NSMutableArray()
+        let horizontalCount = sliderIntegerValue(forKey: "HorizontalItems", atIndex: 0)
+        let verticalCount = sliderIntegerValue(forKey: "VerticalItems", atIndex: 0)
+        let maxX: CGFloat = verticalCount > 1 ? CGFloat(verticalCount - 1) : 1
+        let maxY: CGFloat = horizontalCount > 1 ? CGFloat(horizontalCount - 1) : 1
         
-        let horizontalCount = getSliderIntegerValue("HorizontalItems", 0)
-        let verticalCount = getSliderIntegerValue("VerticalItems", 0)
+        let chartView = self.chartView
+        chartView.chart.fixedMinX = 0
+        chartView.chart.fixedMaxX = maxX as NSNumber
+        chartView.chart.fixedMinY = 0
+        chartView.chart.fixedMaxY = maxY as NSNumber
         
+        let horizontalItems = self.horizontalItems
+        horizontalItems.removeAllObjects()
         for i in 0..<horizontalCount {
-            let item = createItem(CGPoint(x: 0, y: CGFloat(i)), CGPoint(x: verticalCount > 1 ? CGFloat(verticalCount - 1) : 1, y: CGFloat(i)))
-            items.add(item)
+            let item = createItem(CGPoint(x: 0, y: CGFloat(i)), CGPoint(x: maxX, y: CGFloat(i)))
+            horizontalItems.add(item)
         }
         
+        let verticalItems = self.verticalItems
+        verticalItems.removeAllObjects()
         for i in 0..<verticalCount {
-            let item = createItem(CGPoint(x: CGFloat(i), y: 0), CGPoint(x: CGFloat(i), y: horizontalCount > 1 ? CGFloat(horizontalCount - 1) : 1))
-            items.add(item)
+            let item = createItem(CGPoint(x: CGFloat(i), y: 0), CGPoint(x: CGFloat(i), y: maxY))
+            verticalItems.add(item)
         }
         
-        chartView.chart.items = items as? [AxisChartItem]
+        let items = NSMutableArray(capacity: horizontalCount + verticalCount)
+        items.addObjects(from: horizontalItems as! [Any])
+        items.addObjects(from: verticalItems as! [Any])
+        chartView.chart.items = (items as! [AxisChartItem])
         chartView.redraw()
     }
+    
+    // MARK: - ChartViewDrawDelegate
+    
+    override func chartViewWillDraw(_ chartView: ChartView, inRect rect: CGRect, context: CGContext) {
+        super.chartViewWillDraw(chartView, inRect: rect, context: context)
+        
+        if let items = self.chartView.chart.items {
+            for item in items {
+                item.headerText?.string = String(format: "%.f,%.f", item.start.x, item.start.y)
+                item.footerText?.string = String(format: "%.f,%.f", item.end.x, item.end.y)
+            }
+        }
+    }
+    
+    // MARK: - Animation
+    
+    override func appendAnimationKeys(_ animationKeys: NSMutableArray) {
+        super.appendAnimationKeys(animationKeys)
+        animationKeys.add("Values")
+    }
+    
+    override func prepareAnimationOfChartView(forKeys keys: [String]) {
+        super.prepareAnimationOfChartView(forKeys: keys)
+        
+        let chartView = self.chartView
+        
+        if keys.contains("Values"), let graphic = chartView.graphic {
+            let horizontalItems = self.horizontalItems as! [AxisChartItem]
+            for i in 0..<horizontalItems.count {
+                let item = horizontalItems[i]
+                item.transformEnd = TransformCGPoint(item.start, CGPoint(x: graphic.bounds.maxX, y: CGFloat(i)))
+            }
+            
+            let verticalItems = self.verticalItems as! [AxisChartItem]
+            for i in 0..<verticalItems.count {
+                let item = verticalItems[i]
+                item.transformEnd = TransformCGPoint(item.start, CGPoint(x: CGFloat(i), y: graphic.bounds.maxY))
+            }
+        }
+        
+    }
+    
+    
 }

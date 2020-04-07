@@ -4,7 +4,7 @@
 [![License](https://img.shields.io/cocoapods/l/WQCharts.svg?style=flat)](https://cocoapods.org/pods/WQCharts)
 [![Platform](https://img.shields.io/cocoapods/p/WQCharts.svg?style=flat)](https://cocoapods.org/pods/WQCharts)
 
-* WQCharts is a powerful & easy to use chart library for iOS
+* WQCharts highly customizable and easy to use chart library for iOS
 
 ## Installation
 There are four ways to use WQCharts in your project:
@@ -62,7 +62,7 @@ import WQCharts
     chart.padding = padding;
     chart.items = items;
     // Draw Chart in CGContext
-    [chart drawRect:rect inContext:context];
+    [chart drawInRect:rect context:context];
 ```
 
 * Swift
@@ -71,8 +71,28 @@ import WQCharts
     chart.padding = padding;
     chart.items = items;
     // Draw Chart in CGContext
-    chart.draw(rect, context)
+    chart.draw(inRect: rect, context: context)
 ```
+### Using Animation
+
+* Objective-C
+```objc
+    WQAnimationPlayer* animationPlayer = [[WQAnimationPlayer alloc] initWithDisplayView:self.chartView];
+    // The ChartView、Chart conforms to Transformable protocol
+    WQAnimation* animation = [[WQAnimation alloc] initWithTransformable:self.chartView duration:0.5];
+    [animationPlayer startAnimation:animation];
+    self.animationPlayer = animationPlayer;
+```
+
+* Swift
+```swift
+    let animationPlayer = AnimationPlayer(displayView: self.chartView)
+    // The ChartView、Chart conforms to Transformable protocol
+    let animation = Animation(self.chartView, 0.5)
+    animationPlayer.startAnimation(animation)
+    self.animationPlayer = animationPlayer
+```
+
 ## Architecture
 
 ### Chart Class Diagram
@@ -85,6 +105,8 @@ import WQCharts
 
 ![WQCharts_Polygon](http://appdata.cc/WQCharts_Polygon.gif)
 ![WQCharts_Pie](http://appdata.cc/WQCharts_Pie.gif)
+![WQCharts_Pie](http://appdata.cc/WQCharts_Radar.gif)
 ![WQCharts_Axis](http://appdata.cc/WQCharts_Axis.gif)
 ![WQCharts_Bar](http://appdata.cc/WQCharts_Bar.gif)
 ![WQCharts_Biz](http://appdata.cc/WQCharts_Biz.gif)
+

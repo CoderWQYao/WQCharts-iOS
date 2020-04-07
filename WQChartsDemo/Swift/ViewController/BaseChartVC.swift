@@ -9,15 +9,25 @@
 
 import UIKit
 
-class BaseChartVC<T: UIView>: UIViewController {
+protocol ItemsOptionsDelegate: UIViewController {
     
-    private var _chartView: T?
-    open var chartView: T {
-        if _chartView == nil {
-            _chartView = T()
-        }
-        return _chartView!
-    }
+    var items: NSMutableArray { get }
+    var itemsOptionTitle: String { get }
+
+    func createItem(atIndex index: Int) -> Any?
+    func createItemCell(withItem item: Any, atIndex index: Int)  -> UIView
+    
+    func itemsDidChange(_ items: NSMutableArray)
+
+}
+
+class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
+    
+    lazy open var chartView: T = {
+        let chartView = T()
+        chartViewDidCreate(chartView)
+        return chartView
+    }()
     
     lazy var optionsView: ListView = {
         let optionsView = ListView()
@@ -31,18 +41,43 @@ class BaseChartVC<T: UIView>: UIViewController {
         return chartContainer
     }()
     
+    weak var itemsOptionsDelegate: ItemsOptionsDelegate?
+    
+    var animationPlayer: AnimationPlayer?
+    
+    var animationDuration: TimeInterval {
+        return TimeInterval(sliderValue(forKey: "AnimDuration", atIndex: 0))
+    }
+    
+    var animationInterpolator: Interpolator {
+        let selection = radioCellSelectionForKey("AnimInterpolator")
+        switch selection {
+        case 1:
+            return AccelerateInterpolator(2)
+        case 2:
+            return DecelerateInterpolator(2)
+        default:
+            return LinearInterpolator()
+        }
+    }
+
     deinit {
         print(self,#function)
     }
     
     override func viewDidLoad() {
-        print(self,#function)
-        
         super.viewDidLoad()
         self.view.backgroundColor = Color_Block_BG
         
         view.addSubview(optionsView)
         view.addSubview(chartContainer)
+        
+        configChartOptions()
+        configChartItemsOptions()
+        configAnimationOptions()
+        callRadioCellsSectionChange()
+        
+        print(self,#function)
     }
     
     override func viewWillLayoutSubviews() {
@@ -60,6 +95,68 @@ class BaseChartVC<T: UIView>: UIViewController {
         let chartContainer = self.chartContainer
         chartContainer.frame = CGRect(x: contentInset.left, y: contentInset.top, width: width - contentInset.left - contentInset.right, height: height - contentInset.top - contentInset.bottom)
     }
+    
+    func chartViewDidCreate(_ chartView: T) {
+        
+    }
+    
+    func configChartOptions() {
+        
+    }
+    
+    // MARK: - Items
+    
+    func configChartItemsOptions() {
+        guard let itemsOptionsDelegate = self as? ItemsOptionsDelegate else {
+            return
+        }
+        
+        let title = itemsOptionsDelegate.itemsOptionTitle
+        let itemsCell = ListCell()
+            .setTitle(title)
+            .setIsMutable(true)
+            .setOnAppend({[weak self, weak itemsOptionsDelegate](cell) in
+                guard let self = self, let itemsOptionsDelegate = itemsOptionsDelegate else {
+                    return
+                }
+                
+                let items = itemsOptionsDelegate.items
+                let index = items.count
+                
+                if let item = itemsOptionsDelegate.createItem(atIndex: index) {
+                    items.add(item)
+                    itemsOptionsDelegate.itemsDidChange(items)
+                    
+                    cell.addItem(itemsOptionsDelegate.createItemCell(withItem: item, atIndex: index))
+                    self.scrollToListCell(title, .Bottom, true)
+                }
+            }).setOnRemove({[weak self, weak itemsOptionsDelegate](cell) in
+                guard let self = self, let itemsOptionsDelegate = itemsOptionsDelegate else {
+                    return
+                }
+                
+                let items = itemsOptionsDelegate.items
+                let index = items.count - 1
+                if index < 0 {
+                    return
+                }
+                
+                cell.removeItem(at: index)
+                self.scrollToListCell(title, .Bottom, true)
+                
+                items.removeObject(at: index)
+                itemsOptionsDelegate.itemsDidChange(items)
+            })
+        
+        let items = itemsOptionsDelegate.items
+        items.enumerateObjects { (item, idx, stop) in
+            itemsCell.addItem(itemsOptionsDelegate.createItemCell(withItem: item, atIndex: idx))
+        }
+        optionsView.addItem(itemsCell)
+        
+    }
+    
+    // MARK: - Paint
     
     func setupStrokePaint(_ paint: LinePaint?, _ color: UIColor?, _ type: Int) {
         guard let paint = paint else {
@@ -82,7 +179,10 @@ class BaseChartVC<T: UIView>: UIViewController {
         }
     }
     
-    func findListCell(_ key: String) -> ListCell? {
+    
+    // MARK: - Cell
+    
+    func findListCellForKey(_ key: String) -> ListCell? {
         for cell in optionsView.items {
             guard let cell = cell as? ListCell else {
                 continue
@@ -94,20 +194,25 @@ class BaseChartVC<T: UIView>: UIViewController {
         return nil
     }
     
-    func radioCellSelectionForKey(_ key: String) -> Int {
+    
+    func findRadioCellForKey(_ key: String) -> RadioCell? {
         for cell in optionsView.items {
             guard let cell = cell as? RadioCell else {
                 continue
             }
-            if key==cell.title {
-                return cell.selection
+            if key == cell.title {
+                return cell
             }
         }
-        return 0
+        return nil
     }
     
-    func updateSliderValue(_ key: String, _ index: Int, _ value: CGFloat) {
-        guard let sliderListView = findListCell(key) else {
+    func radioCellSelectionForKey(_ key: String) -> Int {
+        return findRadioCellForKey(key)?.selection ?? 0
+    }
+    
+    func updateSliderValue(_ value: CGFloat, forKey key: String, atIndex index: Int) {
+        guard let sliderListView = findListCellForKey(key) else {
             return
         }
         guard let sliderCell = sliderListView.contentView.items[index] as? SliderCell else {
@@ -116,8 +221,8 @@ class BaseChartVC<T: UIView>: UIViewController {
         sliderCell.value = value
     }
     
-    func getSliderValue(_ key: String, _ index: Int) -> CGFloat {
-        guard let sliderListView = findListCell(key) else {
+    func sliderValue(forKey key: String, atIndex index: Int) -> CGFloat {
+        guard let sliderListView = findListCellForKey(key) else {
             return 0
         }
         guard let sliderCell = sliderListView.contentView.items[index] as? SliderCell else {
@@ -126,8 +231,8 @@ class BaseChartVC<T: UIView>: UIViewController {
         return sliderCell.value
     }
     
-    func getSliderIntegerValue(_ key: String, _ index: Int) -> Int {
-        guard let sliderListView = findListCell(key) else {
+    func sliderIntegerValue(forKey key: String, atIndex index: Int) -> Int {
+        guard let sliderListView = findListCellForKey(key) else {
             return 0
         }
         guard let sliderCell = sliderListView.contentView.items[index] as? SliderCell else {
@@ -138,7 +243,7 @@ class BaseChartVC<T: UIView>: UIViewController {
     
     func scrollToListCell(_ key: String, _ scrollPosition: ListView.ScrollPosition, _ animated: Bool) {
         optionsView.setNeedsLayoutItems()
-        guard let cell = findListCell(key) else {
+        guard let cell = findListCellForKey(key) else {
             return
         }
         guard let index = optionsView.items.firstIndex(of: cell) else {
@@ -156,5 +261,116 @@ class BaseChartVC<T: UIView>: UIViewController {
         }
     }
     
+    // MARK: - Animation
+    
+    func configAnimationOptions() {
+        
+        optionsView.addItem(
+            ListCell()
+                .setTitle("AnimDuration")
+                .addItem(
+                    SliderCell()
+                        .setSliderValue(0,5,0.5)
+                        .setDecimalCount(2)
+            )
+        )
+        
+        optionsView.addItem(
+            RadioCell()
+                .setTitle("AnimInterpolator")
+                .setOptions(["Linear","Accelerate","Decelerate"])
+                .setSelection(0)
+        )
+        
+        let animationKeys = NSMutableArray()
+        appendAnimationKeys(animationKeys)
+        
+        optionsView.addItem(CheckboxCell()
+            .setTitle("Animations")
+            .setOptions((animationKeys as! [String])))
+        
+        let animationButtonsCell = ButtonsCell()
+        animationButtonsCell.options = ["PlayAnimation"]
+        let playButton = animationButtonsCell.buttonsWrap.subviews.first as! UIButton
+        playButton.addTarget(self, action:#selector(handlePlayAnimation), for: .touchUpInside)
+        optionsView.addItem(animationButtonsCell)
+    }
+    
+    func appendAnimationKeys(_ animationKeys: NSMutableArray) {
+        
+    }
+    
+    @objc func handlePlayAnimation() {
+        var animationsCell_op: CheckboxCell?
+        for cell in optionsView.items {
+            guard let cell = cell as? CheckboxCell else {
+                continue
+            }
+            if "Animations" == cell.title {
+                animationsCell_op = cell
+                break
+            }
+        }
+        
+        guard let animationsCell = animationsCell_op else {
+            return
+        }
+        
+        let keys = NSMutableArray()
+        for selection in animationsCell.selections {
+            keys.add(animationsCell.options![selection])
+        }
+        
+        if keys.count == 0 {
+            return
+        }
+        
+        animationPlayer?.clearAnimations()
+        
+        let animations = NSMutableArray()
+        let chartViewAnimation = Animation(self.chartView as! Transformable, animationDuration, animationInterpolator)
+        chartViewAnimation.delegate = self
+        prepareAnimationOfChartView(forKeys: keys as! [String])
+        animations.add(chartViewAnimation)
+        appendAnimations(inArray: animations, forKeys: keys as! [String])
+        
+        if animationPlayer == nil {
+            animationPlayer = AnimationPlayer(displayView: self.chartView)
+        }
+        animationPlayer?.startAnimations(animations as! [Animation])
+    }
+    
+    func prepareAnimationOfChartView(forKeys keys: [String]) {
+        
+    }
+    
+    func appendAnimations(inArray array: NSMutableArray, forKeys keys: [String]) {
+        
+    }
+    
+    // MARK: - AnimationDelegate
+    
+    func animationDidStart(_ animation: Animation) {
+        print(self, "animationDidStart:")
+    }
+    
+    func animationDidStop(_ animation: Animation, finished: Bool) {
+        print(self, "animationDidStop:finished:",finished)
+        if chartView.isEqual(animation.transformable) {
+            let clipRect = chartView.value(forKey: "clipRect")
+            if clipRect != nil {
+                print("Set clipRect nil");
+                chartView.setValue(nil, forKey: "clipRect")
+            }
+        }
+    }
+    
+    func animation(_ animation: Animation, progressWillChange progress: CGFloat) {
+        
+    }
+    
+    func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+        
+    }
     
 }

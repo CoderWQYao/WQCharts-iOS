@@ -12,6 +12,7 @@
 
 #import <WQCharts/WQCharts-Swift.h>
 #import "UIColor+WQCharts.h"
+#import "NSNumber+Random.h"
 
 #define Color_Block_BG ColorHex(@"#1f2023")
 #define Color_Block_Card ColorHex(@"#2c2d2f")

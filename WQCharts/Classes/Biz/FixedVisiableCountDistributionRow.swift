@@ -27,8 +27,8 @@ open class FixedVisiableCountDistributionRow: BizChartView.Row, BizChartViewDist
         return itemCount > 0 ? CGFloat(itemCount - 1) * itemSpacing : 0
     }
     
-    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> BizDistribution {
-        let distribution = BizDistribution()
+    public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> DistributionPath {
+        let distribution = DistributionPath()
         
         let visiableCount = self.visiableCount
         let itemSpacing = visiableCount > 1 ? (upperBound - lowerBound) / CGFloat(visiableCount - 1) : 0
@@ -36,13 +36,13 @@ open class FixedVisiableCountDistributionRow: BizChartView.Row, BizChartViewDist
         let items = NSMutableArray(capacity: visiableCount)
         
         for i in 0..<visiableCount {
-            let item = BizDistributionItem()
+            let item = DistributionPathItem()
             item.index = i + start
             item.location = CGFloat(item.index) * itemSpacing
             items.add(item)
         }
         
-        distribution.items = items as? [BizDistributionItem]
+        distribution.items = items as? [DistributionPathItem]
         distribution.lowerBound = lowerBound
         distribution.upperBound = upperBound
         return distribution

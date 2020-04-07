@@ -10,12 +10,12 @@
 import UIKit
 
 @objc(WQBarChartItem)
-open class BarChartItem: BaseChartItem {
+open class BarChartItem: ChartItem {
     
     @objc open var x = CGFloat(0)
-    @objc open var startY: NSNumber?
     @objc open var endY = CGFloat(0)
-
+    @objc open var startY: NSNumber?
+    
     @objc open var barWidth = CGFloat(0)
     @objc open var paint: ShapePaint?
     @objc open var cornerRadius1 = CGFloat(0)
@@ -24,6 +24,10 @@ open class BarChartItem: BaseChartItem {
     @objc open var cornerRadius4 = CGFloat(0)
     @objc open var headerText: ChartText?
     @objc open var footerText: ChartText?
+    
+    @objc open var transformX: TransformCGFloat?
+    @objc open var transformEndY: TransformCGFloat?
+    @objc open var transformStartY: TransformCGFloat?
     
     @objc
     public convenience override init() {
@@ -49,5 +53,32 @@ open class BarChartItem: BaseChartItem {
         self.paint = ShapePaint()
     }
     
+    
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformX = transformX {
+            x = transformX.valueForProgress(progress)
+        }
+        
+        if let transformEndY = transformEndY {
+            endY = transformEndY.valueForProgress(progress)
+        }
+        
+        if let transformStartY = transformStartY {
+            startY = transformStartY.valueForProgress(progress) as NSNumber
+        }
+        
+        paint?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformX = nil
+        transformEndY = nil
+        transformStartY = nil
+        paint?.clearTransforms()
+    }
     
 }

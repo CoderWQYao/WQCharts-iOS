@@ -12,10 +12,7 @@ import UIKit
 @objc(WQLineGraphic)
 open class LineGraphic: CoordinateGraphic {
     
-    @objc open var stringStart = CGPoint.zero
-    @objc open var stringEnd = CGPoint.zero
-    @objc open var shapePath: CGPath?
-    @objc open var linePath: CGPath?
+    @objc open var path: CGPath?
     @objc open var items: [LineGraphicItem]?
     
     @objc(findNearestItemInLocation:)
@@ -34,11 +31,11 @@ open class LineGraphic: CoordinateGraphic {
         for i in 1..<itemCount {
             let item = items[i]
             if exchangeXY {
-                if abs(location.y - item.linePoint.y) < abs(location.y - nearestItem.linePoint.y) {
+                if abs(location.y - item.point.y) < abs(location.y - nearestItem.point.y) {
                     nearestItem = item
                 }
             } else {
-                if abs(location.x - item.linePoint.x) < abs(location.x - nearestItem.linePoint.x) {
+                if abs(location.x - item.point.x) < abs(location.x - nearestItem.point.x) {
                     nearestItem = item
                 }
             }

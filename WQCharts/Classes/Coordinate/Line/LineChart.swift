@@ -13,19 +13,17 @@ import UIKit
 open class LineChart: CoordinateChart {
     
     @objc open var items: [LineChartItem]?
-    @objc open var shapePaint: ShapePaint?
-    @objc open var linePaint: LinePaint?
+    @objc open var paint: LinePaint?
     
     public override init() {
-        shapePaint = ShapePaint()
-        linePaint = LinePaint(.clear)
+        paint = LinePaint(.clear)
+        super.init()
     }
     
-    open override func draw(_ rect: CGRect, _ context: CGContext) {
+    override open func draw(inRect rect: CGRect, context: CGContext) {
         let graphic = drawGraphic(rect, context)
-        drawText(graphic, context)
+        LineChart.drawText(graphic, context)
     }
-    
     
     @objc(drawGraphicInRect:context:)
     open func drawGraphic(_ rect: CGRect, _ context: CGContext) -> LineGraphic {
@@ -36,67 +34,35 @@ open class LineChart: CoordinateChart {
         }
         
         let itemCount = items.count
-        let bounds = graphic.bounds
         let graphicItems = NSMutableArray(capacity: itemCount)
-        let shapePath = CGMutablePath()
-        let linePath = CGMutablePath()
+        let path = CGMutablePath()
         
         for i in 0..<itemCount {
             let item = items[i]
-            let itemShapeStartPoint = graphic.convertBoundsPointToRect(CGPoint(x: item.value.x, y: bounds.minY))
-            let itemShapeEndPoint = graphic.convertBoundsPointToRect(item.value)
+            let itemPoint = graphic.convertBoundsPointToRect(item.value)
             if i==0 {
-                shapePath.move(to: itemShapeStartPoint)
-                shapePath.addLine(to: itemShapeEndPoint)
-                linePath.move(to: itemShapeEndPoint)
+                path.move(to: itemPoint)
             } else {
-                shapePath.addLine(to: itemShapeEndPoint)
-                linePath.addLine(to: itemShapeEndPoint)
+                path.addLine(to: itemPoint)
             }
             
             let graphicItem = LineGraphicItem(item)
-            graphicItem.shapeStartPoint = itemShapeStartPoint
-            graphicItem.shapeEndPoint = itemShapeEndPoint
-            graphicItem.linePoint = itemShapeEndPoint
+            graphicItem.point = itemPoint
             graphicItems.add(graphicItem)
         }
         
-        if let lastGraphicItem = graphicItems.lastObject as? LineGraphicItem  {
-            shapePath.addLine(to: lastGraphicItem.shapeStartPoint)
-            shapePath.closeSubpath()
-        }
-        
-        let shapeBoundingBox = shapePath.boundingBox
-        let stringStart: CGPoint
-        let stringEnd: CGPoint
-        if exchangeXY {
-            let midY = shapeBoundingBox.midY
-            stringStart = CGPoint(x: shapeBoundingBox.minX, y: midY)
-            stringEnd = CGPoint(x: shapeBoundingBox.maxX, y: midY)
-        } else {
-            let midX = shapeBoundingBox.midX
-            stringStart = CGPoint(x: midX, y: shapeBoundingBox.maxY)
-            stringEnd = CGPoint(x: midX, y: shapeBoundingBox.minY)
-        }
-        graphic.stringStart = stringStart
-        graphic.stringEnd = stringEnd
-        graphic.shapePath = shapePath
-        graphic.linePath = linePath
+        graphic.path = path
         graphic.items = (graphicItems as! [LineGraphicItem])
         
-        if let shapePaint = shapePaint {
-            shapePaint.draw(shapePath, context, graphic)
-        }
-        
-        if let linePaint = linePaint {
-            linePaint.draw(linePath, context)
+        if let paint = paint {
+            paint.draw(path, context)
         }
         
         return graphic
     }
     
     @objc(drawTextForGraphic:inContext:)
-    open func drawText(_ graphic: LineGraphic, _ context: CGContext) {
+    open class func drawText(_ graphic: LineGraphic, _ context: CGContext) {
         guard let items = graphic.items else {
             return
         }
@@ -104,16 +70,13 @@ open class LineChart: CoordinateChart {
         let stringAngle = graphic.stringAngle
         for item in items {
             let builder = item.builder as! LineChartItem
-            if let itemHeaderText = builder.headerText {
-                itemHeaderText.draw(item.shapeStartPoint, NSNumber(value: Double(Helper.angleIn360Degree(stringAngle + 180))), context)
-            }
-            if let itemFooterText = builder.footerText {
-                itemFooterText.draw(item.shapeEndPoint, NSNumber(value: Double(stringAngle)), context)
+            if let text = builder.text {
+                text.draw(item.point, NSNumber(value: Double(stringAngle)), context)
             }
         }
     }
     
-    override open func calculateUnfixedBounds() -> CGRect {
+    override open func calcBounds() -> CGRect {
         guard let items = items else {
             return .zero
         }
@@ -142,4 +105,26 @@ open class LineChart: CoordinateChart {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
     
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let items = items {
+            for item in items {
+                item.nextTransform(progress)
+            }
+        }
+        
+        paint?.nextTransform(progress)
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        if let items = items {
+            for item in items {
+                item.clearTransforms()
+            }
+        }
+        paint?.clearTransforms()
+    }
 }

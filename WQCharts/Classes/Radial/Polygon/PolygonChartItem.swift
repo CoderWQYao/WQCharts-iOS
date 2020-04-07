@@ -10,10 +10,13 @@
 import UIKit
 
 @objc(WQPolygonChartItem)
-open class PolygonChartItem: BaseChartItem {
-    
+open class PolygonChartItem: ChartItem {
+
     @objc open var value = CGFloat(0)
     @objc open var text: ChartText?
+    @objc open var axisPaint: LinePaint?
+    
+    @objc open var transformValue: TransformCGFloat?
     
     @objc
     public override convenience init() {
@@ -22,8 +25,23 @@ open class PolygonChartItem: BaseChartItem {
     
     @objc(initWithValue:)
     public init(_ value: CGFloat) {
-        super.init()
         self.value = value
+        self.axisPaint = LinePaint()
+        
+        super.init()
     }
     
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let transformValue = transformValue {
+            value = transformValue.valueForProgress(progress)
+        }
+    }
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        transformValue = nil;
+    }
 }

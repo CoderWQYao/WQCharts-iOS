@@ -11,23 +11,35 @@
 
 @interface BarChartVC ()
 
-@property (nonatomic) CGFloat barWidth;
 @property (nonatomic, strong) WQBarChartView* chartView;
+@property (nonatomic) CGFloat barWidth;
+@property (nonatomic, strong) UIColor* currentColor;
 
 @end
 
 @implementation BarChartVC
 
+
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
     if(self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
         self.barWidth = 10;
+        self.currentColor = Color_Red;
     }
     return self;
 }
 
-- (void)viewDidLoad {
-    [super viewDidLoad];
-    [self.chartContainer addSubview:self.chartView];
+- (void)viewWillLayoutSubviews {
+    [super viewWillLayoutSubviews];
+    [self layoutRectangleChartView];
+}
+
+- (UIView *)createChartView {
+    _chartView = [[WQBarChartView alloc] init];
+    return _chartView;
+}
+
+- (void)configChartOptions {
+    [super configChartOptions];
     
     __weak typeof(self) weakSelf = self;
     
@@ -47,61 +59,21 @@
         [chartView redraw];
     })];
     
-    ListCell* itemsCell = ListCell.new
-    .setTitle(@"Items")
-    .setIsMutable(YES)
-    .setOnAppend(^void(ListCell* cell) {
-        WQBarChartView* chartView = weakSelf.chartView;
-        
-        NSInteger index = chartView.chart.items.count;
-        WQBarChartItem* item = [weakSelf createItemWithX:index y:index % 2 == 0 ? 0.5 : -0.5];
-        chartView.chart.items = [chartView.chart.items arrayByAddingObject:item];
-        [chartView redraw];
-        
-        cell.addItem([weakSelf createCellWithItem:item]);
-        [weakSelf scrollToListCellForKey:@"Items" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-    })
-    .setOnRemove(^(ListCell* cell) {
-        WQBarChartView* chartView = weakSelf.chartView;
-        
-        NSMutableArray<WQBarChartItem*>* items = [NSMutableArray arrayWithArray:chartView.chart.items];
-        NSInteger index = items.count - 1;
-        if(index < 0) {
-            return;
-        }
-        cell.removeItemAtIndex(index);
-        [weakSelf scrollToListCellForKey:@"Items" atScrollPosition:ListViewScrollPositionBottom animated:YES];
-        
-        [items removeObjectAtIndex:index];
-        chartView.chart.items = items;
-        [chartView redraw];
-    });
-    NSMutableArray<WQBarChartItem*>* items = [NSMutableArray array];
-    for (NSInteger i=0; i<4; i++) {
-        CGFloat y;
-        switch (i) {
-            case 0:
-                y = 0.4;
-                break;
-            case 1:
-                y = 0.8;
-                break;
-            case 2:
-                y = -0.8;
-                break;
-            case 3:
-                y = -0.4;
-                break;
-            default:
-                y = 0;
-                break;
-        }
-        WQBarChartItem* item = [self createItemWithX:i y:y];
-        [items addObject:item];
-        itemsCell.addItem([self createCellWithItem:item]);
-    }
-    self.chartView.chart.items = items;
-    [self.optionsView addItem:itemsCell];
+}
+
+- (void)updateChartExchangeXY {
+    [super updateChartExchangeXY];
+    self.chartView.padding = [self chartViewPaddingForSelection:[self radioCellSelectionForKey:@"Padding"]];
+    [self updateItems];
+    [self.view setNeedsLayout];
+}
+
+#pragma mark - Items
+
+- (void)configChartItemsOptions {
+    [super configChartItemsOptions];
+    
+    __weak typeof(self) weakSelf = self;
     
     [self.optionsView addItem:RadioCell.new
      .setTitle(@"ItemsCornerRadius")
@@ -112,7 +84,7 @@
     })];
     
     [self.optionsView addItem:RadioCell.new
-     .setTitle(@"ItemsStartValue")
+     .setTitle(@"ItemsStartY")
      .setOptions(@[@"OFF",@"ON"])
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
@@ -151,22 +123,50 @@
         [weakSelf updateItems];
     })];
     
-    [self callRadioCellsSectionChange];
 }
 
-- (WQBarChartView *)chartView {
-    if(!_chartView) {
-        _chartView = [[WQBarChartView alloc] init];
+- (NSString*)itemsOptionTitle {
+    return @"Items";
+}
+
+- (NSMutableArray<WQBarChartItem*>*)items {
+    NSArray<WQBarChartItem*>* items = self.chartView.chart.items;
+    if (items) {
+        return [NSMutableArray arrayWithArray:items];
+    } else {
+        NSMutableArray<WQBarChartItem*>* items = [NSMutableArray array];
+        for (NSInteger i=0; i<4; i++) {
+            CGFloat y;
+            switch (i) {
+                case 0:
+                    y = 0.4;
+                    break;
+                case 1:
+                    y = 0.8;
+                    break;
+                case 2:
+                    y = -0.8;
+                    break;
+                case 3:
+                    y = -0.4;
+                    break;
+                default:
+                    y = 0;
+                    break;
+            }
+            WQBarChartItem* item = [self createItemAtIndex:i];
+            item.endY = y;
+            [items addObject:item];
+        }
+        self.chartView.chart.items = items;
+        return items;
     }
-    return _chartView;
 }
 
-- (WQCoordinateChartView *)barLineChartView {
-    return self.chartView;
-}
-
-- (WQBarChartItem*)createItemWithX:(CGFloat)x y:(CGFloat)y {
-    WQBarChartItem* item = [[WQBarChartItem alloc] initWithX:x endY:y];
+- (WQBarChartItem*)createItemAtIndex:(NSInteger)index {
+    WQBarChartItem* item = [[WQBarChartItem alloc] init];
+    item.x = index;
+    item.endY = index % 2 == 0 ? 0.5 : -0.5;
     item.barWidth = self.barWidth;
     
     WQChartText* headerText = [[WQChartText alloc] init];
@@ -183,6 +183,25 @@
     return item;
 }
 
+- (SliderCell*)createItemCellWithItem:(WQBarChartItem*)item atIndex:(NSInteger)index {
+    __weak typeof(self) weakSelf = self;
+    return SliderCell.new
+    .setSliderValue(-1,1,item.endY)
+    .setDecimalCount(2)
+    .setObject(item)
+    .setOnValueChange(^(SliderCell* cell,float value) {
+        WQBarChartItem* item = (WQBarChartItem*)cell.object;
+        item.endY = value;
+        [weakSelf updateItem:item];
+        [weakSelf.chartView redraw];
+    });
+}
+
+- (void)itemsDidChange:(NSMutableArray*)items {
+    self.chartView.chart.items = items;
+    [self.chartView redraw];
+}
+
 - (void)updateItem:(WQBarChartItem*)item {
     BOOL exchangeXY = [self radioCellSelectionForKey:@"ExchangeXY"] != 0;
     
@@ -190,30 +209,23 @@
     item.cornerRadius2 = cornerRadius;
     item.cornerRadius3 = cornerRadius;
     
-    __block UIColor* fillColor;
-    if([self radioCellSelectionForKey:@"ItemsStartValue"] != 0) {
+    if([self radioCellSelectionForKey:@"ItemsStartY"] != 0) {
         item.startY = @0;
-        if(item.endY < 0) {
-            fillColor = Color_Green;
-        } else {
-            fillColor = Color_Red;
-        }
     } else {
         item.startY = nil;
-        fillColor = Color_Red;
     }
     
     WQFillPaint* fillPaint = item.paint.fill;
     switch ([self radioCellSelectionForKey:@"ItemsFill"]) {
         case 1:
-            fillPaint.color = fillColor;
+            fillPaint.color = self.currentColor;
             fillPaint.shader = nil;
             break;
         case 2: {
-            fillPaint.color = nil;
+            fillPaint.color = self.currentColor;
             fillPaint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
                 WQBarGraphicItem* graphic = (WQBarGraphicItem*)object;
-                return [[WQLinearGradientShader alloc] initWithStartPoint:graphic.stringStart endPoint:graphic.stringEnd colors:@[Color_Yellow,fillColor] positions:@[@0.0,@0.7]];
+                return [[WQLinearGradientShader alloc] initWithStartPoint:graphic.stringStart endPoint:graphic.stringEnd colors:@[Color_Yellow, paint.color ?: UIColor.clearColor] positions:@[@0.0,@0.7]];
             };
             break;
         }
@@ -225,9 +237,7 @@
     
     [self setupStrokePaint:item.paint.stroke color:Color_White type:[self radioCellSelectionForKey:@"ItemsStroke"]];
     
-    NSString* string = [NSString stringWithFormat:@"%.2f",item.endY];
     WQChartText* headerText = item.headerText;
-    headerText.string = string;
     headerText.hidden = [self radioCellSelectionForKey:@"ItemsHeaderText"] == 0;
     headerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
         if(exchangeXY) {
@@ -238,7 +248,6 @@
     };
     
     WQChartText* footerText = item.footerText;
-    footerText.string = string;
     footerText.hidden = [self radioCellSelectionForKey:@"ItemsFooterText"] == 0;
     footerText.textOffsetByAngle = ^CGFloat(WQChartText * _Nonnull text, CGSize size, CGFloat angle) {
         if(exchangeXY) {
@@ -256,20 +265,68 @@
     [self.chartView redraw];
 }
 
-- (SliderCell*)createCellWithItem:(WQBarChartItem*)item {
-    __weak typeof(self) weakSelf = self;
-    return SliderCell.new
-    .setSliderValue(-1,1,item.endY)
-    .setDecimalCount(2)
-    .setObject(item)
-    .setOnValueChange(^(SliderCell* cell,float value) {
-        WQBarChartView* chartView = weakSelf.chartView;
+
+#pragma mark - ChartViewDrawDelegate
+
+- (void)chartViewWillDraw:(WQChartView *)chartView inRect:(CGRect)rect context:(CGContextRef)context {
+    [super chartViewWillDraw:chartView inRect:rect context:context];
+    
+    for (WQBarChartItem* item in self.chartView.chart.items) {
+        NSString* string = [NSString stringWithFormat:@"%.2f",item.endY];
+        item.headerText.string = string;
+        item.footerText.string = string;
+    }
+}
+
+#pragma mark - Animation
+
+- (void)appendAnimationKeys:(NSMutableArray<NSString *> *)animationKeys {
+    [super appendAnimationKeys:animationKeys];
+    [animationKeys addObject:@"Values"];
+    [animationKeys addObject:@"Colors"];
+}
+
+- (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys {
+    [super prepareAnimationOfChartViewForKeys:keys];
+    
+    WQBarChart* chart = self.chartView.chart;
+    
+    if ([keys containsObject:@"Values"]) {
+        for (WQBarChartItem* item in chart.items) {
+            item.transformEndY = [[WQTransformCGFloat alloc] initWithFrom:item.endY to:[NSNumber randomCGFloatFrom:-1 to:1]];
+        }
+    }
+    
+    if ([keys containsObject:@"Colors"]) {
+        UIColor* color = [self.currentColor isEqual:Color_Red] ? Color_Green : Color_Red;
+        for (WQBarChartItem* item in chart.items) {
+            WQFillPaint* paint = item.paint.fill;
+            if(!paint) {
+                continue;
+            }
+            paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ?: UIColor.clearColor to:color];
+        }
+        self.currentColor = color;
         
-        WQBarChartItem* item = (WQBarChartItem*)cell.object;
-        item.endY = value;
-        [weakSelf updateItem:item];
-        [chartView redraw];
-    });
+        RadioCell* cell = [self findRadioCellForKey:@"ItemsFill"];
+        if (cell.selection == 0) {
+            cell.selection = 1;
+        }
+    }
+    
+}
+
+#pragma mark - AnimationDelegate
+
+- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+    [super animation:animation progressDidChange:progress];
+    
+    if (animation.transformable == self.chartView) {
+        [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQBarChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            [self updateSliderValue:item.endY forKey:@"Items" atIndex:idx];
+        }];
+    }
+    
 }
 
 @end

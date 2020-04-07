@@ -12,26 +12,19 @@ import UIKit
 @objc(WQRadarChartDataSource)
 public protocol RadarChartDataSource {
     
-    @objc(numberOfIndicatorsInRadarChart:)
-    func getIndicatorCount(_ radarChart: RadarChart) -> Int
+    @objc func numberOfIndicatorsInRadarChart(_ radarChart: RadarChart) -> Int
     
-    @objc(radarChart:indicatorAtIndex:)
-    func getIndicator(_ radarChart: RadarChart, _ index: Int) -> RadarChartIndicator
+    @objc func radarChart(_ radarChart: RadarChart, indicatorAtIndex index: Int) -> RadarChartIndicator
     
-    @objc(numberOfSegmentsInRadarChart:)
-    func getSegmentCount(_ radarChart: RadarChart) -> Int
+    @objc func numberOfSegmentsInRadarChart(_ radarChart: RadarChart) -> Int
     
-    @objc(radarChart:segmentAtIndex:)
-    func getSegment(_ radarChart: RadarChart, _ index: Int) -> RadarChartSegment
+    @objc func radarChart(_ radarChart: RadarChart, segmentAtIndex index: Int) -> RadarChartSegment
     
-    @objc(numberOfPolygonsInRadarChart:)
-    func getPolygonCount(_ radarChart: RadarChart) -> Int
+    @objc func numberOfPolygonsInRadarChart(_ radarChart: RadarChart) -> Int
     
-    @objc(radarChart:polygontAtIndex:)
-    func getPolygon(_ radarChart: RadarChart, _ index: Int) -> RadarChartPolygon
+    @objc func radarChart(_ radarChart: RadarChart, polygontAtIndex index: Int) -> RadarChartPolygon
     
-    @objc(radarChart:itemOfChartForPolygonAtIndexPath:)
-    func getPolygonChartItem(_ radarChart: RadarChart, _ indexPath: IndexPath) -> PolygonChartItem
+    @objc func radarChart(_ radarChart: RadarChart, itemOfChartForPolygonAtIndexPath indexPath: IndexPath) -> PolygonChartItem
     
 }
 
@@ -58,19 +51,13 @@ open class RadarChart: RadialChart {
         }
     }
     
-    override open var angle: CGFloat {
-        didSet {
-            flags = .all
-        }
-    }
-    
-    @objc private(set) open var indicators: [RadarChartIndicator]?
-    @objc private(set) open var segments: [RadarChartSegment]?
-    @objc private(set) open var polygons: [RadarChartPolygon]?
+    @objc private(set) public var indicators: [RadarChartIndicator]?
+    @objc private(set) public var segments: [RadarChartSegment]?
+    @objc private(set) public var polygons: [RadarChartPolygon]?
     
     private var flags: Flags = .all
     
-    open override func draw(_ rect: CGRect, _ context: CGContext) {
+    override open func draw(inRect rect: CGRect, context: CGContext) {
         let graphic = drawGraphic(rect, context)
         drawText(graphic, context)
     }
@@ -159,6 +146,9 @@ open class RadarChart: RadialChart {
                 }
                 
                 if indicatorCount > 0 {
+                    if segment.shape == .Polygon && angle < 360 {
+                        segmentPath.addLine(to: center)
+                    }
                     segmentPath.closeSubpath()
                 }
                 
@@ -248,9 +238,9 @@ open class RadarChart: RadialChart {
     func reloadIndicators() {
         let indicators = NSMutableArray()
         if let dataSource = dataSource {
-            let count = dataSource.getIndicatorCount(self)
+            let count = dataSource.numberOfIndicatorsInRadarChart(self)
             for i in 0..<count {
-                let indicator = dataSource.getIndicator(self, i)
+                let indicator = dataSource.radarChart(self, indicatorAtIndex: i)
                 indicators.add(indicator)
             }
         }
@@ -260,9 +250,9 @@ open class RadarChart: RadialChart {
     func reloadSegments() {
         let segments = NSMutableArray()
         if let dataSource = dataSource {
-            let count = dataSource.getSegmentCount(self)
+            let count = dataSource.numberOfSegmentsInRadarChart(self)
             for i in 0..<count {
-                let segment = dataSource.getSegment(self, i)
+                let segment = dataSource.radarChart(self, segmentAtIndex: i)
                 segments.add(segment)
             }
         }
@@ -272,9 +262,9 @@ open class RadarChart: RadialChart {
     func reloadPolygons() {
         let polygons = NSMutableArray()
         if let dataSource = dataSource {
-            let count = dataSource.getPolygonCount(self)
+            let count = dataSource.numberOfPolygonsInRadarChart(self)
             for i in 0..<count {
-                let polygon = dataSource.getPolygon(self, i)
+                let polygon = dataSource.radarChart(self, polygontAtIndex: i)
                 polygons.add(polygon)
             }
         }
@@ -295,7 +285,7 @@ open class RadarChart: RadialChart {
             var items = [PolygonChartItem]()
             if let dataSource = dataSource, let indicators = indicators {
                 for j in 0..<indicators.count {
-                    let item = dataSource.getPolygonChartItem(self, IndexPath(row: j, section: i))
+                    let item = dataSource.radarChart(self, itemOfChartForPolygonAtIndexPath: IndexPath(row: j, section: i))
                     items.append(item)
                 }
             }
@@ -304,4 +294,50 @@ open class RadarChart: RadialChart {
         }
     }
     
+    override open func nextTransform(_ progress: CGFloat) {
+        super.nextTransform(progress)
+        
+        if let indicators = indicators {
+            for indicator in indicators {
+                indicator.nextTransform(progress)
+            }
+        }
+        
+        if let segments = segments {
+            for segment in segments {
+                segment.nextTransform(progress)
+            }
+        }
+        
+        if let polygons = polygons {
+            for polygon in polygons {
+                polygon.nextTransform(progress)
+            }
+        }
+        
+    }
+    
+    
+    override open func clearTransforms() {
+        super.clearTransforms()
+        
+        if let indicators = indicators {
+            for indicator in indicators {
+                indicator.clearTransforms()
+            }
+        }
+        
+        if let segments = segments {
+            for segment in segments {
+                segment.clearTransforms()
+            }
+        }
+        
+        if let polygons = polygons {
+            for polygon in polygons {
+                polygon.clearTransforms()
+            }
+        }
+        
+    }
 }

@@ -11,8 +11,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface PolygonChartVC : RadialChartVC
-
+@interface PolygonChartVC : RadialChartVC<ItemsOptionsDelegate>
 
 @end
 

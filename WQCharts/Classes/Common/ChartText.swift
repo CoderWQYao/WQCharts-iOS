@@ -9,8 +9,16 @@
 
 import UIKit
 
+@objc(WQChartTextDelegate)
+protocol ChartTextDelegate {
+    // textOffsetByAngle: ((_ text: ChartText, _ size: CGSize, _ angle: CGFloat) -> CGFloat)?
+    @objc optional func chartText(_ chartText: ChartText, fixedSizeWithAngle angle: NSNumber?) -> CGSize
+    @objc optional func chartText(_ chartText: ChartText, offsetByAngleWithSize size: CGSize, angle: CGFloat) -> CGFloat
+    @objc optional func chartText(_ chartText: ChartText, offsetWithSize size: CGSize, angle: NSNumber?) -> CGPoint
+}
+
 @objc(WQChartText)
-open class ChartText: BaseChartItem {
+open class ChartText: ChartItem {
     
     @objc open var attributedString: NSAttributedString?
     @objc open var string: String?
@@ -44,8 +52,8 @@ open class ChartText: BaseChartItem {
         }
         set {
             let paragraphStyle: NSMutableParagraphStyle
-            if let paragraphStyleUnbox: NSMutableParagraphStyle = attributes[NSAttributedString.Key.paragraphStyle] as? NSMutableParagraphStyle {
-                paragraphStyle = paragraphStyleUnbox.mutableCopy() as! NSMutableParagraphStyle
+            if let paragraphStyle_op: NSMutableParagraphStyle = attributes[NSAttributedString.Key.paragraphStyle] as? NSMutableParagraphStyle {
+                paragraphStyle = paragraphStyle_op.mutableCopy() as! NSMutableParagraphStyle
             } else {
                 paragraphStyle = NSMutableParagraphStyle()
                 attributes[NSAttributedString.Key.paragraphStyle] = paragraphStyle

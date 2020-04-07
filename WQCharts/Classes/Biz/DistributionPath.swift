@@ -1,6 +1,6 @@
 // https://github.com/CoderWQYao/WQCharts-iOS
 //
-// BizDistribution.swift
+// DistributionPath.swift
 // WQCharts
 //
 // Created by WQ.Yao on 2020/01/02.
@@ -9,10 +9,10 @@
 
 import UIKit
 
-@objc(WQBizDistribution)
-open class BizDistribution: NSObject {
+@objc(WQDistributionPath)
+open class DistributionPath: NSObject {
     
-    @objc public var items: [BizDistributionItem]?
+    @objc public var items: [DistributionPathItem]?
     @objc public var lowerBound = CGFloat(0)
     @objc public var upperBound = CGFloat(0)
     

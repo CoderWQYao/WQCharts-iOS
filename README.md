@@ -95,6 +95,9 @@ import WQCharts
 
 ## Architecture
 
+### Structure Diagram
+![Structure Diagram](http://appdata.cc/WQCharts_StructureDiagram.png)
+
 ### Chart Class Diagram
 ![Chart Class Diagram](http://appdata.cc/WQCharts_ChartDiagram.png)
 

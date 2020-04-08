@@ -87,7 +87,7 @@ open class AnimationPlayer: NSObject {
         
         removeAnimations(needsRemoveAnimations as! [Animation])
         displayView?.setNeedsDisplay()
-        displayTarget?.perform(action)
+        _ = displayTarget?.perform(action)
     }
     
     

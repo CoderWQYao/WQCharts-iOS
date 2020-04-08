@@ -99,10 +99,10 @@ import WQCharts
 ![Structure Diagram](http://appdata.cc/WQCharts_StructureDiagram.png)
 
 ### Chart Class Diagram
-![Chart Class Diagram](http://appdata.cc/WQCharts_ChartDiagram.png)
+![Chart Class Diagram](http://appdata.cc/WQCharts_ChartClassDiagram.png)
 
 ### View Class Diagram
-![View Class Diagram](http://appdata.cc/WQCharts_ViewDiagram.png)
+![View Class Diagram](http://appdata.cc/WQCharts_ViewClassDiagram.png)
 
 ## Examples
 

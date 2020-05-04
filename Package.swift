@@ -1,12 +1,4 @@
-// https://github.com/CoderWQYao/WQCharts-iOS
-//
-// Package.swift
-// WQCharts
-//
-// Created by WQ.Yao on 2020/01/02.
-// Copyright (c) 2020年 WQ.Yao All rights reserved.
-//
-
+// swift-tools-version:5.0
 import PackageDescription
 
 let package = Package(
@@ -18,8 +10,7 @@ let package = Package(
     products: [
         .library(
             name: "WQCharts",
-            targets: ["WQCharts"]
-        ),
+            targets: ["WQCharts"])
     ],
     dependencies: [
         
@@ -27,8 +18,7 @@ let package = Package(
     targets: [
         .target(
             name: "WQCharts",
-            path: "WQCharts/Classes"
-        ),
+            path: "WQCharts/Classes")
     ],
     swiftLanguageVersions: [.v5]
     

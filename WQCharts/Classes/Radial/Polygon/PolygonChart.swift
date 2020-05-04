@@ -43,7 +43,7 @@ open class PolygonChart: RadialChart {
         if angle < 360 {
             sweepAngle = itemCount > 1 ? angle / CGFloat(itemCount - 1) : 0
         } else {
-            sweepAngle = angle / CGFloat(itemCount)
+            sweepAngle = itemCount > 1 ? angle / CGFloat(itemCount) : 0
         }
         if graphic.direction == .CounterClockwise {
             sweepAngle = -sweepAngle
@@ -53,10 +53,10 @@ open class PolygonChart: RadialChart {
         
         for i in 0..<itemCount {
             let item = items[i]
-            let itemAngle = sweepAngle * CGFloat(i) + startAngle
+            let itemAngle = startAngle + sweepAngle * CGFloat(i);
             let itemPointRadian = Helper.convertAngleToRadian(itemAngle)
             let itemPointRadius = radius * CGFloat(item.value)
-            let itemPoint = CGPoint(x: center.x + itemPointRadius * sin(itemPointRadian),y: center.y - itemPointRadius * cos(itemPointRadian))
+            let itemPoint = CGPoint(x: center.x + itemPointRadius * sin(itemPointRadian), y: center.y - itemPointRadius * cos(itemPointRadian))
             
             let itemAxisPath = CGMutablePath()
             itemAxisPath.move(to: center)

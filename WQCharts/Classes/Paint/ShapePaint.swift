@@ -39,14 +39,8 @@ open class ShapePaint: ChartItem  {
     @objc(drawPath:inContext:object:)
     open func draw(_ path: CGPath, _ context: CGContext, _ object: Any?) {
 
-        if let fillPaint = self.fill {
-            fillPaint.draw(path, context, object)
-        }
-        
-        if let strokePaint = self.stroke {
-            strokePaint.draw(path, context)
-        }
-        
+        self.fill?.draw(path, context, object)
+        self.stroke?.draw(path, context)
     }
     
     override open func nextTransform(_ progress: CGFloat) {

@@ -18,13 +18,17 @@ let package = Package(
     products: [
         .library(
             name: "WQCharts",
-            targets: ["WQCharts"]),
+            targets: ["WQCharts"]
+        ),
+    ],
+    dependencies: [
+        
     ],
     targets: [
         .target(
             name: "WQCharts",
             path: "WQCharts/Classes"
-        )
+        ),
     ],
     swiftLanguageVersions: [.v5]
     

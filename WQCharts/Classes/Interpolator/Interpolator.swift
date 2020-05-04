@@ -7,7 +7,7 @@
 // Copyright (c) 2020年 WQ.Yao All rights reserved.
 //
 
-import CoreGraphics
+import UIKit
 
 @objc(WQInterpolator)
 public protocol Interpolator {

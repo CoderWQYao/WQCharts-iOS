@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
 
   s.name             = 'WQCharts'
-  s.version          = '1.1.0'
+  s.version          = '1.1.1'
   s.summary          = 'WQCharts is a powerful & easy to use chart library for iOS'
   s.homepage         = 'https://github.com/CoderWQYao/WQCharts-iOS'
   s.license = { :type => "MIT", :file => "LICENSE" }

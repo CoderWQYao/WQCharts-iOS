@@ -55,7 +55,7 @@ open class PolygonChart: RadialChart {
         for i in 0..<itemCount {
             let item = items[i]
             let itemAngle = startAngle + sweepAngle * CGFloat(i);
-            let itemPointRadian = Helper.convertAngleToRadian(itemAngle)
+            let itemPointRadian = ChartMath.deg2rad(itemAngle)
             let itemPointRadius = radius * CGFloat(item.value)
             let itemPoint = CGPoint(x: center.x + itemPointRadius * sin(itemPointRadian), y: center.y - itemPointRadius * cos(itemPointRadian))
             
@@ -93,8 +93,8 @@ open class PolygonChart: RadialChart {
             paint.draw(
                 path,
                 ChartShaderRect(
-                    Helper.rectFrom(center: center, radius: itemMaxRadius),
-                    Helper.rectFrom(center: center, radius: radius)
+                    ChartMath.rectFrom(center: center, radius: itemMaxRadius),
+                    ChartMath.rectFrom(center: center, radius: radius)
                 ),
                 context
             )

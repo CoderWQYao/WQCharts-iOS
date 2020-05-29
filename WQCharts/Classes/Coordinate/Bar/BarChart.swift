@@ -68,10 +68,10 @@ open class BarChart: CoordinateChart {
             
             var itemStringAngle = stringAngle
             if angleReversed {
-                itemStringAngle = Helper.angleIn360Degree(itemStringAngle + 180)
+                itemStringAngle = ChartMath.angleIn360Degree(itemStringAngle + 180)
             }
             
-            let itemPath = Helper.createRectPath(itemRect, itemStringAngle, item.cornerRadius1, item.cornerRadius2, item.cornerRadius3, item.cornerRadius4)
+            let itemPath = ChartMath.createRectPath(itemRect, itemStringAngle, item.cornerRadius1, item.cornerRadius2, item.cornerRadius3, item.cornerRadius4)
             
             let graphicItem = BarGraphicItem(item)
             graphicItem.angleReversed = angleReversed
@@ -100,7 +100,7 @@ open class BarChart: CoordinateChart {
             let builder = item.builder as! BarChartItem
             let stringAngle = item.stringAngle
             if let headerText = builder.headerText {
-                headerText.draw(item.stringStart, NSNumber(value: Double(Helper.angleIn360Degree(stringAngle + 180))), context)
+                headerText.draw(item.stringStart, NSNumber(value: Double(ChartMath.angleIn360Degree(stringAngle + 180))), context)
             }
             if let footerText = builder.footerText {
                 footerText.draw(item.stringEnd, NSNumber(value: Double(stringAngle)), context)

@@ -46,8 +46,8 @@ open class PieChart: RadialChart {
             if direction == .CounterClockwise {
                 itemSweepAngle = -itemSweepAngle
             }
-            let arcStartRadian = Helper.convertAngleToRadian(itemStartAngle)
-            let arcSweepRadian = Helper.convertAngleToRadian(itemSweepAngle)
+            let arcStartRadian = ChartMath.deg2rad(itemStartAngle)
+            let arcSweepRadian = ChartMath.deg2rad(itemSweepAngle)
             let itemCenter = CGPoint(x: center.x + offset * cos(arcStartRadian + arcSweepRadian / 2.0), y: center.y + offset * sin(arcStartRadian + arcSweepRadian / 2.0))
             
             let itemPath = CGMutablePath()
@@ -70,8 +70,8 @@ open class PieChart: RadialChart {
                 itemPaint.draw(
                     itemPath,
                     ChartShaderRect(
-                        Helper.rectFrom(center: center, radius: radius),
-                        Helper.rectFrom(center: center, radius: radius)
+                        ChartMath.rectFrom(center: center, radius: radius),
+                        ChartMath.rectFrom(center: center, radius: radius)
                     ),
                     context
                 )
@@ -98,7 +98,7 @@ open class PieChart: RadialChart {
             }
             // +90修正角度，PieChart与其他Chart起始位置不一样，PieChart以3点钟方向为0度
             let textAngle = item.startAngle + item.sweepAngle / 2.0 + 90
-            let textRadian = Helper.convertAngleToRadian(textAngle)
+            let textRadian = ChartMath.deg2rad(textAngle)
             let textOffset = (item.arc2Radius + item.arc1Radius) / 2.0
             let textPoint = CGPoint(x: item.center.x + textOffset * sin(textRadian), y: item.center.y - textOffset * cos(textRadian))
             text.draw(textPoint, NSNumber(value: Double(textAngle)), context)

@@ -67,12 +67,12 @@ open class AxisChart: CoordinateChart {
             let endPoint = item.endPoint
             if let headerText = builder.headerText {
                 let radian = atan2((startPoint.x - endPoint.x), (endPoint.y - startPoint.y))
-                let angle = Helper.convertRadianToAngle(radian)
+                let angle = ChartMath.rad2deg(radian)
                 headerText.draw(startPoint, NSNumber(value: Double(angle)), context)
             }
             if let footerText = builder.footerText {
                 let radian = atan2((endPoint.x - startPoint.x), (startPoint.y - endPoint.y))
-                let angle = Helper.convertRadianToAngle(radian)
+                let angle = ChartMath.rad2deg(radian)
                 footerText.draw(endPoint, NSNumber(value: Double(angle)), context)
             }
         }

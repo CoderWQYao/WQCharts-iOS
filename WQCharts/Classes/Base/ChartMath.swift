@@ -9,7 +9,7 @@
 
 import UIKit
 
-class Helper: NSObject {
+class ChartMath: NSObject {
 
     @objc
     open class func angleIn360Degree(_ angle: CGFloat) -> CGFloat {
@@ -21,13 +21,13 @@ class Helper: NSObject {
     }
 
     @objc
-    open class func convertAngleToRadian(_ angle: CGFloat) -> CGFloat {
-         return CGFloat.pi / 180.0 * angle
+    open class func deg2rad(_ deg: CGFloat) -> CGFloat {
+         return CGFloat.pi / 180.0 * deg
     }
     
     @objc
-    open class func convertRadianToAngle(_ radian: CGFloat) -> CGFloat {
-        return radian * 180 / CGFloat.pi
+    open class func rad2deg(_ rad: CGFloat) -> CGFloat {
+        return rad * 180 / CGFloat.pi
     }
     
     @objc
@@ -74,10 +74,10 @@ class Helper: NSObject {
             let cornerRadius = cornerRadii[i]
             let point = points[i]
             if(cornerRadius>0 && min(size.width, size.height) >= cornerRadius) {
-                let offsetRadian = convertAngleToRadian(cornerAngle + 45)
+                let offsetRadian = deg2rad(cornerAngle + 45)
                 let offsetDistance = sqrt(cornerRadius * cornerRadius * 2)
                 let center = CGPoint(x: point.x + offsetDistance * sin(offsetRadian), y: point.y - offsetDistance * cos(offsetRadian))
-                path.addRelativeArc(center: center, radius: cornerRadius, startAngle: convertAngleToRadian(-90 + cornerAngle + 180), delta: convertAngleToRadian(90))
+                path.addRelativeArc(center: center, radius: cornerRadius, startAngle: deg2rad(-90 + cornerAngle + 180), delta: deg2rad(90))
             } else if(i==0) {
                 path.move(to: point)
             } else {

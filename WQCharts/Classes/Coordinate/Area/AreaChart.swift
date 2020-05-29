@@ -95,7 +95,7 @@ open class AreaChart: CoordinateChart {
         for item in items {
             let builder = item.builder as! AreaChartItem
             if let headerText = builder.headerText {
-                headerText.draw(item.startPoint, NSNumber(value: Double(Helper.angleIn360Degree(stringAngle + 180))), context)
+                headerText.draw(item.startPoint, NSNumber(value: Double(ChartMath.angleIn360Degree(stringAngle + 180))), context)
             }
             if let footerText = builder.footerText {
                 footerText.draw(item.endPoint, NSNumber(value: Double(stringAngle)), context)

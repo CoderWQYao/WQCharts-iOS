@@ -40,12 +40,12 @@ open class RadialChartView: ChartView {
         let touchLocation = gestureRecognizer.location(in: gestureRecognizer.view)
         let center = CGPoint(x: bounds.midX,y: bounds.midY)
         let radian = atan2((touchLocation.y - center.y),(touchLocation.x - center.x))
-        let touchAngle = Helper.convertRadianToAngle(radian)
+        let touchAngle = ChartMath.rad2deg(radian)
         if gestureRecognizer.state == .changed, let lastTouchAngle = lastTouchAngle {
             if touchAngle != lastTouchAngle {
                 let rotationOffset = touchAngle - lastTouchAngle
                 let chart = chartAsRadial
-                chart.rotation = Helper.angleIn360Degree(chart.rotation + rotationOffset)
+                chart.rotation = ChartMath.angleIn360Degree(chart.rotation + rotationOffset)
                 rotationDelegate?.radialChartView?(self, rotationDidChange: chart.rotation, translation: rotationOffset)
                 redraw()
             }

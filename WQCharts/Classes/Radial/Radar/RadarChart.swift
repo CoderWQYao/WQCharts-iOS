@@ -119,7 +119,7 @@ open class RadarChart: RadialChart {
                 let segmentPath = CGMutablePath()
                 
                 for j in 0..<indicatorCount {
-                    let segmentRadian = Helper.convertAngleToRadian(sweepAngle * CGFloat(j) + startAngle)
+                    let segmentRadian = ChartMath.deg2rad(sweepAngle * CGFloat(j) + startAngle)
                     switch segment.shape {
                     case .Polygon:
                         let segmentPoint = CGPoint(x: center.x + segmentRadius * sin(segmentRadian), y: center.y - segmentRadius * cos(segmentRadian))
@@ -135,8 +135,8 @@ open class RadarChart: RadialChart {
                             if(direction == .CounterClockwise) {
                                 segmentSweepAngle = -segmentSweepAngle
                             }
-                            let segmentStartRadian = Helper.convertAngleToRadian(rotation + 90)
-                            let segmentSweepRadian = Helper.convertAngleToRadian(segmentSweepAngle)
+                            let segmentStartRadian = ChartMath.deg2rad(rotation + 90)
+                            let segmentSweepRadian = ChartMath.deg2rad(segmentSweepAngle)
                             segmentPath.addRelativeArc(center: center, radius: segmentRadius, startAngle: segmentStartRadian, delta: -segmentSweepRadian)
                         } else {
                             segmentPath.addEllipse(in: CGRect(x: center.x - segmentRadius, y: center.y - segmentRadius, width: segmentRadius * 2, height: segmentRadius * 2))
@@ -167,7 +167,7 @@ open class RadarChart: RadialChart {
         for i in 0..<indicatorCount {
             let indicator = indicators[i]
             let indicatorAngle = sweepAngle * CGFloat(i) + startAngle
-            let indicatorRadian = Helper.convertAngleToRadian(indicatorAngle)
+            let indicatorRadian = ChartMath.deg2rad(indicatorAngle)
             let indicatorEndPoint = CGPoint(x: center.x + radius * sin(indicatorRadian), y: center.y - radius * cos(indicatorRadian))
             
             let indicatorPath = CGMutablePath()

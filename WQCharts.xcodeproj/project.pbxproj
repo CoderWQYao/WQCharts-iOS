@@ -25,7 +25,7 @@
 		8183B9202411F94200B38E40 /* Graphic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DB2411F94200B38E40 /* Graphic.swift */; };
 		8183B9212411F94200B38E40 /* Chart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DC2411F94200B38E40 /* Chart.swift */; };
 		8183B9222411F94200B38E40 /* GraphicItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DD2411F94200B38E40 /* GraphicItem.swift */; };
-		8183B9232411F94200B38E40 /* Helper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DE2411F94200B38E40 /* Helper.swift */; };
+		8183B9232411F94200B38E40 /* ChartMath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DE2411F94200B38E40 /* ChartMath.swift */; };
 		8183B9242411F94200B38E40 /* ChartText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8DF2411F94200B38E40 /* ChartText.swift */; };
 		8183B9252411F94200B38E40 /* RadialChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8E12411F94200B38E40 /* RadialChartView.swift */; };
 		8183B9262411F94200B38E40 /* RadialChart.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8183B8E22411F94200B38E40 /* RadialChart.swift */; };
@@ -95,7 +95,7 @@
 		8183B8DB2411F94200B38E40 /* Graphic.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Graphic.swift; sourceTree = "<group>"; };
 		8183B8DC2411F94200B38E40 /* Chart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Chart.swift; sourceTree = "<group>"; };
 		8183B8DD2411F94200B38E40 /* GraphicItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GraphicItem.swift; sourceTree = "<group>"; };
-		8183B8DE2411F94200B38E40 /* Helper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Helper.swift; sourceTree = "<group>"; };
+		8183B8DE2411F94200B38E40 /* ChartMath.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartMath.swift; sourceTree = "<group>"; };
 		8183B8DF2411F94200B38E40 /* ChartText.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ChartText.swift; sourceTree = "<group>"; };
 		8183B8E12411F94200B38E40 /* RadialChartView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadialChartView.swift; sourceTree = "<group>"; };
 		8183B8E22411F94200B38E40 /* RadialChart.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RadialChart.swift; sourceTree = "<group>"; };
@@ -225,7 +225,7 @@
 				8183B8DB2411F94200B38E40 /* Graphic.swift */,
 				8183B8DC2411F94200B38E40 /* Chart.swift */,
 				8183B8DD2411F94200B38E40 /* GraphicItem.swift */,
-				8183B8DE2411F94200B38E40 /* Helper.swift */,
+				8183B8DE2411F94200B38E40 /* ChartMath.swift */,
 				8183B8DF2411F94200B38E40 /* ChartText.swift */,
 			);
 			path = Base;
@@ -495,7 +495,7 @@
 				8183B94A2411F94200B38E40 /* BarGraphic.swift in Sources */,
 				8183B93D2411F94200B38E40 /* AxisGraphicItem.swift in Sources */,
 				81255E68247FCD8000C6BBF0 /* ChartPaint.swift in Sources */,
-				8183B9232411F94200B38E40 /* Helper.swift in Sources */,
+				8183B9232411F94200B38E40 /* ChartMath.swift in Sources */,
 				8183B94E2411F94200B38E40 /* DistributionPathItem.swift in Sources */,
 				810A768C242073FD00AF362B /* AreaGraphicItem.swift in Sources */,
 				8183B9382411F94200B38E40 /* RadarSegmentGraphic.swift in Sources */,

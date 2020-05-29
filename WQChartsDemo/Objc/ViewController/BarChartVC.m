@@ -203,7 +203,8 @@
 }
 
 - (void)updateItem:(WQBarChartItem*)item {
-    BOOL exchangeXY = [self radioCellSelectionForKey:@"ExchangeXY"] != 0;
+    WQBarChart* barChart = self.chartView.chart;
+    BOOL exchangeXY = barChart.exchangeXY;
     
     CGFloat cornerRadius = [self radioCellSelectionForKey:@"ItemsCornerRadius"] != 0 ? self.barWidth / 3 : 0;
     item.cornerRadius2 = cornerRadius;
@@ -215,18 +216,19 @@
         item.startY = nil;
     }
     
-    WQFillPaint* fillPaint = item.paint.fill;
+    WQChartFillPaint* fillPaint = item.paint.fill;
     switch ([self radioCellSelectionForKey:@"ItemsFill"]) {
         case 1:
             fillPaint.color = self.currentColor;
             fillPaint.shader = nil;
             break;
         case 2: {
-            fillPaint.color = self.currentColor;
-            fillPaint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
-                WQBarGraphicItem* graphic = (WQBarGraphicItem*)object;
-                return [[WQLinearGradientShader alloc] initWithStartPoint:graphic.stringStart endPoint:graphic.stringEnd colors:@[Color_Yellow, paint.color ?: UIColor.clearColor] positions:@[@0.0,@0.7]];
-            };
+            fillPaint.color = nil;
+            fillPaint.shader = ({
+                WQChartLinearGradient* shader = [[WQChartLinearGradient alloc] initWithStart:[barChart convertRelativePointByItem:item fromViewPoint:CGPointMake(0.5, 0)] end:[barChart convertRelativePointByItem:item fromViewPoint:CGPointMake(0.5, 1)] colors:@[Color_Yellow, self.currentColor]];
+                shader.positions = @[@0.0,@0.7];
+                shader;
+            });
             break;
         }
         default:
@@ -297,35 +299,33 @@
     
     if ([keys containsObject:@"Values"]) {
         for (WQBarChartItem* item in chart.items) {
-            item.transformEndY = [[WQTransformCGFloat alloc] initWithFrom:item.endY to:[NSNumber randomCGFloatFrom:-1 to:1]];
+            item.endYTween = [[WQChartCGFloatTween alloc] initWithFrom:item.endY to:[NSNumber randomCGFloatFrom:-1 to:1]];
         }
     }
     
     if ([keys containsObject:@"Colors"]) {
-        UIColor* color = [self.currentColor isEqual:Color_Red] ? Color_Green : Color_Red;
-        for (WQBarChartItem* item in chart.items) {
-            WQFillPaint* paint = item.paint.fill;
-            if(!paint) {
-                continue;
+        UIColor* toColor = [self.currentColor isEqual:Color_Red] ? Color_Green : Color_Red;
+        [chart.items enumerateObjectsUsingBlock:^(WQBarChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            WQChartFillPaint* paint = item.paint.fill;
+            if (paint.color) {
+                paint.colorTween = [[WQChartUIColorTween alloc] initWithFrom:paint.color to:toColor];
             }
-            paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ?: UIColor.clearColor to:color];
-        }
-        self.currentColor = color;
-        
-        RadioCell* cell = [self findRadioCellForKey:@"ItemsFill"];
-        if (cell.selection == 0) {
-            cell.selection = 1;
-        }
+            if (paint.shader) {
+                WQChartLinearGradient* shader = (WQChartLinearGradient*)paint.shader;
+                shader.colorsTween = [[WQChartUIColorArrayTween alloc] initWithFrom:shader.colors to:@[Color_Yellow, toColor]];
+            }
+        }];
+        self.currentColor = toColor;
     }
     
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
     
-    if (animation.transformable == self.chartView) {
+    if (animation.animatable == self.chartView) {
         [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQBarChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
             [self updateSliderValue:item.endY forKey:@"Items" atIndex:idx];
         }];

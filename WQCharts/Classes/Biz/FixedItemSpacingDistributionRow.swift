@@ -22,10 +22,9 @@ open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistri
         super.init(width)
     }
     
-    override open func measureLength(_ visualRange: CGFloat) -> CGFloat {
+    override open func measureContentLength(_ visualRange: CGFloat) -> CGFloat {
         return itemCount > 0 ? CGFloat(itemCount - 1) * itemSpacing : 0
     }
-    
     
     public func distribute(_ lowerBound: CGFloat, _ upperBound: CGFloat) -> DistributionPath {
         let distribution = DistributionPath()
@@ -35,7 +34,7 @@ open class FixedItemSpacingDistributionRow: BizChartView.Row, BizChartViewDistri
         let startInt = Int(ceil(start))
         let startDecimal = fmod(start, 1)
         let capacity = (spacing > 0 ? (upperBound - lowerBound) / spacing : 0) + 1
-        let capacityInt = Int(capacity)
+        let capacityInt = min(Int(capacity), itemCount)
         let capacityDecimal = fmod(capacity, 1)
 
         let items = NSMutableArray(capacity: capacityInt)

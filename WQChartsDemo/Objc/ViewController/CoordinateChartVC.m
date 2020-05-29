@@ -147,7 +147,7 @@
         } else {
             padding = [self chartViewPaddingForSelection:0];
         }
-        chartView.transformPadding = [[WQTransformUIEdgeInsets alloc] initWithFrom:chartView.padding to:padding];
+        chartView.paddingTween = [[WQChartUIEdgeInsetsTween alloc] initWithFrom:chartView.padding to:padding];
         paddingCell.selection = paddingCell.selection == 0 ? 1 : 0;
     }
     
@@ -157,24 +157,24 @@
         BOOL isReversed = [NSNumber randomBOOL];
         if (exchangeXY) {
             if (isReversed) {
-                chartView.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                chartView.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMaxY(rect), CGRectGetWidth(rect), 0)
                                                                                    to:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
             } else {
-                chartView.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                chartView.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), 0)
                                                                                    to:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
             }
         } else {
             if (isReversed) {
-                chartView.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                chartView.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                                CGRectMake(CGRectGetMaxX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
                                                                                    to:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
             } else {
-                chartView.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+                chartView.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
                                                                                    to:
                                                CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];

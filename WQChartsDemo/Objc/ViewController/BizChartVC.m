@@ -43,7 +43,7 @@
 
 @end
 
-@interface BizChartVC () <WQTransformable>
+@interface BizChartVC () <WQChartAnimatable>
 
 @property (nonatomic, strong) WQBizChartView* chartView;
 
@@ -58,7 +58,7 @@
 @property (nonatomic, strong) NSValue* touchLocation;
 
 @property (nonatomic, strong) NSValue* clipRect;
-@property (nonatomic, strong) WQTransformCGRect* transformClipRect;
+@property (nonatomic, strong) WQChartCGRectTween* clipRectTween;
 
 @end
 
@@ -106,7 +106,7 @@
         }
     })];
     
-    // 分布模式
+    // DistributionMode see also bizChartView:rowAtIndex
     [self.optionsView addItem:RadioCell.new
      .setTitle(@"DistributionMode")
      .setOptions(@[@"0",@"1"])
@@ -222,9 +222,11 @@
 - (WQBizChartViewRow *)bizChartView:(WQBizChartView *)bizChartView rowAtIndex:(NSInteger)index {
     CGFloat rowWidth = MIN(bizChartView.bounds.size.height, bizChartView.bounds.size.width) / 3;
     if([self radioCellSelectionForKey:@"DistributionMode"] != 0) {
+        // The items are distributed evenly along the row in visible area
         NSInteger visiableCount = (bizChartView.bounds.size.width - bizChartView.padding.left - bizChartView.padding.right) / (self.barWidth + 2);
         return [[WQFixedVisiableCountDistributionRow alloc] initWithWidth:rowWidth visiableCount:visiableCount itemCount:self.dataCount];
     } else {
+        // The items are distributed at regular intervals
         return [[WQFixedItemSpacingDistributionRow alloc] initWithWidth:rowWidth itemSpacing:self.barWidth + 2 itemCount:self.dataCount];
     }
 }
@@ -482,13 +484,13 @@
     if ([keys containsObject:@"Padding"]) {
         RadioCell* paddingCell = [self findRadioCellForKey:@"Padding"];
         UIEdgeInsets padding = paddingCell.selection == 0 ? UIEdgeInsetsMake(20, 15, 20, 15) : UIEdgeInsetsZero;
-        chartView.transformPadding = [[WQTransformUIEdgeInsets alloc] initWithFrom:chartView.padding to:padding];
+        chartView.paddingTween = [[WQChartUIEdgeInsetsTween alloc] initWithFrom:chartView.padding to:padding];
         paddingCell.selection = paddingCell.selection == 0 ? 1 : 0;
     }
     
 }
 
-- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation *> *)array forKeys:(NSArray<NSString *> *)keys {
+- (void)appendAnimationsInArray:(NSMutableArray<WQChartAnimation *> *)array forKeys:(NSArray<NSString *> *)keys {
     [super appendAnimationsInArray:array forKeys:keys];
     
     WQBizChartView* chartView = self.chartView;
@@ -497,32 +499,32 @@
         CGRect rect = chartView.bounds;
         BOOL isReversed = [NSNumber randomBOOL];
         if (isReversed) {
-            self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+            self.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                       CGRectMake(CGRectGetMaxX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
                                                                           to:
                                       CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
         } else {
-            self.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:
+            self.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:
                                       CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), 0, CGRectGetHeight(rect))
                                                                           to:
                                       CGRectMake(CGRectGetMinX(rect), CGRectGetMinY(rect), CGRectGetWidth(rect), CGRectGetHeight(rect))];
         }
-        [array addObject:[[WQAnimation alloc] initWithTransformable:self duration:self.animationDuration interpolator:self.animationInterpolator]];
+        [array addObject:[[WQChartAnimation alloc] initWithAnimatable:self duration:self.animationDuration interpolator:self.animationInterpolator]];
     }
     
 }
 
-#pragma mark - Transformable
+#pragma mark - Animatable
 
-- (void)nextTransform:(CGFloat)progress {
-    WQTransformCGRect* transformClipRect = self.transformClipRect;
-    if (transformClipRect) {
-        self.clipRect = [NSValue valueWithCGRect:[self.transformClipRect valueForProgress:progress]];
+- (void)transform:(CGFloat)progress {
+    WQChartCGRectTween* clipRectTween = self.clipRectTween;
+    if (clipRectTween) {
+        self.clipRect = [NSValue valueWithCGRect:[clipRectTween lerp:progress]];
     }
 }
 
-- (void)clearTransforms {
-    self.transformClipRect = nil;
+- (void)clearAnimationElements {
+    self.clipRectTween = nil;
     self.clipRect = nil;
 }
 

@@ -196,13 +196,13 @@
         NSArray<WQAxisChartItem*>* horizontalItems = self.horizontalItems;
         for (NSInteger i=0; i<horizontalItems.count; i++) {
             WQAxisChartItem* item = horizontalItems[i];
-            item.transformEnd = [[WQTransformCGPoint alloc] initWithFrom:item.start to:CGPointMake(CGRectGetMaxX(graphic.bounds), i)];
+            item.endTween = [[WQChartCGPointTween alloc] initWithFrom:item.start to:CGPointMake(CGRectGetMaxX(graphic.bounds), i)];
         }
         
         NSArray<WQAxisChartItem*>* verticalItems = self.verticalItems;
         for (NSInteger i=0; i<verticalItems.count; i++) {
             WQAxisChartItem* item = verticalItems[i];
-            item.transformEnd = [[WQTransformCGPoint alloc] initWithFrom:item.start to:CGPointMake(i, CGRectGetMaxY(graphic.bounds))];
+            item.endTween = [[WQChartCGPointTween alloc] initWithFrom:item.start to:CGPointMake(i, CGRectGetMaxY(graphic.bounds))];
         }
     }
 }

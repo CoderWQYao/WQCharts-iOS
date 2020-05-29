@@ -61,30 +61,7 @@
      .setOptions(@[@"OFF",@"ON",@"Gradient"])
      .setSelection(2)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
-        WQAreaChartView* chartView = weakSelf.chartView;
-        WQFillPaint* paint = chartView.chart.paint.fill;
-        switch (selection) {
-            case 1:
-                paint.color = weakSelf.currentColor;
-                paint.shader = nil;
-                break;
-            case 2:
-                paint.color = weakSelf.currentColor;
-                paint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
-                    UIColor* color = paint.color;
-                    if (!color) {
-                        return nil;
-                    }
-                    WQAreaGraphic* graphic = (WQAreaGraphic*)object;
-                    return [[WQLinearGradientShader alloc] initWithStartPoint:graphic.stringStart endPoint:graphic.stringEnd colors:@[[color colorWithAlphaComponent:0.1],color] positions:@[@0,@1]];
-                };
-                break;
-            default:
-                paint.color = nil;
-                paint.shader = nil;
-                break;
-        }
-        [chartView redraw];
+        [weakSelf updateFillPaint];
     })];
     
     [self.optionsView addItem:RadioCell.new
@@ -102,8 +79,36 @@
 - (void)updateChartExchangeXY {
     [super updateChartExchangeXY];
     self.chartView.padding = [self chartViewPaddingForSelection:[self radioCellSelectionForKey:@"Padding"]];
+    [self updateFillPaint];
     [self updateItems];
     [self.view setNeedsLayout];
+}
+
+- (void)updateFillPaint {
+    NSInteger selection = [self radioCellSelectionForKey:@"Fill"];
+    WQAreaChartView* chartView = self.chartView;
+    WQAreaChart* chart = chartView.chart;
+    WQChartFillPaint* paint = chart.paint.fill;
+    switch (selection) {
+        case 1: {
+            paint.color = self.currentColor;
+            paint.shader = nil;
+            break;
+        }
+        case 2: {
+            paint.color = nil;
+            UIColor* color = self.currentColor;
+            paint.shader = [[WQChartLinearGradient alloc] initWithStart:[chart convertRelativePointFromViewPoint:CGPointMake(0.5, 0)] end:[chart convertRelativePointFromViewPoint:CGPointMake(0.5, 1)] colors:@[[color colorWithAlphaComponent:0.1],color]];
+            break;
+        }
+        default: {
+            paint.color = nil;
+            paint.shader = nil;
+            break;
+        }
+
+    }
+    [chartView redraw];
 }
 
 
@@ -253,32 +258,33 @@
     
     WQAreaChart* chart = self.chartView.chart;
     
-    if ([keys containsObject:@"Color"] && chart.paint) {
-        WQFillPaint* paint = chart.paint.fill;
-        UIColor* color = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
-        paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ?: UIColor.clearColor to:color];
-        self.currentColor = color;
-        
-        RadioCell* cell = [self findRadioCellForKey:@"Fill"];
-        if (cell.selection == 0) {
-            cell.selection = 1;
+    if ([keys containsObject:@"Color"]) {
+        UIColor* toColor = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
+        WQChartFillPaint* paint = chart.paint.fill;
+        if (paint.color) {
+            paint.colorTween = [[WQChartUIColorTween alloc] initWithFrom:paint.color to:toColor];
         }
+        if (paint.shader) {
+            WQChartLinearGradient* shader = (WQChartLinearGradient*)paint.shader;
+            shader.colorsTween = [[WQChartUIColorArrayTween alloc] initWithFrom:shader.colors to:@[[toColor colorWithAlphaComponent:0.1],toColor]];
+        }
+        self.currentColor = toColor;
     }
     
     if ([keys containsObject:@"Values"]) {
-        for (WQAreaChartItem* item in self.chartView.chart.items) {
-            item.transformValue = [[WQTransformCGPoint alloc] initWithFrom:item.value to:CGPointMake(item.value.x, [NSNumber randomIntegerFrom:0 to:99])];
-        }
+        [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQAreaChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.valueTween = [[WQChartCGPointTween alloc] initWithFrom:item.value to:CGPointMake(item.value.x, [NSNumber randomIntegerFrom:0 to:99])];
+        }];
     }
     
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
     
-    if (animation.transformable == self.chartView) {
+    if (animation.animatable == self.chartView) {
         [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQAreaChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
             [self updateSliderValue:item.value.y forKey:@"Items" atIndex:idx];
         }];

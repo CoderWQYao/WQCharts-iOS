@@ -13,10 +13,10 @@ import UIKit
 open class LineChart: CoordinateChart {
     
     @objc open var items: [LineChartItem]?
-    @objc open var paint: LinePaint?
+    @objc open var paint: ChartLinePaint?
     
     public override init() {
-        paint = LinePaint(.clear)
+        paint = ChartLinePaint(.clear)
         super.init()
     }
     
@@ -105,26 +105,26 @@ open class LineChart: CoordinateChart {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
         if let items = items {
             for item in items {
-                item.nextTransform(progress)
+                item.transform(t)
             }
         }
         
-        paint?.nextTransform(progress)
+        paint?.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
         if let items = items {
             for item in items {
-                item.clearTransforms()
+                item.clearAnimationElements()
             }
         }
-        paint?.clearTransforms()
+        paint?.clearAnimationElements()
     }
 }

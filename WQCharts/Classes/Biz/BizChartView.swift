@@ -13,7 +13,7 @@ import UIKit
 public protocol BizChartViewAdapter {
     
     @objc func numberOfRowsInBizChartView(_ bizChartView: BizChartView) -> Int
-    @objc func bizChartView(_ BizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row
+    @objc func bizChartView(_ bizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row
     @objc optional func bizChartView(_ bizChartView: BizChartView, distributeRowForDistributionPath distributionPath: DistributionPath, atIndex index: Int)
     @objc optional func bizChartView(_ bizChartView: BizChartView, drawRowAtIndex index: Int, inContext context: CGContext)
     @objc optional func bizChartViewWillDraw(_ bizChartView: BizChartView, inContext context: CGContext)
@@ -29,14 +29,14 @@ public protocol BizChartViewDistributionRow {
 }
 
 @objc(WQBizChartView)
-open class BizChartView: ScrollChartView, Transformable {
+open class BizChartView: ScrollChartView, ChartAnimatable {
     
     
     @objc(WQBizChartViewRow)
     open class Row: NSObject {
         
         @objc public let width: CGFloat
-        @objc internal(set) public var length = CGFloat(0)
+        @objc internal(set) public var contentLength = CGFloat(0)
         @objc internal(set) public var rect = CGRect.zero
         
         @objc(initWithWidth:)
@@ -45,8 +45,8 @@ open class BizChartView: ScrollChartView, Transformable {
             super.init()
         }
         
-        @objc(measureLengthWithVisualRange:)
-        open func measureLength(_ visualRange: CGFloat) -> CGFloat {
+        @objc(measureContentLengthWithVisualRange:)
+        open func measureContentLength(_ visualRange: CGFloat) -> CGFloat {
             return visualRange
         }
         
@@ -83,8 +83,8 @@ open class BizChartView: ScrollChartView, Transformable {
         }
     }
     
-    @objc open var transformPadding: TransformUIEdgeInsets?
-    @objc open var transformClipRect: TransformCGRect?
+    @objc open var paddingTween: ChartUIEdgeInsetsTween?
+    @objc open var clipRectTween: ChartCGRectTween?
     
     @objc private(set) public var rows: [Row]?
     
@@ -117,8 +117,8 @@ open class BizChartView: ScrollChartView, Transformable {
         
         for i in 0..<rowCount {
             let row = adapter.bizChartView(self, rowAtIndex: i)
-            let length = row.measureLength(size.width - padding.left - padding.right)
-            row.length = length
+            let length = row.measureContentLength(size.width - padding.left - padding.right)
+            row.contentLength = length
             rows.add(row)
             contentWidth = max(contentWidth, length)
             contentHeight += row.width
@@ -182,7 +182,7 @@ open class BizChartView: ScrollChartView, Transformable {
             var rowY = padding.top
             for i in 0..<rowsCount {
                 let row = rows[i]
-                let rowRect = CGRect(origin: CGPoint(x: rowX, y: rowY), size: CGSize(width: min(row.length, contentBounds.width), height: row.width))
+                let rowRect = CGRect(origin: CGPoint(x: rowX, y: rowY), size: CGSize(width: contentBounds.width, height: row.width))
                 row.rect = rowRect
                 
                 if contentBounds.intersects(rowRect) {
@@ -231,19 +231,19 @@ open class BizChartView: ScrollChartView, Transformable {
         return CGFloat(integer) + decimal
     }
     
-    open func nextTransform(_ progress: CGFloat) {
-        if let transformPadding = transformPadding {
-            padding = transformPadding.valueForProgress(progress)
+    open func transform(_ t: CGFloat) {
+        if let paddingTween = paddingTween {
+            padding = paddingTween.lerp(t)
         }
         
-        if let transformClipRect = transformClipRect {
-            clipRect = transformClipRect.valueForProgress(progress) as NSValue
+        if let clipRectTween = clipRectTween {
+            clipRect = clipRectTween.lerp(t) as NSValue
         }
     }
     
-    open func clearTransforms() {
-        transformPadding = nil
-        transformClipRect = nil
+    open func clearAnimationElements() {
+        paddingTween = nil
+        clipRectTween = nil
     }
     
 }

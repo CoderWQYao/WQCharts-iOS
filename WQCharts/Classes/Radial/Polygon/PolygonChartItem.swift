@@ -14,9 +14,9 @@ open class PolygonChartItem: ChartItem {
 
     @objc open var value = CGFloat(0)
     @objc open var text: ChartText?
-    @objc open var axisPaint: LinePaint?
+    @objc open var axisPaint: ChartLinePaint?
     
-    @objc open var transformValue: TransformCGFloat?
+    @objc open var valueTween: ChartCGFloatTween?
     
     @objc
     public override convenience init() {
@@ -26,22 +26,22 @@ open class PolygonChartItem: ChartItem {
     @objc(initWithValue:)
     public init(_ value: CGFloat) {
         self.value = value
-        self.axisPaint = LinePaint()
+        self.axisPaint = ChartLinePaint()
         
         super.init()
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        if let transformValue = transformValue {
-            value = transformValue.valueForProgress(progress)
+        if let valueTween = valueTween {
+            value = valueTween.lerp(t)
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        transformValue = nil;
+        valueTween = nil
     }
 }

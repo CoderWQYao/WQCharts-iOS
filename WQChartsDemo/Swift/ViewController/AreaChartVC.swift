@@ -46,31 +46,7 @@ class AreaChartVC: CoordinateChartVC<AreaChartView>, ItemsOptionsDelegate {
             .setOptions(["OFF","ON","Gradient"])
             .setSelection(2)
             .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                guard let paint = chartView.chart.paint?.fill else {
-                    return
-                }
-                switch (selection) {
-                case 1:
-                    paint.color = self.currentColor
-                    paint.shader = nil
-                case 2:
-                    paint.color = self.currentColor
-                    paint.shader = {(paint, path, object) -> Shader? in
-                        guard let color = paint.color else {
-                            return nil
-                        }
-                        let graphic = object as! AreaGraphic
-                        return LinearGradientShader(graphic.stringStart, graphic.stringEnd, [color.withAlphaComponent(0.1),color], [0,1])
-                    }
-                default:
-                    paint.color = nil
-                    paint.shader = nil
-                }
-                chartView.redraw()
+                self?.updateFillPaint()
             })
         )
         
@@ -91,11 +67,38 @@ class AreaChartVC: CoordinateChartVC<AreaChartView>, ItemsOptionsDelegate {
         
     }
     
-    override func updateChartExchangeXY() {
-        super.updateChartExchangeXY()
+    override func updateChartCoordinate() {
+        super.updateChartCoordinate()
         chartView.padding = chartViewPadding(forSelection: radioCellSelectionForKey("Padding"))
+        updateFillPaint()
         updateItems()
         view.setNeedsLayout()
+    }
+    
+    func updateFillPaint() {
+        let chart = chartView.chart
+        guard let paint = chart.paint?.fill else {
+            return
+        }
+        
+        let selection = radioCellSelectionForKey("Fill")
+        switch (selection) {
+        case 1:
+            paint.color = self.currentColor
+            paint.shader = nil
+        case 2:
+            paint.color = nil
+            let color = self.currentColor;
+            paint.shader = ChartLinearGradient(
+                start: chart.convertRelativePoint(fromViewPoint: CGPoint(x: 0.5, y: 0)),
+                end: chart.convertRelativePoint(fromViewPoint: CGPoint(x: 0.5, y: 1)),
+                colors: [color.withAlphaComponent(0.1),color]
+            )
+        default:
+            paint.color = nil
+            paint.shader = nil
+        }
+        chartView.redraw()
     }
     
     // MARK: - Items
@@ -250,38 +253,36 @@ class AreaChartVC: CoordinateChartVC<AreaChartView>, ItemsOptionsDelegate {
         
         let chart = self.chartView.chart
         
-        if keys.contains("Color"), let paint = chart.paint?.fill {
-            let color = currentColor.isEqual(Color_Blue) ? Color_Red : Color_Blue
-            paint.transformColor = TransformUIColor(paint.color ?? .clear, color)
-            currentColor = color
-            
-            let cell = findRadioCellForKey("Fill")!
-            if cell.selection == 0 {
-                cell.selection = 1
+        if keys.contains("Color") {
+            let toColor = currentColor.isEqual(Color_Blue) ? Color_Red : Color_Blue
+            if let paint = chart.paint?.fill {
+                if let color = paint.color {
+                    paint.colorTween = ChartUIColorTween(color, toColor)
+                }
+                if let shader = paint.shader as? ChartLinearGradient {
+                    shader.colorsTween = ChartUIColorArrayTween(shader.colors, [toColor.withAlphaComponent(0.1),toColor])
+                }
             }
+            currentColor = toColor
         }
         
         if keys.contains("Values") {
-            if let items = chart.items {
-                for item in items {
-                    item.transformValue = TransformCGPoint(item.value, CGPoint(x: item.value.x, y: CGFloat(Int.random(in: 0...99))))
-                }
-            }
+            chart.items?.forEach({ (item) in
+                item.valueTween = ChartCGPointTween(item.value, CGPoint(x: item.value.x, y: CGFloat(Int.random(in: 0...99))))
+            })
         }
         
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
-            if let items = chartView.chart.items {
-                for (idx, item) in items.enumerated() {
-                    updateSliderValue(item.value.y, forKey: "Items", atIndex: idx)
-                }
-            }
+        if chartView.isEqual(animation.animatable) {
+            chartView.chart.items?.enumerated().forEach({ (idx, item) in
+                updateSliderValue(item.value.y, forKey: "Items", atIndex: idx)
+            })
         }
         
     }

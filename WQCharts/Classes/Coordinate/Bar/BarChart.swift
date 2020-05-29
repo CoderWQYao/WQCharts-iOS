@@ -48,8 +48,7 @@ open class BarChart: CoordinateChart {
                 itemStringStart = graphic.convertBoundsPointToRect(CGPoint(x: item.x, y: bounds.minY))
             }
             let itemStringEnd = graphic.convertBoundsPointToRect(CGPoint(x: item.x, y: endY))
-            
-            
+    
             let barWidth = item.barWidth
             let itemRect: CGRect
             if exchangeXY {
@@ -83,7 +82,7 @@ open class BarChart: CoordinateChart {
             graphicItem.path = itemPath
             graphicItems.add(graphicItem)
             if let itemPaint = item.paint {
-                itemPaint.draw(itemPath, context, graphicItem)
+                itemPaint.draw(itemPath, ChartShaderRect(itemRect, itemRect), context)
             }
         }
         
@@ -152,23 +151,31 @@ open class BarChart: CoordinateChart {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
         if let items = items {
             for item in items {
-                item.nextTransform(progress)
+                item.transform(t)
             }
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
         if let items = items {
             for item in items {
-                item.clearTransforms()
+                item.clearAnimationElements()
             }
         }
     }
+    
+    @objc open func convertRelativePoint(byItem item: BarChartItem,fromViewPoint viewPoint: CGPoint) -> CGPoint {
+        if let startY = item.startY, CGFloat(truncating: startY) > item.endY {
+            return super.convertRelativePoint(fromViewPoint: CGPoint(x: viewPoint.x, y: 1 - viewPoint.y))
+        }
+        return super.convertRelativePoint(fromViewPoint: viewPoint)
+    }
+    
 }

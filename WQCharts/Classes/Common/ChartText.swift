@@ -144,10 +144,10 @@ open class ChartText: ChartItem {
         
         var rectPoint = CGPoint(x: point.x - rectSize.width / 2, y: point.y - rectSize.height / 2)
         
-        if let angle = angle != nil ? CGFloat(truncating: angle!) : nil, let offsetByAngle = delegate?.chartText?(self, offsetByAngleWithSize: rectSize, angle: angle) {
+        if let angle = angle != nil ? CGFloat(truncating: angle!) : nil, let offset = delegate?.chartText?(self, offsetByAngleWithSize: rectSize, angle: angle) {
             let radian: CGFloat = CGFloat.pi / 180 * angle
-            rectPoint.x += offsetByAngle * sin(radian)
-            rectPoint.y -= offsetByAngle * cos(radian)
+            rectPoint.x += offset * sin(radian)
+            rectPoint.y -= offset * cos(radian)
         }
         
         if let offset = delegate?.chartText?(self, offsetWithSize: rectSize, angle: angle) {

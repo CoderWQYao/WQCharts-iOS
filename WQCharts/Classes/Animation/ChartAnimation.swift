@@ -9,8 +9,21 @@
 
 import UIKit
 
-@objc(WQAnimationDelegate)
-public protocol AnimationDelegate {
+
+@objc(WQChartAnimatable)
+public protocol ChartAnimatable {
+    
+    ///
+    /// The value of `t` is nominally a fraction in the range 0.0 to 1.0, though
+    /// in practice it may extend outside this range.
+    ///
+    func transform(_ t: CGFloat)
+    func clearAnimationElements()
+    
+}
+
+@objc(WQChartAnimationDelegate)
+public protocol ChartAnimationDelegate {
     
     @objc optional func animationDidStart(_ animation: ChartAnimation)
     @objc optional func animationDidStop(_ animation: ChartAnimation, finished: Bool)
@@ -20,12 +33,12 @@ public protocol AnimationDelegate {
     
 }
 
-@objc(WQAnimation)
+@objc(WQChartAnimation)
 open class ChartAnimation: NSObject {
     
-    @objc open weak var delegate: AnimationDelegate?
+    @objc open weak var delegate: ChartAnimationDelegate?
     
-    @objc open private(set) var animatable: Animatable
+    @objc open private(set) var animatable: ChartAnimatable
     @objc open private(set) var interpolator: ChartInterpolator
     @objc open private(set) var startTime: TimeInterval = -1
     @objc open private(set) var duration: TimeInterval = 0.0
@@ -35,12 +48,12 @@ open class ChartAnimation: NSObject {
     private var ended: Bool = false
     
     @objc(initWithAnimatable:duration:)
-    public convenience init(_ animatable: Animatable, _ duration: TimeInterval) {
+    public convenience init(_ animatable: ChartAnimatable, _ duration: TimeInterval) {
         self.init(animatable, duration, ChartLinearInterpolator())
     }
     
     @objc(initWithAnimatable:duration:interpolator:)
-    public init(_ animatable: Animatable, _ duration: TimeInterval, _ interpolator: ChartInterpolator) {
+    public init(_ animatable: ChartAnimatable, _ duration: TimeInterval, _ interpolator: ChartInterpolator) {
         self.animatable = animatable
         self.duration = duration
         self.interpolator = interpolator
@@ -68,7 +81,7 @@ open class ChartAnimation: NSObject {
         lastTransformationTime = time
         nextTransformation(withProgress: progress)
         if progress >= 1 {
-            animatable.clearTransforms()
+            animatable.clearAnimationElements()
             delegate?.animationDidStop?(self, finished: true)
             ended = true
         }
@@ -86,7 +99,7 @@ open class ChartAnimation: NSObject {
         if (started && !ended) {
             lastTransformationTime = Date().timeIntervalSince1970
             nextTransformation(withProgress: 1)
-            animatable.clearTransforms()
+            animatable.clearAnimationElements()
             delegate?.animationDidStop?(self, finished: false)
             ended = true
         }

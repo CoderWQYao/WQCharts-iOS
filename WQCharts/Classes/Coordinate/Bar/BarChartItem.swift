@@ -17,7 +17,7 @@ open class BarChartItem: ChartItem {
     @objc open var startY: NSNumber?
     
     @objc open var barWidth = CGFloat(0)
-    @objc open var paint: ShapePaint?
+    @objc open var paint: ChartShapePaint?
     @objc open var cornerRadius1 = CGFloat(0)
     @objc open var cornerRadius2 = CGFloat(0)
     @objc open var cornerRadius3 = CGFloat(0)
@@ -25,9 +25,9 @@ open class BarChartItem: ChartItem {
     @objc open var headerText: ChartText?
     @objc open var footerText: ChartText?
     
-    @objc open var transformX: TransformCGFloat?
-    @objc open var transformEndY: TransformCGFloat?
-    @objc open var transformStartY: TransformCGFloat?
+    @objc open var xTween: ChartCGFloatTween?
+    @objc open var endYTween: ChartCGFloatTween?
+    @objc open var startYTween: ChartCGFloatTween?
     
     @objc
     public convenience override init() {
@@ -50,35 +50,35 @@ open class BarChartItem: ChartItem {
         self.endY = endY
         self.barWidth = barWidth
         self.startY = startY
-        self.paint = ShapePaint()
+        self.paint = ChartShapePaint()
     }
     
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        if let transformX = transformX {
-            x = transformX.valueForProgress(progress)
+        if let xTween = xTween {
+            x = xTween.lerp(t)
         }
         
-        if let transformEndY = transformEndY {
-            endY = transformEndY.valueForProgress(progress)
+        if let endYTween = endYTween {
+            endY = endYTween.lerp(t)
         }
         
-        if let transformStartY = transformStartY {
-            startY = transformStartY.valueForProgress(progress) as NSNumber
+        if let startYTween = startYTween {
+            startY = startYTween.lerp(t) as NSNumber
         }
         
-        paint?.nextTransform(progress)
+        paint?.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        transformX = nil
-        transformEndY = nil
-        transformStartY = nil
-        paint?.clearTransforms()
+        xTween = nil
+        endYTween = nil
+        startYTween = nil
+        paint?.clearAnimationElements()
     }
     
 }

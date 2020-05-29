@@ -29,7 +29,12 @@ class Helper: NSObject {
     open class func convertRadianToAngle(_ radian: CGFloat) -> CGFloat {
         return radian * 180 / CGFloat.pi
     }
-
+    
+    @objc
+    open class func rectFrom(center: CGPoint, radius: CGFloat) -> CGRect {
+        return CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+    }
+    
     open class func createRectPath(_ rect: CGRect, _  angle: CGFloat, _ cornerRadius1: CGFloat, _ cornerRadius2: CGFloat, _ cornerRadius3: CGFloat, _ cornerRadius4: CGFloat) -> CGPath {
         
         let path = CGMutablePath()
@@ -86,3 +91,4 @@ class Helper: NSObject {
     }
 
 }
+

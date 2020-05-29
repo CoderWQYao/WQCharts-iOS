@@ -30,14 +30,14 @@ open class AxisChartView: CoordinateChartView {
         self.graphic = graphic
     }
 
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
-        chart.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
+        chart.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
-        chart.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
+        chart.clearAnimationElements()
     }
     
 }

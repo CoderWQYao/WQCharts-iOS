@@ -218,7 +218,7 @@
     if ([keys containsObject:@"Values"]) {
         for (WQRadarChartPolygon* polygon in self.items) {
             for (WQPolygonChartItem* item in polygon.chart.items) {
-                item.transformValue = [[WQTransformCGFloat alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]	];
+                item.valueTween = [[WQChartCGFloatTween alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]	];
             }
         }
     }

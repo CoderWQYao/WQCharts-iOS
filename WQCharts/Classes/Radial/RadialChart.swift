@@ -11,7 +11,7 @@ import UIKit
 
 /// 表示一个从中心点以放射状扩散的图表抽象
 @objc(WQRadialChart)
-open class RadialChart: NSObject, Chart, Transformable {
+open class RadialChart: NSObject, Chart, ChartAnimatable {
 
     @objc(WQPieChartDirection)
     public enum Direction: Int {
@@ -23,26 +23,27 @@ open class RadialChart: NSObject, Chart, Transformable {
     @objc open var rotation = CGFloat(0)
     @objc open var direction = Direction.Clockwise
   
-    @objc open var transformAngle: TransformCGFloat?
-    @objc open var transformRotation: TransformCGFloat?
+    @objc open var angleTween: ChartCGFloatTween?
+    @objc open var rotationTween: ChartCGFloatTween?
     
     open func draw(inRect rect: CGRect, context: CGContext) {
         fatalError("draw(inRect:,context:) has not been implemented")
     }
     
-    open func nextTransform(_ progress: CGFloat) {
-        if let transformAngle = transformAngle {
-            self.angle = transformAngle.valueForProgress(progress)
+    open func transform(_ t: CGFloat) {
+        if let angleTween = angleTween {
+            self.angle = angleTween.lerp(t)
         }
         
-        if let transformRotation = transformRotation {
-            self.rotation = transformRotation.valueForProgress(progress)
+        if let rotationTween = rotationTween {
+            self.rotation = rotationTween.lerp(t)
         }
     }
 
-    open func clearTransforms() {
-        transformAngle = nil;
-        transformRotation = nil;
+    open func clearAnimationElements() {
+        
+        angleTween = nil;
+        rotationTween = nil;
     }
     
 }

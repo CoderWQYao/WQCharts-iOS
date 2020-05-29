@@ -169,27 +169,29 @@
     
     WQLineChart* chart = self.chartView.chart;
     
-    if ([keys containsObject:@"Color"] && chart.paint) {
-        WQLinePaint* paint = chart.paint;
-        UIColor* color = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
-        paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ?: UIColor.clearColor to:color];
-        self.currentColor = color;
+    if ([keys containsObject:@"Color"]) {
+        UIColor* toColor = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
+        WQChartLinePaint* paint = chart.paint;
+        if (paint.color) {
+            paint.colorTween = [[WQChartUIColorTween alloc] initWithFrom:paint.color to:toColor];
+        }
+        self.currentColor = toColor;
     }
     
     if ([keys containsObject:@"Values"]) {
-        for (WQLineChartItem* item in self.chartView.chart.items) {
-            item.transformValue = [[WQTransformCGPoint alloc] initWithFrom:item.value to:CGPointMake(item.value.x, [NSNumber randomIntegerFrom:0 to:99])];
-        }
+        [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQLineChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.valueTween = [[WQChartCGPointTween alloc] initWithFrom:item.value to:CGPointMake(item.value.x, [NSNumber randomIntegerFrom:0 to:99])];
+        }];
     }
     
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
     
-    if (animation.transformable == self.chartView) {
+    if (animation.animatable == self.chartView) {
         [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQLineChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
             [self updateSliderValue:item.value.y forKey:@"Items" atIndex:idx];
         }];

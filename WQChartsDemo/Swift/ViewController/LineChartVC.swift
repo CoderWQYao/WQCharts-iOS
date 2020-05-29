@@ -48,8 +48,8 @@ class LineChartVC: CoordinateChartVC<LineChartView>, ItemsOptionsDelegate {
         
     }
     
-    override func updateChartExchangeXY() {
-        super.updateChartExchangeXY()
+    override func updateChartCoordinate() {
+        super.updateChartCoordinate()
         chartView.padding = chartViewPadding(forSelection: radioCellSelectionForKey("Padding"))
         view.setNeedsLayout()
     }
@@ -162,31 +162,31 @@ class LineChartVC: CoordinateChartVC<LineChartView>, ItemsOptionsDelegate {
         
         let chart = chartView.chart
         
-        if keys.contains("Color"), let paint = chart.paint {
+        if keys.contains("Color") {
             let color = curentColor == Color_Blue ? Color_Red : Color_Blue
-            paint.transformColor = TransformUIColor(paint.color ?? .clear, color)
+            if let paint = chart.paint {
+                paint.colorTween = ChartUIColorTween(paint.color ?? .clear, color)
+            }
             curentColor = color
         }
         
-        if keys.contains("Values"), let items = chart.items {
-            for item in items {
-                item.transformValue = TransformCGPoint(item.value, CGPoint(x: item.value.x, y: CGFloat(Int.random(in: 0...99))))
-            }
+        if keys.contains("Values") {
+            chart.items?.forEach({ (item) in
+                item.valueTween = ChartCGPointTween(item.value, CGPoint(x: item.value.x, y: CGFloat(Int.random(in: 0...99))))
+            })
         }
         
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
-            if let items = chartView.chart.items {
-                for (idx, item) in items.enumerated() {
-                    updateSliderValue(item.value.y, forKey: "Items", atIndex: idx)
-                }
-            }
+        if chartView.isEqual(animation.animatable) {
+            chartView.chart.items?.enumerated().forEach({ (idx, item) in
+                updateSliderValue(item.value.y, forKey: "Items", atIndex: idx)
+            })
         }
         
         

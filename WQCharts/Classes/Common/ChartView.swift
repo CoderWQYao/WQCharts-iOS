@@ -18,7 +18,7 @@ public protocol ChartViewDrawDelegate {
 }
 
 @objc(WQChartView)
-open class ChartView: UIView, Transformable  {
+open class ChartView: UIView, ChartAnimatable  {
     
     //         Top
     //      ┌────────┐
@@ -39,8 +39,8 @@ open class ChartView: UIView, Transformable  {
         }
     }
     
-    @objc open var transformPadding: TransformUIEdgeInsets?
-    @objc open var transformClipRect: TransformCGRect?
+    @objc open var paddingTween: ChartUIEdgeInsetsTween?
+    @objc open var clipRectTween: ChartCGRectTween?
     
     @objc open weak var drawDelegate: ChartViewDrawDelegate?
     
@@ -105,19 +105,19 @@ open class ChartView: UIView, Transformable  {
         setNeedsDisplay()
     }
     
-    open func nextTransform(_ progress: CGFloat) {
-        if let transformPadding = transformPadding {
-            padding = transformPadding.valueForProgress(progress)
+    open func transform(_ t: CGFloat) {
+        if let paddingTween = paddingTween {
+            padding = paddingTween.lerp(t)
         }
         
-        if let transformClipRect = transformClipRect {
-            clipRect = transformClipRect.valueForProgress(progress) as NSValue
+        if let clipRectTween = clipRectTween {
+            clipRect = clipRectTween.lerp(t) as NSValue
         }
     }
     
-    open func clearTransforms() {
-        transformPadding = nil
-        transformClipRect = nil
+    open func clearAnimationElements() {
+        paddingTween = nil
+        clipRectTween = nil
     }
     
 }

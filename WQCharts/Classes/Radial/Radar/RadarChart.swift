@@ -294,48 +294,48 @@ open class RadarChart: RadialChart {
         }
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
         if let indicators = indicators {
             for indicator in indicators {
-                indicator.nextTransform(progress)
+                indicator.transform(t)
             }
         }
         
         if let segments = segments {
             for segment in segments {
-                segment.nextTransform(progress)
+                segment.transform(t)
             }
         }
         
         if let polygons = polygons {
             for polygon in polygons {
-                polygon.nextTransform(progress)
+                polygon.transform(t)
             }
         }
         
     }
     
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
         if let indicators = indicators {
             for indicator in indicators {
-                indicator.clearTransforms()
+                indicator.clearAnimationElements()
             }
         }
         
         if let segments = segments {
             for segment in segments {
-                segment.clearTransforms()
+                segment.clearAnimationElements()
             }
         }
         
         if let polygons = polygons {
             for polygon in polygons {
-                polygon.clearTransforms()
+                polygon.clearAnimationElements()
             }
         }
         

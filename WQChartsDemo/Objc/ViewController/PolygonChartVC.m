@@ -40,28 +40,31 @@
      .setOptions(@[@"OFF",@"ON",@"Gradient"])
      .setSelection(1)
      .setOnSelectionChange(^(RadioCell* cell, NSInteger selection) {
-        WQPolygonChartView* chartView = weakSelf.chartView;
-        WQFillPaint* paint = chartView.chart.paint.fill;
+        __strong typeof(weakSelf) strongSelf = weakSelf;
+        if (!strongSelf) {
+            return;
+        }
+        
+        WQPolygonChartView* chartView = strongSelf.chartView;
+        WQChartFillPaint* paint = chartView.chart.paint.fill;
         switch (selection) {
-            case 1:
+            case 1: {
                 paint.color = weakSelf.currentColor;
                 paint.shader = nil;
                 break;
-            case 2:
-                paint.color = weakSelf.currentColor;
-                paint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
-                    UIColor* color = paint.color;
-                    if (!color) {
-                        return nil;
-                    }
-                    WQPolygonGraphic* graphic = (WQPolygonGraphic*)object;
-                    return [[WQRadialGradientShader alloc] initWithCenterPoint:graphic.center radius:graphic.pathRadius colors:@[[color colorWithAlphaComponent:0.1], color] positions:@[@0,@1]];
-                };
+            }
+            case 2: {
+                paint.color = nil;
+                UIColor* color = strongSelf.currentColor;
+                paint.shader = [[WQChartRadialGradient alloc] initWithCenter:CGPointMake(0.5, 0.5) radius:1 colors:@[[color colorWithAlphaComponent:0.1], color]];
                 break;
-            default:
+            }
+            default: {
                 paint.color = nil;
                 paint.shader = nil;
                 break;
+            }
+
         }
         [chartView redraw];
     })];
@@ -195,32 +198,34 @@
     
     WQPolygonChart* chart = self.chartView.chart;
     
-    if ([keys containsObject:@"Color"] && chart.paint.fill) {
-        WQFillPaint* paint = chart.paint.fill;
-        UIColor* color = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
-        paint.transformColor = [[WQTransformUIColor alloc] initWithFrom:paint.color ? paint.color : UIColor.clearColor to:color];
-        self.currentColor = color;
-        
-        RadioCell* cell = [self findRadioCellForKey:@"Fill"];
-        if (cell.selection == 0) {
-            cell.selection = 1;
+    if ([keys containsObject:@"Color"]) {
+        UIColor* toColor = [self.currentColor isEqual:Color_Blue] ? Color_Red : Color_Blue;
+        WQChartFillPaint* paint = chart.paint.fill;
+        if (paint.color) {
+            UIColor* color = paint.color;
+            paint.colorTween = [[WQChartUIColorTween alloc] initWithFrom:color to:toColor];
         }
+        if (paint.shader) {
+            WQChartRadialGradient* shader = (WQChartRadialGradient*)paint.shader;
+            shader.colorsTween = [[WQChartUIColorArrayTween alloc] initWithFrom:shader.colors to:@[[toColor colorWithAlphaComponent:0.1], toColor]];
+        }
+        self.currentColor = toColor;
     }
     
     if ([keys containsObject:@"Values"]) {
-        for (WQPolygonChartItem* item in chart.items) {
-            item.transformValue = [[WQTransformCGFloat alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]];
-        }
+        [chart.items enumerateObjectsUsingBlock:^(WQPolygonChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.valueTween = [[WQChartCGFloatTween alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]];
+        }];
     }
     
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
 
-    if (animation.transformable == self.chartView) {
+    if (animation.animatable == self.chartView) {
         [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQPolygonChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
             [self updateSliderValue:item.value forKey:@"Items" atIndex:idx];
         }];

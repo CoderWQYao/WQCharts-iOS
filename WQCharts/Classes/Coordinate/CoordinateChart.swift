@@ -11,7 +11,7 @@ import UIKit
 
 /// 表示一个具有平面坐标系的图表抽象
 @objc(WQCoordinateChart)
-open class CoordinateChart: NSObject, Chart, Transformable {
+open class CoordinateChart: NSObject, Chart, ChartAnimatable {
     
     @objc open var fixedMinX: NSNumber?
     @objc open var fixedMaxX: NSNumber?
@@ -51,15 +51,35 @@ open class CoordinateChart: NSObject, Chart, Transformable {
     
     /// calc bounds value over all items
     @objc open func calcBounds() -> CGRect {
-        fatalError("calculateUnfixedBounds() has not been implemented")
+        fatalError("calcBounds() has not been implemented")
     }
     
+    @objc open func convertRelativePoint(fromViewPoint viewPoint: CGPoint) -> CGPoint {
+        var x: CGFloat = viewPoint.x, y: CGFloat = 1 - viewPoint.y
+        
+        if reverseX {
+            x = 1 - x
+        }
+        
+        if reverseY {
+            y = 1 - y
+        }
+        
+        if exchangeXY {
+            x = x + y
+            y = x - y
+            x = x - y
+            x = 1 - x
+        }
+        
+        return CGPoint(x: x, y: y);
+    }
     
-    open func nextTransform(_ progress: CGFloat) {
+    open func transform(_ t: CGFloat) {
         
     }
     
-    open func clearTransforms() {
+    open func clearAnimationElements() {
         
     }
     

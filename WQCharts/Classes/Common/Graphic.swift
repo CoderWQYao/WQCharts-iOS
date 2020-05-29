@@ -13,10 +13,10 @@ import UIKit
 open class Graphic: NSObject {
     
     @objc public let rect: CGRect
-    @objc public let builder: Chart
+    @objc public let builder: Any
     
     @objc(initWithBuilder:rect:)
-    public init(_ builder: Chart,_ rect: CGRect) {
+    public init(_ builder: Any,_ rect: CGRect) {
         self.builder = builder
         self.rect = rect
         super.init()

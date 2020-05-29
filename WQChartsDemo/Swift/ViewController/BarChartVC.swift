@@ -46,8 +46,8 @@ class BarChartVC: CoordinateChartVC<BarChartView>, ItemsOptionsDelegate {
         
     }
     
-    override func updateChartExchangeXY() {
-        super.updateChartExchangeXY()
+    override func updateChartCoordinate() {
+        super.updateChartCoordinate()
         chartView.padding = chartViewPadding(forSelection: radioCellSelectionForKey("Padding"))
         updateItems()
         view.setNeedsLayout()
@@ -189,8 +189,9 @@ class BarChartVC: CoordinateChartVC<BarChartView>, ItemsOptionsDelegate {
     }
     
     func updateItem(_ item: BarChartItem) {
-        let exchangeXY = chartView.chart.exchangeXY
-        
+        let chart = chartView.chart
+        let exchangeXY = chart.exchangeXY
+       
         let cornerRadius = radioCellSelectionForKey("ItemsCornerRadius") != 0 ? barWidth / 3 : CGFloat(0)
         item.cornerRadius2 = cornerRadius
         item.cornerRadius3 = cornerRadius
@@ -207,11 +208,15 @@ class BarChartVC: CoordinateChartVC<BarChartView>, ItemsOptionsDelegate {
                 fillPaint.color = currentColor
                 fillPaint.shader = nil
             case 2:
-                fillPaint.color = currentColor
-                fillPaint.shader = {(paint, path, object) -> Shader? in
-                    let graphic = object as! BarGraphicItem
-                    return LinearGradientShader(graphic.stringStart, graphic.stringEnd, [Color_Yellow, paint.color ?? .clear], [0.0,0.7])
-                }
+                fillPaint.color = nil
+                let color = currentColor
+                let shader = ChartLinearGradient(
+                    start: chart.convertRelativePoint(byItem: item, fromViewPoint: CGPoint(x: 0.5, y: 0)),
+                    end: chart.convertRelativePoint(byItem: item, fromViewPoint: CGPoint(x: 0.5, y: 1)),
+                    colors: [Color_Yellow, color]
+                )
+                shader.positions = [0, 0.7]
+                fillPaint.shader = shader
             default:
                 fillPaint.color = nil
                 fillPaint.shader = nil
@@ -291,43 +296,37 @@ class BarChartVC: CoordinateChartVC<BarChartView>, ItemsOptionsDelegate {
         let chart = chartView.chart
         
         if keys.contains("Values") {
-            if let items = chart.items {
-                for item in items {
-                    item.transformEndY = TransformCGFloat(item.endY, CGFloat.random(in: -1...1))
-                }
-            }
+            chart.items?.forEach({ (item) in
+                item.endYTween = ChartCGFloatTween(item.endY, CGFloat.random(in: -1...1))
+            })
         }
         
         if keys.contains("Colors") {
-            let color = currentColor.isEqual(Color_Red) ? Color_Green : Color_Red
-            if let items = chart.items {
-                for item in items {
-                    guard let paint = item.paint?.fill else {
-                        continue
+            let toColor = currentColor.isEqual(Color_Red) ? Color_Green : Color_Red
+            chart.items?.forEach({ (item) in
+                if let paint = item.paint?.fill {
+                    if let color = paint.color {
+                        paint.colorTween = ChartUIColorTween(color, toColor)
                     }
-                    paint.transformColor = TransformUIColor(paint.color ?? .clear, color)
+                    if let shader = paint.shader as? ChartLinearGradient {
+                        shader.colorsTween = ChartUIColorArrayTween(shader.colors, [Color_Yellow, toColor])
+                    }
                 }
-            }
-            currentColor = color
-            let cell = findRadioCellForKey("ItemsFill")!
-            if cell.selection == 0 {
-                cell.selection = 1
-            }
+            })
+            currentColor = toColor
         }
         
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
-            if let items = chartView.chart.items {
-                for (idx, item) in items.enumerated() {
-                    updateSliderValue(item.endY, forKey: "Items", atIndex: idx)
-                }
-            }
+        if chartView.isEqual(animation.animatable) {
+            chartView.chart.items?.enumerated().forEach({ (idx, item) in
+                updateSliderValue(item.endY, forKey: "Items", atIndex: idx)
+            })
         }
         
     }

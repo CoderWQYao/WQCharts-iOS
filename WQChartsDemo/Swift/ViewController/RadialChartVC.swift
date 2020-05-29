@@ -127,14 +127,14 @@ class RadialChartVC<T: RadialChartView>: BaseChartVC<T>, ChartViewDrawDelegate, 
                 paddingValue = 0
             }
             let padding = UIEdgeInsets(top: paddingValue, left: paddingValue, bottom: paddingValue, right: paddingValue)
-            chartView.transformPadding = TransformUIEdgeInsets(chartView.padding, padding)
+            chartView.paddingTween = ChartUIEdgeInsetsTween(chartView.padding, padding)
             paddingCell.selection = paddingCell.selection == 0 ? 1 : 0
         }
         
         if keys.contains("Clip"), let graphic = chartView.graphicAsRadial {
             let center = graphic.center
             let radius = graphic.radius
-            chartView.transformClipRect = TransformCGRect(CGRect(origin: center, size: .zero), CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
+            chartView.clipRectTween = ChartCGRectTween(CGRect(origin: center, size: .zero), CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2))
         }
         
         let chart = chartView.chartAsRadial
@@ -142,20 +142,20 @@ class RadialChartVC<T: RadialChartView>: BaseChartVC<T>, ChartViewDrawDelegate, 
         if keys.contains("Angle") {
             var angle = CGFloat.random(in: 0...360 + 90)
             angle = min(angle, 360)
-            chart.transformAngle = TransformCGFloat(chart.angle, angle)
+            chart.angleTween = ChartCGFloatTween(chart.angle, angle)
         }
         
         if keys.contains("Rotation") {
-            chart.transformRotation = TransformCGFloat(chart.rotation, CGFloat.random(in: 0...360))
+            chart.rotationTween = ChartCGFloatTween(chart.rotation, CGFloat.random(in: 0...360))
         }
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
+        if chartView.isEqual(animation.animatable) {
             let chart = chartView.chartAsRadial
             updateSliderValue(chart.angle, forKey: "Angle", atIndex: 0)
             updateSliderValue(chart.rotation, forKey: "Rotation", atIndex: 0)

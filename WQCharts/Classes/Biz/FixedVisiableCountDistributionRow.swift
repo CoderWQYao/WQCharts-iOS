@@ -22,7 +22,7 @@ open class FixedVisiableCountDistributionRow: BizChartView.Row, BizChartViewDist
         super.init(width)
     }
     
-    override open func measureLength(_ visualRange: CGFloat) -> CGFloat {
+    override open func measureContentLength(_ visualRange: CGFloat) -> CGFloat {
         let itemSpacing = visiableCount > 1 ? visualRange / CGFloat(visiableCount - 1) : 0
         return itemCount > 0 ? CGFloat(itemCount - 1) * itemSpacing : 0
     }
@@ -32,10 +32,11 @@ open class FixedVisiableCountDistributionRow: BizChartView.Row, BizChartViewDist
         
         let visiableCount = self.visiableCount
         let itemSpacing = visiableCount > 1 ? (upperBound - lowerBound) / CGFloat(visiableCount - 1) : 0
+        let itemCount = min(self.itemCount, visiableCount)
         let start = Int(round(itemSpacing > 0 ? lowerBound / itemSpacing : 0))
         let items = NSMutableArray(capacity: visiableCount)
         
-        for i in 0..<visiableCount {
+        for i in 0..<itemCount {
             let item = DistributionPathItem()
             item.index = i + start
             item.location = CGFloat(item.index) * itemSpacing

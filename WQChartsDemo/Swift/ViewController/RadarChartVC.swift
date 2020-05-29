@@ -226,7 +226,7 @@ class RadarChartVC: RadialChartVC<RadarChartView>, ItemsOptionsDelegate, RadarCh
                     continue
                 }
                 for item in items {
-                    item.transformValue = TransformCGFloat(item.value, CGFloat.random(in: 0...1))
+                    item.valueTween = ChartCGFloatTween(item.value, CGFloat.random(in: 0...1))
                 }
             }
         }

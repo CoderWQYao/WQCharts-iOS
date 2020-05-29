@@ -21,16 +21,16 @@ open class RadarChartPolygon: ChartItem {
         self.needsReloadItems = true
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        chart.nextTransform(progress)
+        chart.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        chart.clearTransforms()
+        chart.clearAnimationElements()
     }
     
 }

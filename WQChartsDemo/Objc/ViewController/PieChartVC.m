@@ -9,18 +9,12 @@
 
 #import "PieChartVC.h"
 
-@interface PieChartItemTag: NSObject <WQTransformable>
+@interface PieChartItemTag: NSObject
 
 @property (nonatomic, readonly, nonnull) UIColor* color1;
 @property (nonatomic, readonly, nonnull) UIColor* color2;
 
-@property (nonatomic, strong, nonnull) UIColor* currentColor1;
-@property (nonatomic, strong, nonnull) UIColor* currentColor2;
-
-@property (nonatomic, strong, nullable) WQTransformUIColor* transformColor1;
-@property (nonatomic, strong, nullable) WQTransformUIColor* transformColor2;
-
-@property (nonatomic) BOOL colorFlag;
+- (void)swapColor;
 
 @end
 
@@ -37,28 +31,14 @@
     if(self = [super init]) {
         self.color1 = color1;
         self.color2 = color2;
-        
-        self.currentColor1 = UIColor.clearColor;
-        self.currentColor2 = UIColor.clearColor;
     }
     return self;
 }
 
-- (void)nextTransform:(CGFloat)progress {
-    WQTransformUIColor* transformColor1 = self.transformColor1;
-    if (transformColor1) {
-        self.currentColor1 = [transformColor1 valueForProgress:progress];
-    }
-    
-    WQTransformUIColor* transformColor2 = self.transformColor2;
-    if (transformColor2) {
-        self.currentColor2 = [transformColor2 valueForProgress:progress];
-    }
-}
-
-- (void)clearTransforms {
-    _transformColor1 = nil;
-    _transformColor2 = nil;
+- (void)swapColor {
+    UIColor* tmp = self.color1;
+    self.color1 = self.color2;
+    self.color2 = tmp;
 }
 
 @end
@@ -203,23 +183,15 @@
     item.arc2Scale = [self sliderValueForKey:@"ItemsArc2Scale" atIndex:0];
     
     PieChartItemTag* tag = (PieChartItemTag*)item.tag;
-    tag.currentColor1 = tag.color1;
-    tag.currentColor2 = tag.color2;
-    
-    WQFillPaint* fillPaint = item.paint.fill;
+    WQChartFillPaint* fillPaint = item.paint.fill;
     switch ([self radioCellSelectionForKey:@"ItemsFill"]) {
         case 1:
-            fillPaint.color = tag.currentColor1;
+            fillPaint.color = tag.color1;
             fillPaint.shader = nil;
             break;
         case 2:
-            fillPaint.color = tag.currentColor1;
-            fillPaint.shader = ^id<Shader> _Nullable(WQFillPaint * _Nonnull paint, CGPathRef _Nonnull path, id _Nullable object) {
-                WQPieGraphicItem* graphic = (WQPieGraphicItem*)object;
-                WQPieChartItem* builder = (WQPieChartItem*)graphic.builder;
-                PieChartItemTag* tag = builder.tag;
-                return [[WQRadialGradientShader alloc] initWithCenterPoint:graphic.center radius:graphic.arc1Radius colors:@[tag.currentColor1,tag.currentColor2] positions:@[@0,@1]];
-            };
+            fillPaint.color = nil;
+            fillPaint.shader = [[WQChartRadialGradient alloc] initWithCenter:CGPointMake(0.5, 0.5) radius:1 colors:@[tag.color1,tag.color2]];
             break;
         default:
             fillPaint.color = nil;
@@ -246,11 +218,10 @@
     [super chartViewWillDraw:chartView inRect:rect context:context];
     
     NSArray<WQPieChartItem*>* items = self.chartView.chart.items;
-    float totalValue = [WQPieChartItem totalValueWithItems:items];
-    for (WQPieChartItem* item in items) {
-        item.paint.fill.color = [self radioCellSelectionForKey:@"ItemsFill"] != 0 ? ((PieChartItemTag*)item.tag).currentColor1 : nil;
+    float totalValue = [WQPieChartItem calcTotalValueWithItems:items];
+    [items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
         item.text.string = [NSString stringWithFormat:@"%ld%%",(NSInteger)round((totalValue != 0 ? item.value / totalValue : 1) * 100)];
-    }
+    }];
 }
 
 #pragma mark - PieChartViewDrawDelegate
@@ -281,54 +252,49 @@
     WQPieChart* chart = self.chartView.chart;
     
     if ([keys containsObject:@"Values"]) {
-        for (WQPieChartItem* item in chart.items) {
-            item.transformValue = [[WQTransformCGFloat alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]];
-        }
+        [chart.items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.valueTween = [[WQChartCGFloatTween alloc] initWithFrom:item.value to:[NSNumber randomCGFloatFrom:0 to:1]];
+        }];
     }
     
     if ([keys containsObject:@"Arc1s"]) {
-        CGFloat arc1Scale = 1;
-        for (WQPieChartItem* item in chart.items) {
-            arc1Scale = item.arc1Scale == 1 ? 0.5 : 1;
-            item.transformArc1Scale = [[WQTransformCGFloat alloc] initWithFrom:item.arc1Scale to:arc1Scale];
-        }
-        [self updateSliderValue:arc1Scale forKey:@"ItemsArc1Scale" atIndex:0];
+        CGFloat toArc1Scale = [self sliderValueForKey:@"ItemsArc1Scale" atIndex:0];
+        toArc1Scale = toArc1Scale == 1 ? 0.5 : 1;
+        [chart.items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.arc1ScaleTween = [[WQChartCGFloatTween alloc] initWithFrom:item.arc1Scale to:toArc1Scale];
+        }];
+        [self updateSliderValue:toArc1Scale forKey:@"ItemsArc1Scale" atIndex:0];
     }
     
     if ([keys containsObject:@"Arc2s"]) {
-        CGFloat arc2Scale = 0;
-        for (WQPieChartItem* item in chart.items) {
-            arc2Scale = item.arc2Scale == 0 ? 0.5 : 0;
-            item.transformArc2Scale = [[WQTransformCGFloat alloc] initWithFrom:item.arc2Scale to:arc2Scale];
-        }
-        [self updateSliderValue:arc2Scale forKey:@"ItemsArc2Scale" atIndex:0];
+        CGFloat toArc2Scale = [self sliderValueForKey:@"ItemsArc2Scale" atIndex:0];
+        toArc2Scale = toArc2Scale == 0 ? 0.5 : 0;
+        [chart.items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            item.arc2ScaleTween = [[WQChartCGFloatTween alloc] initWithFrom:item.arc2Scale to:toArc2Scale];
+        }];
+        [self updateSliderValue:toArc2Scale forKey:@"ItemsArc2Scale" atIndex:0];
+    }
+    
+    if ([keys containsObject:@"Colors"]) {
+        [chart.items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
+            PieChartItemTag* tag = (PieChartItemTag*)item.tag;
+            [tag swapColor];
+            WQChartFillPaint* paint = item.paint.fill;
+            if (paint.color) {
+                paint.colorTween = [[WQChartUIColorTween alloc] initWithFrom:paint.color to:tag.color1];
+            }
+            if (paint.shader) {
+                WQChartRadialGradient* shader = (WQChartRadialGradient*)paint.shader;
+                shader.colorsTween = [[WQChartUIColorArrayTween alloc] initWithFrom:shader.colors to:@[tag.color1,tag.color2]];
+            }
+        }];
+        
+
     }
     
     if ([keys containsObject:@"Drifts"]) {
         for (WQPieChartItem* item in chart.items) {
-            item.transformDriftRatio = [[WQTransformCGFloat alloc] initWithFrom:item.driftRatio to:item.driftRatio == 0 ? 0.3 : 0];
-        }
-    }
-    
-}
-
-- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation *> *)array forKeys:(NSArray<NSString *> *)keys {
-    [super appendAnimationsInArray:array forKeys:keys];
-    
-    WQPieChart* chart = self.chartView.chart;
-     
-    if ([keys containsObject:@"Colors"]) {
-        for (WQPieChartItem* item in chart.items) {
-            PieChartItemTag* tag = item.tag;
-            tag.transformColor1 = [[WQTransformUIColor alloc] initWithFrom:tag.currentColor1 to:tag.colorFlag ? tag.color1 : tag.color2];
-            tag.transformColor2 = [[WQTransformUIColor alloc] initWithFrom:tag.currentColor2 to:tag.colorFlag ? tag.color2 : tag.color1];
-            tag.colorFlag = !tag.colorFlag;
-            [array addObject:[[WQAnimation alloc] initWithTransformable:tag duration:self.animationDuration interpolator:self.animationInterpolator]];
-        }
-        
-        RadioCell* cell = [self findRadioCellForKey:@"ItemsFill"];
-        if (cell.selection == 0) {
-            cell.selection = 1;
+            item.driftRatioTween = [[WQChartCGFloatTween alloc] initWithFrom:item.driftRatio to:item.driftRatio == 0 ? 0.3 : 0];
         }
     }
     
@@ -336,12 +302,11 @@
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
     
-    if (animation.transformable == self.chartView) {
+    if (animation.animatable == self.chartView) {
         [self.chartView.chart.items enumerateObjectsUsingBlock:^(WQPieChartItem * _Nonnull item, NSUInteger idx, BOOL * _Nonnull stop) {
-            item.paint.fill.color = ((PieChartItemTag*)item.tag).currentColor1;
             [self updateSliderValue:item.value forKey:@"Items" atIndex:idx];
         }];
     }

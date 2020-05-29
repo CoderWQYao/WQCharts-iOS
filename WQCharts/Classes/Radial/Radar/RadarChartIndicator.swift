@@ -13,24 +13,24 @@ import UIKit
 open class RadarChartIndicator: ChartItem {
     
     @objc open var text: ChartText?
-    @objc open var paint: LinePaint?
+    @objc open var paint: ChartLinePaint?
     
     @objc
     public override init() {
         super.init()
-        self.paint = LinePaint()
+        self.paint = ChartLinePaint()
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        paint?.nextTransform(progress)
+        paint?.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        paint?.clearTransforms()
+        paint?.clearAnimationElements()
     }
     
 }

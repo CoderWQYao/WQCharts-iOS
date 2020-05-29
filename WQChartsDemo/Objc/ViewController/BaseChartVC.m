@@ -14,7 +14,7 @@
 @property (nonatomic, strong) UIView* chartViewRef;
 @property (nonatomic, strong) UIView* chartContainer;
 @property (nonatomic, strong) ListView* optionsView;
-@property (nonatomic, strong) WQAnimationPlayer* animationPlayer;
+@property (nonatomic, strong) WQChartAnimationPlayer* animationPlayer;
 
 @end
 
@@ -48,15 +48,15 @@
     return [self sliderValueForKey:@"AnimDuration" atIndex:0];
 }
 
-- (id<WQInterpolator>)animationInterpolator {
+- (id<WQChartInterpolator>)animationInterpolator {
     NSInteger selection = [self radioCellSelectionForKey:@"AnimInterpolator"];
     switch (selection) {
         case 1:
-            return [[WQAccelerateInterpolator alloc] initWithFactor:2];
+            return [[WQChartAccelerateInterpolator alloc] initWithFactor:2];
         case 2:
-            return [[WQDecelerateInterpolator alloc] initWithFactor:2];
+            return [[WQChartDecelerateInterpolator alloc] initWithFactor:2];
         default:
-            return [[WQLinearInterpolator alloc] init];
+            return [[WQChartLinearInterpolator alloc] init];
     }
 }
 
@@ -162,7 +162,7 @@
 
 #pragma mark - Paint
 
-- (void)setupStrokePaint:(WQLinePaint* _Nullable)paint color:(UIColor* _Nullable)color type:(NSInteger)type {
+- (void)setupStrokePaint:(WQChartLinePaint* _Nullable)paint color:(UIColor* _Nullable)color type:(NSInteger)type {
     paint.color = color;
     switch (type) {
         case 1:
@@ -311,15 +311,15 @@
     
     [self.animationPlayer clearAnimations];
     
-    NSMutableArray<WQAnimation*>* animations = [NSMutableArray array];
-    WQAnimation* chartViewAnimation = [[WQAnimation alloc] initWithTransformable:(id<WQTransformable>)self.chartViewRef duration:self.animationDuration interpolator:self.animationInterpolator];
+    NSMutableArray<WQChartAnimation*>* animations = [NSMutableArray array];
+    WQChartAnimation* chartViewAnimation = [[WQChartAnimation alloc] initWithAnimatable:(id<WQChartAnimatable>)self.chartViewRef duration:self.animationDuration interpolator:self.animationInterpolator];
     chartViewAnimation.delegate = self;
     [self prepareAnimationOfChartViewForKeys:keys];
     [animations addObject:chartViewAnimation];
     [self appendAnimationsInArray:animations forKeys:keys];
     
     if (!_animationPlayer) {
-        _animationPlayer = [[WQAnimationPlayer alloc] initWithDisplayView:self.chartViewRef];;
+        _animationPlayer = [[WQChartAnimationPlayer alloc] initWithDisplayView:self.chartViewRef];;
     }
     
     [self.animationPlayer startAnimations:animations];
@@ -333,19 +333,19 @@
     
 }
 
-- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation*>*)array forKeys:(NSArray<NSString*>*)keys {
+- (void)appendAnimationsInArray:(NSMutableArray<WQChartAnimation*>*)array forKeys:(NSArray<NSString*>*)keys {
     
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animationDidStart:(WQAnimation *)animation {
+- (void)animationDidStart:(WQChartAnimation *)animation {
     NSLog(@"%@ %@:", self, @"animationDidStart");
 }
 
-- (void)animationDidStop:(WQAnimation *)animation finished:(BOOL)finished {
+- (void)animationDidStop:(WQChartAnimation *)animation finished:(BOOL)finished {
     NSLog(@"%@ %@: finished: %d", self, @"animationDidStop", finished);
-    if (animation.transformable == (id<WQTransformable>)self.chartViewRef) {
+    if (animation.animatable == (id<WQChartAnimatable>)self.chartViewRef) {
         id clipRect = [self.chartViewRef valueForKey:@"clipRect"];
         if (clipRect) {
             NSLog(@"Set clipRect nil");
@@ -355,11 +355,11 @@
     
 }
 
-- (void)animation:(WQAnimation *)animation progressWillChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressWillChange:(CGFloat)progress {
     
 }
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     
 }
 

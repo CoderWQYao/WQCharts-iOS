@@ -29,14 +29,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @end
 
-@interface BaseChartVC : UIViewController<WQAnimationDelegate>
+@interface BaseChartVC : UIViewController<WQChartAnimationDelegate>
 
 @property (nonatomic, readonly) UIView* chartContainer;
 @property (nonatomic, readonly) ListView* optionsView;
 @property (nonatomic, readonly) UIView* chartViewRef;
-@property (nonatomic, readonly) WQAnimationPlayer* animationPlayer;
+@property (nonatomic, readonly) WQChartAnimationPlayer* animationPlayer;
 @property (nonatomic, readonly) NSTimeInterval animationDuration;
-@property (nonatomic, readonly) id<WQInterpolator> animationInterpolator;
+@property (nonatomic, readonly) id<WQChartInterpolator> animationInterpolator;
 
 - (UIView*)createChartView;
 - (void)chartViewDidCreate:(UIView*)chartView;
@@ -45,7 +45,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Paint
 
-- (void)setupStrokePaint:(WQLinePaint* _Nullable)paint color:(UIColor* _Nullable)color type:(NSInteger)type;
+- (void)setupStrokePaint:(WQChartLinePaint* _Nullable)paint color:(UIColor* _Nullable)color type:(NSInteger)type;
 
 #pragma mark - Cell
 
@@ -63,7 +63,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (void)configAnimationOptions;
 - (void)appendAnimationKeys:(NSMutableArray<NSString*>*)animationKeys;
 - (void)prepareAnimationOfChartViewForKeys:(NSArray<NSString*>*)keys;
-- (void)appendAnimationsInArray:(NSMutableArray<WQAnimation*>*)array forKeys:(NSArray<NSString*>*)keys;
+- (void)appendAnimationsInArray:(NSMutableArray<WQChartAnimation*>*)array forKeys:(NSArray<NSString*>*)keys;
 
 @end
 

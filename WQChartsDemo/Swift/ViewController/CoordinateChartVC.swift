@@ -36,7 +36,7 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
             .setOptions(["OFF","ON"])
             .setSelection(0)
             .setOnSelectionChange({[weak self](cell, selection) in
-                self?.updateChartExchangeXY()
+                self?.updateChartCoordinate()
             })
         )
         
@@ -45,12 +45,7 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
             .setOptions(["OFF","ON"])
             .setSelection(0)
             .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                chartView.chartAsCoordinate.reverseX = selection != 0
-                chartView.redraw()
+                self?.updateChartCoordinate()
             })
         )
         
@@ -59,12 +54,7 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
             .setOptions(["OFF","ON"])
             .setSelection(0)
             .setOnSelectionChange({[weak self](cell, selection) in
-                guard let self = self else {
-                    return
-                }
-                let chartView = self.chartView
-                chartView.chartAsCoordinate.reverseY = selection != 0
-                chartView.redraw()
+                self?.updateChartCoordinate()
             })
         )
         
@@ -107,8 +97,10 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
         return padding
     }
     
-    func updateChartExchangeXY() {
+    func updateChartCoordinate() {
         chartView.chartAsCoordinate.exchangeXY = radioCellSelectionForKey("ExchangeXY") != 0
+        chartView.chartAsCoordinate.reverseX = radioCellSelectionForKey("ReverseX") != 0
+        chartView.chartAsCoordinate.reverseY = radioCellSelectionForKey("ReverseY") != 0
         chartView.redraw()
     }
     
@@ -144,7 +136,7 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
             } else {
                 padding = chartViewPadding(forSelection: 0)
             }
-            chartView.transformPadding = TransformUIEdgeInsets(chartView.padding, padding)
+            chartView.paddingTween = ChartUIEdgeInsetsTween(chartView.padding, padding)
             paddingCell.selection = paddingCell.selection == 0 ? 1 : 0
         }
         
@@ -154,24 +146,24 @@ class CoordinateChartVC<T: CoordinateChartView>: BaseChartVC<T>, ChartViewDrawDe
             let isReversed = Bool.random()
             if exchangeXY {
                 if isReversed {
-                   chartView.transformClipRect = TransformCGRect(
+                   chartView.clipRectTween = ChartCGRectTween(
                        CGRect(x: rect.minX, y: rect.maxY, width: rect.width, height: 0),
                        CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                    )
                 } else {
-                   chartView.transformClipRect = TransformCGRect(
+                   chartView.clipRectTween = ChartCGRectTween(
                        CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: 0),
                        CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                    )
                 }
             } else {
                 if isReversed {
-                    chartView.transformClipRect = TransformCGRect(
+                    chartView.clipRectTween = ChartCGRectTween(
                         CGRect(x: rect.maxX, y: rect.minY, width: 0, height: rect.height),
                         CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                     )
                 } else {
-                    chartView.transformClipRect = TransformCGRect(
+                    chartView.clipRectTween = ChartCGRectTween(
                         CGRect(x: rect.minX, y: rect.minY, width: 0, height: rect.height),
                         CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                     )

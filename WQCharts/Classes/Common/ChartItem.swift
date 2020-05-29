@@ -10,16 +10,16 @@
 import UIKit
 
 @objc(WQChartItem)
-open class ChartItem: NSObject, Transformable {
+open class ChartItem: NSObject, ChartAnimatable {
 
     @objc open var tag: Any?
     
-    open func nextTransform(_ progress: CGFloat) {
+    open func transform(_ t: CGFloat) {
         
     }
     
-    open func clearTransforms() {
-       
+    open func clearAnimationElements() {
+        
     }
     
 }

@@ -27,7 +27,7 @@ open class CoordinateGraphic: Graphic {
         }
     }
     
-    public override init(_ builder: Chart, _ rect: CGRect) {
+    public override init(_ builder: Any, _ rect: CGRect) {
         super.init(builder,rect)
         let chart = builder as! CoordinateChart
         self.bounds = chart.fixBounds(chart.calcBounds())

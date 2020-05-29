@@ -14,12 +14,12 @@ open class AxisChartItem: ChartItem {
 
     @objc open var start = CGPoint.zero
     @objc open var end = CGPoint.zero
-    @objc open var paint: LinePaint?
+    @objc open var paint: ChartLinePaint?
     @objc open var headerText: ChartText?
     @objc open var footerText: ChartText?
     
-    @objc open var transformStart: TransformCGPoint?
-    @objc open var transformEnd: TransformCGPoint?
+    @objc open var startTween: ChartCGPointTween?
+    @objc open var endTween: ChartCGPointTween?
     
     @objc
     public convenience override init() {
@@ -32,27 +32,27 @@ open class AxisChartItem: ChartItem {
 
         self.start = start
         self.end = end
-        self.paint = LinePaint()
+        self.paint = ChartLinePaint()
     }
     
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        if let transformStart = transformStart {
-            start = transformStart.valueForProgress(progress)
+        if let startTween = startTween {
+            start = startTween.lerp(t)
         }
         
-        if let transformEnd = transformEnd {
-            end = transformEnd.valueForProgress(progress)
+        if let endTween = endTween {
+            end = endTween.lerp(t)
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        transformStart = nil
-        transformEnd = nil
+        startTween = nil
+        endTween = nil
     }
     
 }

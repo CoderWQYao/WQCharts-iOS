@@ -11,41 +11,22 @@ import UIKit
 
 class PieChartVC: RadialChartVC<PieChartView>, ItemsOptionsDelegate, PieChartViewGraphicItemClickDelegate  {
     
-    class PieChartItemTag: Transformable {
+    class PieChartItemTag {
         
-        let color1: UIColor
-        let color2: UIColor
+        public private(set) var color1: UIColor
+        public private(set) var color2: UIColor
         
         public init(_ color1: UIColor, _ color2: UIColor) {
             self.color1 = color1
             self.color2 = color2
         }
         
-        var currentColor1 = UIColor.clear
-        var currentColor2 = UIColor.clear
-        
-        var transformColor1: TransformUIColor?
-        var transformColor2: TransformUIColor?
-        
-        var colorFlag = false
-        
-        // MARK: - Transformable
-        
-        func nextTransform(_ progress: CGFloat) {
-            if let transformColor1 = transformColor1 {
-                currentColor1 = transformColor1.valueForProgress(progress)
-            }
-            
-            if let transformColor2 = transformColor2 {
-                currentColor2 = transformColor2.valueForProgress(progress)
-            }
+        public func swapColor() {
+            let tmp = color1
+            color1 = color2
+            color2 = tmp
         }
-        
-        func clearTransforms() {
-            transformColor1 = nil
-            transformColor2 = nil
-        }
-        
+   
     }
     
     lazy var colors: [UIColor] = {
@@ -175,22 +156,14 @@ class PieChartVC: RadialChartVC<PieChartView>, ItemsOptionsDelegate, PieChartVie
         item.arc2Scale = sliderValue(forKey: "ItemsArc2Scale", atIndex: 0)
         
         let tag = (item.tag as! PieChartItemTag)
-        tag.currentColor1 = tag.color1
-        tag.currentColor2 = tag.color2
-        
         if let fillPaint = item.paint?.fill {
             switch (radioCellSelectionForKey("ItemsFill")) {
             case 1:
-                fillPaint.color = tag.currentColor1
+                fillPaint.color = tag.color1
                 fillPaint.shader = nil
             case 2:
-                fillPaint.color = tag.currentColor1
-                fillPaint.shader = {(paint, path, object) -> Shader? in
-                    let graphic = object as! PieGraphicItem
-                    let builder = graphic.builder as! PieChartItem
-                    let tag = builder.tag as! PieChartItemTag
-                    return RadialGradientShader(graphic.center, graphic.arc1Radius, [tag.currentColor1, tag.currentColor2], [0,1])
-                }
+                fillPaint.color = nil
+                fillPaint.shader = ChartRadialGradient(center: CGPoint(x: 0.5, y: 0.5), radius: 1, colors:[tag.color1, tag.color2])
             default:
                 fillPaint.color = nil
                 fillPaint.shader = nil
@@ -217,9 +190,8 @@ class PieChartVC: RadialChartVC<PieChartView>, ItemsOptionsDelegate, PieChartVie
         super.chartViewWillDraw(chartView, inRect: rect, context: context)
         
         if let items = (chartView as! PieChartView).chart.items {
-            let totalValue = PieChartItem.getTotalValue(items)
+            let totalValue = PieChartItem.calcTotalValue(withItems: items)
             for item in items {
-                item.paint?.fill?.color = radioCellSelectionForKey("ItemsFill") != 0 ? (item.tag as! PieChartItemTag).currentColor1 : nil
                 item.text?.string = String(format: "%ld%%", Int((totalValue != 0 ? item.value / totalValue : 1) * 100))
             }
         }
@@ -258,71 +230,62 @@ class PieChartVC: RadialChartVC<PieChartView>, ItemsOptionsDelegate, PieChartVie
         
         let chart = chartView.chart
         
-        if keys.contains("Values"), let items = chart.items {
-            for item in items {
-                item.transformValue = TransformCGFloat(item.value, CGFloat.random(in: 0...1))
-            }
+        if keys.contains("Values") {
+            chart.items?.forEach({ (item) in
+                item.valueTween = ChartCGFloatTween(item.value, CGFloat.random(in: 0...1))
+            })
         }
         
-        if keys.contains("Arc1s"), let items = chart.items {
+        if keys.contains("Arc1s") {
             var arc1Scale: CGFloat = 1
-            for item in items {
+            chart.items?.forEach({ (item) in
                 arc1Scale = item.arc1Scale == 1 ? 0.5 : 1
-                item.transformArc1Scale = TransformCGFloat(item.arc1Scale, arc1Scale)
-            }
+                item.arc1ScaleTween = ChartCGFloatTween(item.arc1Scale, arc1Scale)
+            })
             updateSliderValue(arc1Scale, forKey: "ItemsArc1Scale", atIndex: 0)
         }
         
-        if keys.contains("Arc2s"), let items = chart.items {
+        if keys.contains("Arc2s") {
             var arc2Scale: CGFloat = 0
-            for item in items {
+            chart.items?.forEach({ (item) in
                 arc2Scale = item.arc2Scale == 0 ? 0.5 : 0
-                item.transformArc2Scale = TransformCGFloat(item.arc2Scale, arc2Scale)
-            }
+                item.arc2ScaleTween = ChartCGFloatTween(item.arc2Scale, arc2Scale)
+            })
             updateSliderValue(arc2Scale, forKey: "ItemsArc2Scale", atIndex: 0)
         }
         
-        if keys.contains("Drifts"), let items = chart.items {
-            for item in items {
-                item.transformDriftRatio = TransformCGFloat(item.driftRatio, item.driftRatio == 0 ? 0.3 : 0)
-            }
+        if keys.contains("Colors") {
+            chart.items?.forEach({ (item) in
+                let tag = item.tag as! PieChartItemTag
+                tag.swapColor()
+                if let paint = item.paint?.fill {
+                   if let color = paint.color {
+                      paint.colorTween = ChartUIColorTween(color, tag.color1)
+                   }
+                   if let shader = paint.shader as? ChartRadialGradient {
+                    shader.colorsTween = ChartUIColorArrayTween(shader.colors, [tag.color1, tag.color2])
+                   }
+                }
+            })
         }
         
-    }
-    
-    override func appendAnimations(inArray array: NSMutableArray, forKeys keys: [String]) {
-        super.appendAnimations(inArray: array, forKeys: keys)
-        
-        let chart = chartView.chart
-        
-        if keys.contains("Colors"), let items = chart.items {
-            for item in items {
-                let tag = item.tag as! PieChartItemTag
-                tag.transformColor1 = TransformUIColor(tag.currentColor1, tag.colorFlag ? tag.color1 : tag.color2)
-                tag.transformColor2 = TransformUIColor(tag.currentColor2, tag.colorFlag ? tag.color2 : tag.color1)
-                tag.colorFlag = !tag.colorFlag
-                array.add(Animation(tag, animationDuration, animationInterpolator))
-            }
-            
-            let cell = findRadioCellForKey("ItemsFill")!
-            if cell.selection == 0 {
-                cell.selection = 1
-            }
+        if keys.contains("Drifts") {
+            chart.items?.forEach({ (item) in
+                item.driftRatioTween = ChartCGFloatTween(item.driftRatio, item.driftRatio == 0 ? 0.3 : 0)
+            })
         }
         
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
-            if let items = chartView.chart.items {
-                for (idx, item) in items.enumerated() {
-                    updateSliderValue(item.value, forKey: "Items", atIndex: idx)
-                }
-            }
+        if chartView.isEqual(animation.animatable) {
+            chartView.chart.items?.enumerated().forEach({ (idx, item) in
+                updateSliderValue(item.value, forKey: "Items", atIndex: idx)
+            })
         }
         
     }

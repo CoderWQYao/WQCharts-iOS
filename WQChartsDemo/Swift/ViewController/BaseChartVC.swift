@@ -21,7 +21,7 @@ protocol ItemsOptionsDelegate: UIViewController {
 
 }
 
-class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
+class BaseChartVC<T: UIView>: UIViewController, ChartAnimationDelegate {
     
     lazy open var chartView: T = {
         let chartView = T()
@@ -43,21 +43,21 @@ class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
     
     weak var itemsOptionsDelegate: ItemsOptionsDelegate?
     
-    var animationPlayer: AnimationPlayer?
+    var animationPlayer: ChartAnimationController?
     
     var animationDuration: TimeInterval {
         return TimeInterval(sliderValue(forKey: "AnimDuration", atIndex: 0))
     }
     
-    var animationInterpolator: Interpolator {
+    var animationInterpolator: ChartInterpolator {
         let selection = radioCellSelectionForKey("AnimInterpolator")
         switch selection {
         case 1:
-            return AccelerateInterpolator(2)
+            return ChartAccelerateInterpolator(2)
         case 2:
-            return DecelerateInterpolator(2)
+            return ChartDecelerateInterpolator(2)
         default:
-            return LinearInterpolator()
+            return ChartLinearInterpolator()
         }
     }
 
@@ -158,7 +158,7 @@ class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
     
     // MARK: - Paint
     
-    func setupStrokePaint(_ paint: LinePaint?, _ color: UIColor?, _ type: Int) {
+    func setupStrokePaint(_ paint: ChartLinePaint?, _ color: UIColor?, _ type: Int) {
         guard let paint = paint else {
             return
         }
@@ -328,16 +328,16 @@ class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
         animationPlayer?.clearAnimations()
         
         let animations = NSMutableArray()
-        let chartViewAnimation = Animation(self.chartView as! Transformable, animationDuration, animationInterpolator)
+        let chartViewAnimation = ChartAnimation(self.chartView as! ChartAnimatable, animationDuration, animationInterpolator)
         chartViewAnimation.delegate = self
         prepareAnimationOfChartView(forKeys: keys as! [String])
         animations.add(chartViewAnimation)
         appendAnimations(inArray: animations, forKeys: keys as! [String])
         
         if animationPlayer == nil {
-            animationPlayer = AnimationPlayer(displayView: self.chartView)
+            animationPlayer = ChartAnimationController(displayView: self.chartView)
         }
-        animationPlayer?.startAnimations(animations as! [Animation])
+        animationPlayer?.startAnimations(animations as! [ChartAnimation])
     }
     
     func prepareAnimationOfChartView(forKeys keys: [String]) {
@@ -350,13 +350,13 @@ class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
     
     // MARK: - AnimationDelegate
     
-    func animationDidStart(_ animation: Animation) {
+    func animationDidStart(_ animation: ChartAnimation) {
         print(self, "animationDidStart:")
     }
     
-    func animationDidStop(_ animation: Animation, finished: Bool) {
+    func animationDidStop(_ animation: ChartAnimation, finished: Bool) {
         print(self, "animationDidStop:finished:",finished)
-        if chartView.isEqual(animation.transformable) {
+        if chartView.isEqual(animation.animatable) {
             let clipRect = chartView.value(forKey: "clipRect")
             if clipRect != nil {
                 print("Set clipRect nil");
@@ -365,11 +365,11 @@ class BaseChartVC<T: UIView>: UIViewController, AnimationDelegate {
         }
     }
     
-    func animation(_ animation: Animation, progressWillChange progress: CGFloat) {
+    func animation(_ animation: ChartAnimation, progressWillChange progress: CGFloat) {
         
     }
     
-    func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         
     }
     

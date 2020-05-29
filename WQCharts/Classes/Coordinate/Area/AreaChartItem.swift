@@ -16,7 +16,7 @@ open class AreaChartItem: ChartItem {
     @objc open var headerText: ChartText?
     @objc open var footerText: ChartText?
     
-    @objc open var transformValue: TransformCGPoint?
+    @objc open var valueTween: ChartCGPointTween?
     
     @objc
     public convenience override init() {
@@ -30,17 +30,17 @@ open class AreaChartItem: ChartItem {
         self.value = value
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        if let transformValue = transformValue {
-            value = transformValue.valueForProgress(progress)
+        if let valueTween = valueTween {
+            value = valueTween.lerp(t)
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        transformValue = nil
+        valueTween = nil
     }
 }

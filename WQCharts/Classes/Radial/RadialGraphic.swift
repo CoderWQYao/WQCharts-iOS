@@ -16,7 +16,7 @@ open class RadialGraphic: Graphic {
     @objc open var direction: RadialChart.Direction = .Clockwise
     @objc open var rotation = CGFloat(0)
 
-    public override init(_ builder: Chart, _ rect: CGRect) {
+    public override init(_ builder: Any, _ rect: CGRect) {
         super.init(builder,rect)
         let chart = builder as! RadialChart
         self.angle = chart.angle

@@ -26,7 +26,7 @@ class BizChartItem {
     }
 }
 
-class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewAdapter, Transformable {
+class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewAdapter, ChartAnimatable {
     
     let barWidth: CGFloat
     let barWidthHalf: CGFloat
@@ -35,7 +35,7 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
     let clipToRectInset: UIEdgeInsets
     
     var clipRect: CGRect?
-    var transformClipRect: TransformCGRect?
+    var clipRectTween: ChartCGRectTween?
     
     lazy var barGraphics: NSMutableArray = {
         return NSMutableArray()
@@ -87,7 +87,7 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
             })
         )
         
-        // 分布模式
+        // DistributionMode see also bizChartView:rowAtIndex
         optionsView.addItem(RadioCell()
             .setTitle("DistributionMode")
             .setOptions(["0","1"])
@@ -199,12 +199,14 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
         return items.count
     }
     
-    func bizChartView(_ BizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row {
-        let rowWidth = min(BizChartView.bounds.width, BizChartView.bounds.height) / 3
+    func bizChartView(_ bizChartView: BizChartView, rowAtIndex index: Int) -> BizChartView.Row {
+        let rowWidth = min(bizChartView.bounds.width, bizChartView.bounds.height) / 3
         if radioCellSelectionForKey("DistributionMode") != 0 {
-            let visiableCount = Int((BizChartView.bounds.size.width - BizChartView.padding.left - BizChartView.padding.right) / (barWidth + 2))
+            // The items are distributed evenly along the row in visible area
+            let visiableCount = Int((bizChartView.bounds.size.width - bizChartView.padding.left - bizChartView.padding.right) / (barWidth + 2))
             return FixedVisiableCountDistributionRow(rowWidth, visiableCount, dataCount)
         } else {
+            // The items are distributed at regular intervals
             return FixedItemSpacingDistributionRow(rowWidth, barWidth + 2, dataCount)
         }
     }
@@ -463,7 +465,7 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
             } else {
                 padding = .zero
             }
-            chartView.transformPadding = TransformUIEdgeInsets(chartView.padding, padding)
+            chartView.paddingTween = ChartUIEdgeInsetsTween(chartView.padding, padding)
             paddingCell.selection = paddingCell.selection == 0 ? 1 : 0
         }
         
@@ -476,29 +478,29 @@ class BizChartVC: BaseChartVC<BizChartView>, ItemsOptionsDelegate, BizChartViewA
             let rect = chartView.bounds
             let isReversed = Bool.random()
             if isReversed {
-                transformClipRect = TransformCGRect(
+                clipRectTween = ChartCGRectTween(
                     CGRect(x: rect.maxX, y: rect.minY, width: 0, height: rect.height),
                     CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                 )
             } else {
-                transformClipRect = TransformCGRect(
+                clipRectTween = ChartCGRectTween(
                     CGRect(x: rect.minX, y: rect.minY, width: 0, height: rect.height),
                     CGRect(x: rect.minX, y: rect.minY, width: rect.width, height: rect.height)
                 )
             }
-            array.add(Animation(self, animationDuration, animationInterpolator))
+            array.add(ChartAnimation(self, animationDuration, animationInterpolator))
         }
         
     }
     
-    // MARK: - Transformable
+    // MARK: - Animatable
     
-    func nextTransform(_ progress: CGFloat) {
-        clipRect = transformClipRect?.valueForProgress(progress)
+    func transform(_ t: CGFloat) {
+        clipRect = clipRectTween?.lerp(t)
     }
     
-    func clearTransforms() {
-        transformClipRect = nil
+    func clearAnimationElements() {
+        clipRectTween = nil
         clipRect = nil
     }
     

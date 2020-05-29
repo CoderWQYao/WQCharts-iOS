@@ -33,7 +33,7 @@ open class PieChart: RadialChart {
         let angle = graphic.angle
         let direction = graphic.direction
         var itemStartAngle = graphic.rotation
-        let totalValue = PieChartItem.getTotalValue(items)
+        let totalValue = PieChartItem.calcTotalValue(withItems: items)
         let graphicItems = NSMutableArray(capacity: items.count)
         
         for i in 0..<itemCount {
@@ -67,7 +67,14 @@ open class PieChart: RadialChart {
             graphicItems.add(graphicItem)
             
             if let itemPaint = item.paint {
-                itemPaint.draw(itemPath, context, graphicItem)
+                itemPaint.draw(
+                    itemPath,
+                    ChartShaderRect(
+                        Helper.rectFrom(center: center, radius: radius),
+                        Helper.rectFrom(center: center, radius: radius)
+                    ),
+                    context
+                )
             }
             
             itemStartAngle += itemSweepAngle
@@ -98,22 +105,22 @@ open class PieChart: RadialChart {
         }
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
         if let items = items {
             for item in items {
-                item.nextTransform(progress)
+                item.transform(t)
             }
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
         if let items = items {
             for item in items {
-                item.clearTransforms()
+                item.clearAnimationElements()
             }
         }
     }

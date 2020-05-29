@@ -13,11 +13,11 @@ import UIKit
 open class PolygonChart: RadialChart {
     
     @objc open var items: [PolygonChartItem]?
-    @objc open var paint: ShapePaint?
+    @objc open var paint: ChartShapePaint?
     
     @objc
     public override init() {
-        paint = ShapePaint()
+        paint = ChartShapePaint()
     }
     
     override open func draw(inRect rect: CGRect, context: CGContext) {
@@ -48,9 +48,10 @@ open class PolygonChart: RadialChart {
         if graphic.direction == .CounterClockwise {
             sweepAngle = -sweepAngle
         }
-        var pathRadius = CGFloat(0.0)
-        let path = CGMutablePath()
         
+        
+        let path = CGMutablePath()
+        var itemMaxRadius = CGFloat(0.0)
         for i in 0..<itemCount {
             let item = items[i]
             let itemAngle = startAngle + sweepAngle * CGFloat(i);
@@ -74,7 +75,7 @@ open class PolygonChart: RadialChart {
             graphicItem.axisPath = itemAxisPath
             graphicItems.add(graphicItem)
             
-            pathRadius = max(pathRadius, itemPointRadius)
+            itemMaxRadius = max(itemMaxRadius, itemPointRadius)
         }
         
         if itemCount > 0 {
@@ -84,12 +85,19 @@ open class PolygonChart: RadialChart {
             path.closeSubpath()
         }
         
-        graphic.pathRadius = pathRadius
+        graphic.pathRadius = itemMaxRadius
         graphic.path = path
         graphic.items = (graphicItems as! [PolygonGraphicItem])
-        
+
         if let paint = self.paint {
-            paint.draw(path, context, graphic)
+            paint.draw(
+                path,
+                ChartShaderRect(
+                    Helper.rectFrom(center: center, radius: itemMaxRadius),
+                    Helper.rectFrom(center: center, radius: radius)
+                ),
+                context
+            )
         }
         
         for graphicItem in (graphicItems as! [PolygonGraphicItem]) {
@@ -136,26 +144,26 @@ open class PolygonChart: RadialChart {
         }
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        paint?.nextTransform(progress)
+        paint?.transform(t)
         
         if let items = items {
             for item in items {
-                item.nextTransform(progress)
+                item.transform(t)
             }
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        paint?.clearTransforms()
+        paint?.clearAnimationElements()
         
         if let items = items {
             for item in items {
-                item.clearTransforms()
+                item.clearAnimationElements()
             }
         }
     }

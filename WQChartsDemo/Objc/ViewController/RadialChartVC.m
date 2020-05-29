@@ -116,7 +116,7 @@
         RadioCell* paddingCell = [self findRadioCellForKey:@"Padding"];
         CGFloat paddingValue = paddingCell.selection == 0 ? 30 : 0;
         UIEdgeInsets padding = UIEdgeInsetsMake(paddingValue, paddingValue, paddingValue, paddingValue);
-        chartView.transformPadding = [[WQTransformUIEdgeInsets alloc] initWithFrom:chartView.padding to:padding];
+        chartView.paddingTween = [[WQChartUIEdgeInsetsTween alloc] initWithFrom:chartView.padding to:padding];
         paddingCell.selection = paddingCell.selection == 0 ? 1 : 0;
     }
     
@@ -124,7 +124,7 @@
         WQRadialGraphic* graphic = chartView.graphicAsRadial;
         CGPoint center = graphic.center;
         CGFloat radius = graphic.radius;
-        chartView.transformClipRect = [[WQTransformCGRect alloc] initWithFrom:(CGRect){center,CGSizeZero} to:CGRectMake(center.x - radius, center.y - radius, radius * 2, radius * 2)];
+        chartView.clipRectTween = [[WQChartCGRectTween alloc] initWithFrom:(CGRect){center,CGSizeZero} to:CGRectMake(center.x - radius, center.y - radius, radius * 2, radius * 2)];
     }
     
     WQRadialChart* chart = chartView.chartAsRadial;
@@ -132,20 +132,20 @@
     if ([keys containsObject:@"Angle"]) {
         CGFloat angle = [NSNumber randomCGFloatFrom:0 to:360 + 90];
         angle = MIN(angle, 360);
-        chart.transformAngle = [[WQTransformCGFloat alloc] initWithFrom:chart.angle to:angle];
+        chart.angleTween = [[WQChartCGFloatTween alloc] initWithFrom:chart.angle to:angle];
     }
     
     if ([keys containsObject:@"Rotation"]) {
-        chart.transformRotation = [[WQTransformCGFloat alloc] initWithFrom:chart.rotation to:[NSNumber randomCGFloatFrom:0 to:360]];
+        chart.rotationTween = [[WQChartCGFloatTween alloc] initWithFrom:chart.rotation to:[NSNumber randomCGFloatFrom:0 to:360]];
     }
 }
 
 #pragma mark - AnimationDelegate
 
-- (void)animation:(WQAnimation *)animation progressDidChange:(CGFloat)progress {
+- (void)animation:(WQChartAnimation *)animation progressDidChange:(CGFloat)progress {
     [super animation:animation progressDidChange:progress];
     
-    if (animation.transformable == self.radialChartView) {
+    if (animation.animatable == self.radialChartView) {
         WQRadialChart* chart = self.radialChartView.chartAsRadial;
         [self updateSliderValue:chart.angle forKey:@"Angle" atIndex:0];
         [self updateSliderValue:chart.rotation forKey:@"Rotation" atIndex:0];

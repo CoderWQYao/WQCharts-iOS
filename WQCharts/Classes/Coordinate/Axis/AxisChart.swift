@@ -109,22 +109,22 @@ open class AxisChart: CoordinateChart {
         return CGRect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
         if let items = items {
            for item in items {
-               item.nextTransform(progress)
+               item.transform(t)
            }
         }
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
         if let items = items {
             for item in items {
-                item.clearTransforms()
+                item.clearAnimationElements()
             }
         }
     }

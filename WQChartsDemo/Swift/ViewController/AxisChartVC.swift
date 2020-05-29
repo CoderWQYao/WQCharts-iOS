@@ -195,13 +195,13 @@ class AxisChartVC: CoordinateChartVC<AxisChartView> {
             let horizontalItems = self.horizontalItems as! [AxisChartItem]
             for i in 0..<horizontalItems.count {
                 let item = horizontalItems[i]
-                item.transformEnd = TransformCGPoint(item.start, CGPoint(x: graphic.bounds.maxX, y: CGFloat(i)))
+                item.endTween = ChartCGPointTween(item.start, CGPoint(x: graphic.bounds.maxX, y: CGFloat(i)))
             }
             
             let verticalItems = self.verticalItems as! [AxisChartItem]
             for i in 0..<verticalItems.count {
                 let item = verticalItems[i]
-                item.transformEnd = TransformCGPoint(item.start, CGPoint(x: CGFloat(i), y: graphic.bounds.maxY))
+                item.endTween = ChartCGPointTween(item.start, CGPoint(x: CGFloat(i), y: graphic.bounds.maxY))
             }
         }
         

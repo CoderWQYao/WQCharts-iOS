@@ -9,8 +9,8 @@
 
 import UIKit
 
-@objc(WQAnimationPlayer)
-open class AnimationPlayer: NSObject {
+@objc(WQChartAnimationPlayer)
+open class ChartAnimationController: NSObject {
     
     @objc private var animations: NSMutableArray
     
@@ -32,8 +32,7 @@ open class AnimationPlayer: NSObject {
         super.init()
     }
     
-    
-    @objc open func startAnimation(_ animation: Animation) {
+    @objc open func startAnimation(_ animation: ChartAnimation) {
         if animations.contains(animation) {
             return
         }
@@ -45,13 +44,13 @@ open class AnimationPlayer: NSObject {
         }
     }
     
-    @objc open func startAnimations(_ animations: [Animation]) {
+    @objc open func startAnimations(_ animations: [ChartAnimation]) {
         for animation in animations {
             startAnimation(animation)
         }
     }
     
-    @objc open func removeAnimation(_ animation: Animation) {
+    @objc open func removeAnimation(_ animation: ChartAnimation) {
         if animations.contains(animation) {
             animations.remove(animation)
             animation.cancel()
@@ -63,14 +62,14 @@ open class AnimationPlayer: NSObject {
         }
     }
     
-    @objc open func removeAnimations(_ animations: [Animation]) {
+    @objc open func removeAnimations(_ animations: [ChartAnimation]) {
         for animation in animations {
             removeAnimation(animation)
         }
     }
     
     @objc open func clearAnimations() {
-        removeAnimations(animations as! [Animation])
+        removeAnimations(animations as! [ChartAnimation])
     }
     
     @objc private func next() {
@@ -78,14 +77,14 @@ open class AnimationPlayer: NSObject {
         let needsRemoveAnimations = NSMutableArray()
         
         for i in 0..<animations.count {
-            let animation = animations[i] as! Animation
+            let animation = animations[i] as! ChartAnimation
             let currentTime = Date().timeIntervalSince1970
             if !animation.nextTransformation(withTime: currentTime) {
                 needsRemoveAnimations.add(animation)
             }
         }
         
-        removeAnimations(needsRemoveAnimations as! [Animation])
+        removeAnimations(needsRemoveAnimations as! [ChartAnimation])
         displayView?.setNeedsDisplay()
         _ = displayTarget?.perform(action)
     }

@@ -19,9 +19,9 @@ open class RadarChartSegment: ChartItem {
     
     @objc open var value = CGFloat(0)
     @objc open var shape: Shape = .Polygon
-    @objc open var paint: LinePaint?
+    @objc open var paint: ChartLinePaint?
     
-    @objc open var transformValue: TransformCGFloat?
+    @objc open var valueTween: ChartCGFloatTween?
     
     @objc
     public convenience override init() {
@@ -37,23 +37,23 @@ open class RadarChartSegment: ChartItem {
     public init(_ value: CGFloat, _ shape: Shape) {
         self.value = value
         self.shape = shape
-        self.paint = LinePaint()
+        self.paint = ChartLinePaint()
     }
     
-    override open func nextTransform(_ progress: CGFloat) {
-        super.nextTransform(progress)
+    override open func transform(_ t: CGFloat) {
+        super.transform(t)
         
-        if let transformValue = transformValue {
-            value = transformValue.valueForProgress(progress)
+        if let valueTween = valueTween {
+            value = valueTween.lerp(t)
         }
-        paint?.nextTransform(progress)
+        paint?.transform(t)
     }
     
-    override open func clearTransforms() {
-        super.clearTransforms()
+    override open func clearAnimationElements() {
+        super.clearAnimationElements()
         
-        transformValue = nil
-        paint?.clearTransforms()
+        valueTween = nil
+        paint?.clearAnimationElements()
     }
     
 }

@@ -38,14 +38,9 @@ class PolygonChartVC: RadialChartVC<PolygonChartView>, ItemsOptionsDelegate {
                     paint.color = self.currentColor
                     paint.shader = nil
                 case 2:
-                    paint.color = self.currentColor
-                    paint.shader = {(paint, path, object) -> Shader? in
-                        guard let color = paint.color else {
-                            return nil
-                        }
-                        let graphic = object as! PolygonGraphic
-                        return RadialGradientShader(graphic.center,graphic.pathRadius,[color.withAlphaComponent(0.1),color],[0,1])
-                    }
+                    paint.color = nil
+                    let color = self.currentColor
+                    paint.shader = ChartRadialGradient(center: CGPoint(x: 0.5, y: 0.5), radius: 1, colors: [color.withAlphaComponent(0.1),color])
                 default:
                     paint.color = nil
                     paint.shader = nil
@@ -190,37 +185,35 @@ class PolygonChartVC: RadialChartVC<PolygonChartView>, ItemsOptionsDelegate {
         
         let chart = chartView.chart
         
-        if keys.contains("Color"), let paint = chart.paint?.fill {
-            let color = currentColor.isEqual(Color_Blue) ? Color_Red : Color_Blue
-            paint.transformColor = TransformUIColor(paint.color ?? .clear, color)
-            currentColor = color
-            
-            let cell = findRadioCellForKey("Fill")!
-            if cell.selection == 0 {
-                cell.selection = 1
+        if keys.contains("Color") {
+            let toColor = currentColor.isEqual(Color_Blue) ? Color_Red : Color_Blue
+            if let paint = chart.paint?.fill {
+                if let color = paint.color {
+                    paint.colorTween = ChartUIColorTween(color, toColor)
+                }
+                if let shader = paint.shader as? ChartGradient {
+                    shader.colorsTween = ChartUIColorArrayTween(shader.colors, [toColor.withAlphaComponent(0.1),toColor])
+                }
             }
+            currentColor = toColor
         }
         
         if keys.contains("Values") {
-            if let items = chart.items {
-                for item in items {
-                    item.transformValue = TransformCGFloat(item.value, CGFloat.random(in: 0...1))
-                }
-            }
+            chart.items?.forEach({ (item) in
+                item.valueTween = ChartCGFloatTween(item.value, CGFloat.random(in: 0...1))
+            })
         }
         
     }
     
     // MARK: - AnimationDelegate
     
-    override func animation(_ animation: Animation, progressDidChange progress: CGFloat) {
+    override func animation(_ animation: ChartAnimation, progressDidChange progress: CGFloat) {
         super.animation(animation, progressDidChange: progress)
         
-        if chartView.isEqual(animation.transformable) {
-            if let items = chartView.chart.items {
-                for (idx, item) in items.enumerated() {
-                    updateSliderValue(item.value, forKey: "Items", atIndex: idx)
-                }
+        if chartView.isEqual(animation.animatable) {
+            chartView.chart.items?.enumerated().forEach { (idx, item) in
+                updateSliderValue(item.value, forKey: "Items", atIndex: idx)
             }
         }
         

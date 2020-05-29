@@ -43,7 +43,7 @@ class BaseChartVC<T: UIView>: UIViewController, ChartAnimationDelegate {
     
     weak var itemsOptionsDelegate: ItemsOptionsDelegate?
     
-    var animationPlayer: ChartAnimationController?
+    var animationPlayer: ChartAnimationPlayer?
     
     var animationDuration: TimeInterval {
         return TimeInterval(sliderValue(forKey: "AnimDuration", atIndex: 0))
@@ -335,7 +335,7 @@ class BaseChartVC<T: UIView>: UIViewController, ChartAnimationDelegate {
         appendAnimations(inArray: animations, forKeys: keys as! [String])
         
         if animationPlayer == nil {
-            animationPlayer = ChartAnimationController(displayView: self.chartView)
+            animationPlayer = ChartAnimationPlayer(displayView: self.chartView)
         }
         animationPlayer?.startAnimations(animations as! [ChartAnimation])
     }

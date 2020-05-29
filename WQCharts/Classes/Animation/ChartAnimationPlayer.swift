@@ -10,7 +10,7 @@
 import UIKit
 
 @objc(WQChartAnimationPlayer)
-open class ChartAnimationController: NSObject {
+open class ChartAnimationPlayer: NSObject {
     
     @objc private var animations: NSMutableArray
     
